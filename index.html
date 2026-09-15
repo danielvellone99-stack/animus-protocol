@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Animus Protocol: 3D Forest</title>
+    <title>The Animus Protocol: Stranded Shadows 3D</title>
+    <!-- Libreria 3D Three.js e libreria Multiplayer PeerJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #030812; font-family: sans-serif; color: #fff; touch-action: none;
+            background-color: #030812; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; touch-action: none;
         }
         #webgl-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
         .hud {
@@ -17,27 +19,28 @@
             box-sizing: border-box; padding: 15px;
         }
         .top-bar {
-            display: flex; justify-content: space-between; background: rgba(3, 8, 18, 0.8);
-            border: 1px solid rgba(0, 243, 255, 0.4); padding: 10px; border-radius: 6px; font-size: 13px; pointer-events: auto;
+            display: flex; justify-content: space-between; background: rgba(3, 8, 18, 0.85);
+            border: 1px solid rgba(0, 243, 255, 0.4); padding: 10px 15px; border-radius: 6px; font-size: 13px; pointer-events: auto;
         }
         .crosshair {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 8px; height: 8px; background: #00f3ff; border-radius: 50%; z-index: 2;
+            width: 8px; height: 8px; background: #00f3ff; border-radius: 50%; box-shadow: 0 0 8px #00f3ff; z-index: 2;
         }
         .controls {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 170px; z-index: 3;
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 180px; z-index: 3;
             display: flex; justify-content: space-between; padding: 15px; box-sizing: border-box; pointer-events: auto;
         }
-        .dpad { width: 120px; height: 120px; position: relative; background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 50%; }
-        .dpad-btn { position: absolute; background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; color: #00f3ff; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
-        #btn-up { top: 5px; left: 40px; width: 40px; height: 35px; }
-        #btn-down { bottom: 5px; left: 40px; width: 40px; height: 35px; }
-        #btn-left { top: 40px; left: 5px; width: 35px; height: 40px; }
-        #btn-right { top: 40px; right: 5px; width: 35px; height: 40px; }
+        .dpad { width: 130px; height: 130px; position: relative; background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 50%; }
+        .dpad-btn { position: absolute; background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; color: #00f3ff; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        #btn-up { top: 5px; left: 45px; width: 40px; height: 35px; }
+        #btn-down { bottom: 5px; left: 45px; width: 40px; height: 35px; }
+        #btn-left { top: 45px; left: 5px; width: 35px; height: 40px; }
+        #btn-right { top: 45px; right: 5px; width: 35px; height: 40px; }
         .btn-action {
             background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; color: #00f3ff;
-            padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px;
+            padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px; font-size: 13px;
         }
+        .btn-action:active { background: #00f3ff; color: #030812; }
     </style>
 </head>
 <body>
@@ -47,11 +50,11 @@
 
     <div class="hud">
         <div class="top-bar">
-            <div>SALUTE: <span id="hp" style="color:#00f3ff">100</span>%</div>
+            <div>ANIMUS: <span style="color:#ff3366">ONLINE</span></div>
             <div>RISORSE: <span id="res" style="color:#00f3ff">0</span>/4</div>
         </div>
-        <div style="background: rgba(10,25,47,0.9); border-left: 3px solid #00f3ff; padding: 8px; font-size: 12px; border-radius: 0 6px 6px 0;" id="msg">
-            Esplora la foresta e trova i moduli luminosi azzurri.
+        <div style="background: rgba(10,25,47,0.9); border-left: 3px solid #00f3ff; padding: 10px; font-size: 12px; border-radius: 0 6px 6px 0; max-width: 260px;" id="msg">
+            Trascina lo schermo per guardarti intorno. Esplora la foresta e raccogli i moduli azzurri.
         </div>
         <div class="controls">
             <div class="dpad">
@@ -61,18 +64,20 @@
                 <div class="dpad-btn" id="btn-right" ontouchstart="turn('right')" ontouchend="stopTurn()" onmousedown="turn('right')" onmouseup="stopTurn()">▶</div>
             </div>
             <div style="display:flex; flex-direction:column; justify-content:flex-end;">
-                <button class="btn-action" onclick="collect()">Raccogli</button>
-                <button class="btn-action" style="background:rgba(0,255,136,0.2); border-color:#00ff88; color:#00ff88;" onclick="escapeGame()">Fuga</button>
+                <button class="btn-action" onclick="collect()">Raccogli Modulo</button>
+                <button class="btn-action" style="background:rgba(0,255,136,0.2); border-color:#00ff88; color:#00ff88;" onclick="escapeGame()">Protocollo Fuga</button>
             </div>
         </div>
     </div>
 
 <script>
     let scene, camera, renderer, dir = '', turnDir = '', pos = { x: 0, z: 0, a: 0 }, count = 0, items = [];
+    let isDragging = false, prevMousePos = { x: 0, y: 0 };
 
     function init() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x030812);
+        scene.background = new THREE.Color(0x02050b);
+        scene.fog = new THREE.FogExp2(0x02050b, 0.035);
 
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 1.6, 0);
@@ -81,31 +86,63 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('webgl-container').appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0x0a192f, 1.5));
+        // Luci immersive
+        scene.add(new THREE.AmbientLight(0x08111d, 1.5));
+        const flashlight = new THREE.PointLight(0x00f3ff, 1.2, 12);
+        flashlight.position.set(0, 0, 0);
+        camera.add(flashlight);
+        scene.add(camera);
 
-        // Pavimento
-        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({ color: 0x07111e }));
+        // Terreno dettagliato
+        const floorGeo = new THREE.PlaneGeometry(150, 150, 30, 30);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x050e1a, roughness: 0.9 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
 
-        // Alberi
-        for (let i = 0; i < 30; i++) {
-            let x = (Math.random() - 0.5) * 60, z = (Math.random() - 0.5) * 60;
-            if (Math.abs(x) < 3 && Math.abs(z) < 3) continue;
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 4), new THREE.MeshBasicMaterial({ color: 0x112233 }));
-            trunk.position.set(x, 2, z);
+        // Foresta 3D
+        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x0d1b2a });
+        const leavesMat = new THREE.MeshStandardMaterial({ color: 0x091c2e, roughness: 0.8 });
+        for (let i = 0; i < 45; i++) {
+            let x = (Math.random() - 0.5) * 80, z = (Math.random() - 0.5) * 80;
+            if (Math.abs(x) < 4 && Math.abs(z) < 4) continue;
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.7, 6, 6), trunkMat);
+            trunk.position.set(x, 3, z);
             scene.add(trunk);
+            const leaves = new THREE.Mesh(new THREE.ConeGeometry(3, 6, 6), leavesMat);
+            leaves.position.set(x, 7, z);
+            scene.add(leaves);
         }
 
-        // Oggetti da raccogliere
+        // Moduli da raccogliere (oggetti tecnologici luminosi)
+        const boxGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+        const boxMat = new THREE.MeshStandardMaterial({ color: 0x00f3ff, emissive: 0x00aaff, emissiveIntensity: 0.6 });
         for (let i = 0; i < 4; i++) {
-            const box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), new THREE.MeshBasicMaterial({ color: 0x00f3ff }));
-            box.position.set((Math.random() - 0.5) * 25, 0.4, (Math.random() - 0.5) * 25);
+            const box = new THREE.Mesh(boxGeo, boxMat);
+            box.position.set((Math.random() - 0.5) * 35, 0.4, (Math.random() - 0.5) * 35);
             scene.add(box);
             items.push(box);
         }
 
+        setupTouchLook();
         animate();
+    }
+
+    // Gestione controllo visuale a trascinamento (Touch e Mouse)
+    function setupTouchLook() {
+        window.addEventListener('pointerdown', (e) => {
+            if (e.clientY < window.innerHeight - 200) { // Evita i pulsanti HUD in basso
+                isDragging = true;
+                prevMousePos = { x: e.clientX, y: e.clientY };
+            }
+        });
+        window.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            let deltaX = e.clientX - prevMousePos.x;
+            pos.a -= deltaX * 0.005; // Sensibilità di rotazione
+            prevMousePos = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('pointerup', () => { isDragging = false; });
     }
 
     function move(d) { dir = d; }
@@ -115,42 +152,59 @@
 
     function animate() {
         requestAnimationFrame(animate);
-        if (dir === 'forward') { pos.x -= Math.sin(pos.a) * 0.1; pos.z -= Math.cos(pos.a) * 0.1; }
-        if (dir === 'backward') { pos.x += Math.sin(pos.a) * 0.1; pos.z += Math.cos(pos.a) * 0.1; }
-        if (turnDir === 'left') pos.a += 0.04;
-        if (turnDir === 'right') pos.a -= 0.04;
+
+        // Movimento in avanti/indietro orientato verso la direzione dello sguardo
+        if (dir === 'forward') {
+            pos.x -= Math.sin(pos.a) * 0.12;
+            pos.z -= Math.cos(pos.a) * 0.12;
+        }
+        if (dir === 'backward') {
+            pos.x += Math.sin(pos.a) * 0.12;
+            pos.z += Math.cos(pos.a) * 0.12;
+        }
+        if (turnDir === 'left') pos.a += 0.05;
+        if (turnDir === 'right') pos.a -= 0.05;
 
         camera.position.x = pos.x;
         camera.position.z = pos.z;
         camera.rotation.y = pos.a;
+
         renderer.render(scene, camera);
     }
 
     function collect() {
+        let collected = false;
         items.forEach((item) => {
             let d = Math.hypot(item.position.x - pos.x, item.position.z - pos.z);
-            if (d < 3 && !item.userData.taken) {
+            if (d < 3.5 && !item.userData.taken) {
                 item.userData.taken = true;
                 scene.remove(item);
                 count++;
                 document.getElementById('res').innerText = count;
-                document.getElementById('msg').innerText = `Modulo raccolto! (${count}/4)`;
+                document.getElementById('msg').innerText = `Modulo sincronizzato! (${count}/4)`;
+                collected = true;
             }
         });
+        if (!collected) {
+            document.getElementById('msg').innerText = "Nessun modulo nel raggio d'azione. Avvicinati ai cubi luminosi!";
+        }
     }
 
     function escapeGame() {
         if (count >= 4) {
-            alert("Complimenti! Fuga completata con successo!");
+            alert("🏆 STRAORDINARIO! Simulazione violata e fuga completata!");
             location.reload();
         } else {
-            alert(`Ti servono tutti i 4 moduli! Ne hai raccolti ${count}/4.`);
+            alert(`❌ Moduli insufficienti (${count}/4)! Ti servono tutti per attivare il portale.`);
         }
     }
 
     window.onload = init;
+    window.onresize = () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    };
 </script>
 </body>
 </html>
-
-
