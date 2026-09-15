@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Animus Surfers: Infinite Run</title>
+    <title>Forest Surfers: Infinite Run</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #030812; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; touch-action: none;
+            background-color: #1a4d2e; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; touch-action: none;
         }
         #game-canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
         
-        /* Interfaccia HUD di Gioco */
         .hud {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
             pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
@@ -20,25 +19,25 @@
         }
         .top-panel {
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(3, 8, 18, 0.85); border: 1px solid rgba(0, 243, 255, 0.4);
-            padding: 12px 20px; border-radius: 8px; font-size: 16px; font-weight: bold; pointer-events: auto;
+            background: rgba(15, 35, 20, 0.85); border: 2px solid rgba(0, 255, 136, 0.5);
+            padding: 12px 20px; border-radius: 12px; font-size: 16px; font-weight: bold; pointer-events: auto;
+            box-shadow: 0 0 15px rgba(0,255,136,0.3);
         }
-        .score-val { color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
+        .score-val { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
         .coins-val { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
 
-        /* Menu / Schermata Iniziale & Shop */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
-            background: rgba(2, 5, 11, 0.92); display: flex; flex-direction: column;
+            background: rgba(10, 25, 15, 0.94); display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box;
         }
-        .title { font-size: 32px; font-weight: 900; color: #00f3ff; text-shadow: 0 0 20px #00f3ff; margin-bottom: 5px; letter-spacing: 2px; }
-        .subtitle { font-size: 14px; color: #88a0c0; margin-bottom: 25px; }
+        .title { font-size: 32px; font-weight: 900; color: #00ff88; text-shadow: 0 0 20px #00ff88; margin-bottom: 5px; letter-spacing: 2px; }
+        .subtitle { font-size: 14px; color: #a2ffce; margin-bottom: 25px; }
         
         .btn-main {
-            background: linear-gradient(135deg, #00f3ff, #0066ff); border: none; color: #030812;
-            padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer;
-            box-shadow: 0 0 20px rgba(0,243,255,0.4); margin-bottom: 15px; transition: 0.2s;
+            background: linear-gradient(135deg, #00ff88, #00aa55); border: none; color: #0a190f;
+            padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,255,136,0.5); margin-bottom: 15px; transition: 0.2s;
         }
         .btn-main:active { transform: scale(0.95); }
 
@@ -46,113 +45,112 @@
             display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center;
         }
         .char-card {
-            background: rgba(10, 25, 47, 0.9); border: 2px solid rgba(0,243,255,0.3);
-            border-radius: 10px; padding: 12px; width: 110px; text-align: center; cursor: pointer;
+            background: rgba(20, 45, 25, 0.9); border: 2px solid rgba(0,255,136,0.3);
+            border-radius: 12px; padding: 12px; width: 110px; text-align: center; cursor: pointer;
         }
-        .char-card.selected { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.3); }
+        .char-card.selected { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.6); background: rgba(30, 70, 40, 0.9); }
         .char-card h4 { margin: 5px 0; font-size: 14px; color: #fff; }
-        .char-card p { font-size: 11px; color: #88a0c0; margin: 5px 0; }
+        .char-card p { font-size: 11px; color: #a2ffce; margin: 5px 0; }
 
         .tutorial-hint {
             position: absolute; bottom: 30px; width: 100%; text-align: center;
-            font-size: 13px; color: rgba(255,255,255,0.5); pointer-events: none; letter-spacing: 1px;
-            animation: pulse 2s infinite;
+            font-size: 13px; color: rgba(255,255,255,0.7); pointer-events: none; letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
-        @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 0.8; } 100% { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
     <div id="game-canvas"></div>
 
-    <!-- HUD DI GIOCO -->
     <div class="hud" id="game-hud" style="display:none;">
         <div class="top-panel">
             <div>DISTANZA: <span id="score" class="score-val">0</span>m</div>
             <div>MONETE: <span id="coins" class="coins-val">0</span></div>
             <div>RECORD: <span id="highscore" class="score-val">0</span></div>
         </div>
-        <div class="tutorial-hint">SCORRIMENTO LIBERO: Trascina Sinistra/Destra, Su per saltare, Giù per abbassarti</div>
+        <div class="tutorial-hint">Trascina a Sinistra/Destra per cambiare corsia • Su per saltare • Giù per scivolare</div>
     </div>
 
-    <!-- MENU PRINCIPALE & SHOP -->
     <div class="overlay" id="main-menu">
-        <div class="title">ANIMUS SURFERS</div>
-        <div class="subtitle">La corsa infinita nel sistema</div>
+        <div class="title">FOREST SURFERS</div>
+        <div class="subtitle">Corsa selvaggia nella natura luminescente</div>
         
         <div style="font-size: 14px; margin-bottom: 10px; color: #ffd700;">Monete disponibili: <span id="menu-coins">0</span></div>
         
         <div class="shop-container">
             <div class="char-card selected" id="c-0" onclick="selectCharacter(0)">
-                <h4>Runner Base</h4>
+                <h4>Explorer</h4>
                 <p>Standard</p>
                 <p style="color:#00ff88">ATTIVO</p>
             </div>
             <div class="char-card" id="c-1" onclick="selectCharacter(1)">
-                <h4>Cyber Ninja</h4>
+                <h4>Forest Ranger</h4>
                 <p>+20% Monete</p>
                 <p id="c1-status" style="color:#ffd700">100 Monete</p>
             </div>
             <div class="char-card" id="c-2" onclick="selectCharacter(2)">
-                <h4>Overclocker</h4>
-                <p>Salto Potenziato</p>
+                <h4>Spirit Runner</h4>
+                <p>Salto Alto</p>
                 <p id="c2-status" style="color:#ffd700">250 Monete</p>
             </div>
         </div>
 
-        <button class="btn-main" onclick="startGame()">AVVIA CORSA</button>
+        <button class="btn-main" onclick="startGame()">ENTRA NEL BOSCO</button>
     </div>
 
-    <!-- SCHERMATA GAME OVER -->
     <div class="overlay" id="game-over-screen" style="display:none;">
-        <div class="title" style="color:#ff3366; text-shadow: 0 0 20px #ff3366;">CRASH DI SISTEMA</div>
-        <div class="subtitle">Sei stato eliminato dagli ostacoli della rete.</div>
+        <div class="title" style="color:#ff3366; text-shadow: 0 0 20px #ff3366;">FINE DELLA CORSA</div>
+        <div class="subtitle">Sei inciampato tra i rami del bosco!</div>
         
-        <div style="background: rgba(10,25,47,0.8); border: 1px solid rgba(0,243,255,0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px; width: 220px;">
+        <div style="background: rgba(20,45,25,0.8); border: 1px solid rgba(0,255,136,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; width: 220px;">
             <p>Distanza: <span id="final-score" class="score-val">0</span>m</p>
             <p>Monete raccolte: <span id="final-coins" class="coins-val">0</span></p>
         </div>
 
-        <button class="btn-main" onclick="restartGame()">RIGIOCA</button>
+        <button class="btn-main" onclick="restartGame()">RIPROVA</button>
     </div>
 
 <script>
     let scene, camera, renderer;
-    let player, lane = 1, targetX = 0; // Corsie: 0 = Sinistra (-2.5), 1 = Centro (0), 2 = Destra (2.5)
+    let player, lane = 1, targetX = 0;
     let isJumping = false, jumpVel = 0, isCrouching = false, crouchTimer = 0;
-    let obstacles = [], coins = [], trackSegments = [];
+    let obstacles = [], coins = [], trackSegments = [], sceneryElements = [];
     let gameActive = false, score = 0, totalCoins = 0, highScore = 0;
-    let gameSpeed = 0.35;
+    let gameSpeed = 0.22; // Velocità iniziale ridotta e più gestibile
 
-    // Dati Giocatore & Shop
     let currentSkin = 0;
     let unlockedChars = [true, false, false];
     let charPrices = [0, 100, 250];
 
-    // Lettura salvataggi locali
-    if (localStorage.getItem('animus_coins')) totalCoins = parseInt(localStorage.getItem('animus_coins'));
-    if (localStorage.getItem('animus_high')) highScore = parseInt(localStorage.getItem('animus_high'));
+    if (localStorage.getItem('forest_coins')) totalCoins = parseInt(localStorage.getItem('forest_coins'));
+    if (localStorage.getItem('forest_high')) highScore = parseInt(localStorage.getItem('forest_high'));
 
     function init() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x030812);
-        scene.fog = new THREE.FogExp2(0x030812, 0.025);
+        // Cielo luminoso sfumato dal verde chiaro all'azzurro cielo
+        scene.background = new THREE.Color(0x3498db);
+        scene.fog = new THREE.FogExp2(0x3498db, 0.018);
 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 3.5, 6);
-        camera.lookAt(0, 1.5, -5);
+        camera.position.set(0, 3.2, 5.5);
+        camera.lookAt(0, 1.2, -5);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('game-canvas').appendChild(renderer.domElement);
 
-        // Illuminazione
-        scene.add(new THREE.AmbientLight(0x0a192f, 2.0));
-        const dirLight = new THREE.DirectionalLight(0x00f3ff, 1.2);
-        dirLight.position.set(0, 20, 10);
+        // Illuminazione solare brillante e calda
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const dirLight = new THREE.DirectionalLight(0xfffaed, 1.2);
+        dirLight.position.set(10, 30, 20);
         scene.add(dirLight);
 
-        // Creazione Piattaforme Iniziali della Corsia
+        // Luce secondaria di rimbalzo dal prato
+        const groundLight = new THREE.DirectionalLight(0x2ecc71, 0.5);
+        groundLight.position.set(-10, -10, -10);
+        scene.add(groundLight);
+
         for (let i = -2; i < 15; i++) {
             createTrackSegment(i * 10);
         }
@@ -165,26 +163,53 @@
         animate();
     }
 
-    // Costruzione del Giocatore 3D in base alla skin scelta
+    // Costruzione di un Personaggio dettagliato (corpo, testa, braccia, gambe, zaino/cappuccio)
     function buildPlayer() {
         if (player) scene.remove(player);
         
         const group = new THREE.Group();
-        let colorBody = 0x00f3ff;
-        if (currentSkin === 1) colorBody = 0xff0055; // Cyber Ninja
-        if (currentSkin === 2) colorBody = 0xffd700; // Overclocker
+        let primaryColor = 0xe74c3c; // Giacca rossa classica explorer
+        let pantsColor = 0x2980b9;
+        let skinColor = 0xffdbac;
 
-        const mat = new THREE.MeshStandardMaterial({ color: colorBody, emissive: colorBody, emissiveIntensity: 0.4 });
-        
-        // Corpo / Zaino
-        const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.4), mat);
-        body.position.y = 0.6;
-        group.add(body);
+        if (currentSkin === 1) { // Forest Ranger
+            primaryColor = 0x27ae60;
+            pantsColor = 0x7f8c8d;
+        } else if (currentSkin === 2) { // Spirit Runner
+            primaryColor = 0x9b59b6;
+            pantsColor = 0x8e44ad;
+            skinColor = 0x00ffff;
+        }
+
+        const clothesMat = new THREE.MeshStandardMaterial({ color: primaryColor, roughness: 0.4 });
+        const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.6 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.5 });
+
+        // Busto
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.7, 0.3), clothesMat);
+        torso.position.y = 0.8;
+        group.add(torso);
 
         // Testa
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat);
-        head.position.y = 1.4;
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.38), skinMat);
+        head.position.y = 1.35;
         group.add(head);
+
+        // Cappello / Capelli
+        const hatMat = new THREE.MeshStandardMaterial({ color: 0x34495e });
+        const hat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.15, 0.42), hatMat);
+        hat.position.y = 1.57;
+        group.add(hat);
+
+        // Gambe
+        const legGeo = new THREE.BoxGeometry(0.2, 0.5, 0.22);
+        const leftLeg = new THREE.Mesh(legGeo, pantsMat);
+        leftLeg.position.set(-0.15, 0.3, 0);
+        group.add(leftLeg);
+
+        const rightLeg = new THREE.Mesh(legGeo, pantsMat);
+        rightLeg.position.set(0.15, 0.3, 0);
+        group.add(rightLeg);
 
         player = group;
         player.position.set(0, 0, 0);
@@ -192,64 +217,83 @@
     }
 
     function createTrackSegment(zPos) {
-        // Pavimento a 3 corsie con linee al neon
+        // Sentiero in terra battuta / erba curata
         const trackGeo = new THREE.PlaneGeometry(8, 10);
-        const trackMat = new THREE.MeshStandardMaterial({ color: 0x060f1e, roughness: 0.9 });
+        const trackMat = new THREE.MeshStandardMaterial({ color: 0x27ae60, roughness: 0.8 });
         const track = new THREE.Mesh(trackGeo, trackMat);
         track.rotation.x = -Math.PI / 2;
         track.position.set(0, 0, zPos);
         scene.add(track);
         trackSegments.push(track);
 
-        // Muri laterali estetici cyberpunk
-        const wallMat = new THREE.MeshStandardMaterial({ color: 0x0b1d3a, emissive: 0x00f3ff, emissiveIntensity: 0.1 });
-        const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4, 10), wallMat);
-        leftWall.position.set(-4.25, 2, zPos);
-        scene.add(leftWall);
-        trackSegments.push(leftWall);
+        // Sentiero centrale in pietra/legno chiaro
+        const pathGeo = new THREE.PlaneGeometry(7.2, 10);
+        const pathMat = new THREE.MeshStandardMaterial({ color: 0xd68910, roughness: 0.9 });
+        const path = new THREE.Mesh(pathGeo, pathMat);
+        path.rotation.x = -Math.PI / 2;
+        path.position.set(0, 0.01, zPos);
+        scene.add(path);
+        trackSegments.push(path);
 
-        const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4, 10), wallMat);
-        rightWall.position.set(4.25, 2, zPos);
-        scene.add(rightWall);
-        trackSegments.push(rightWall);
+        // Alberi laterali decorativi per creare il bosco visibile
+        if (zPos % 20 === 0) {
+            spawnTree(-5.5, zPos);
+            spawnTree(5.5, zPos);
+        }
 
-        // Generazione ostacoli e monete casuali in avanti
-        if (zPos < -20 && Math.random() < 0.6) {
+        if (zPos < -20 && Math.random() < 0.65) {
             spawnObstacleAndCoins(zPos);
         }
+    }
+
+    function spawnTree(x, z) {
+        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x784212, roughness: 0.9 });
+        const leavesMat = new THREE.MeshStandardMaterial({ color: 0x1e8449, roughness: 0.6 });
+
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3, 8), trunkMat);
+        trunk.position.set(x, 1.5, z);
+        scene.add(trunk);
+        sceneryElements.push(trunk);
+
+        const leaves = new THREE.Mesh(new THREE.ConeGeometry(2, 4, 8), leavesMat);
+        leaves.position.set(x, 4, z);
+        scene.add(leaves);
+        sceneryElements.push(leaves);
     }
 
     function spawnObstacleAndCoins(z) {
         let obsLane = Math.floor(Math.random() * 3);
         let xPos = (obsLane - 1) * 2.5;
 
-        // Tipo ostacolo: blocco alto o barriera bassa
+        // Ostacoli naturali del bosco: Tronco d'albero caduto (basso) o masso di roccia (alto)
         let isLow = Math.random() > 0.5;
-        let obsGeo = isLow ? new THREE.BoxGeometry(2, 0.8, 0.8) : new THREE.BoxGeometry(2, 2.2, 0.8);
-        let obsMat = new THREE.MeshStandardMaterial({ color: 0xff0033, emissive: 0xff0033, emissiveIntensity: 0.6 });
+        let obsGeo = isLow ? new THREE.BoxGeometry(2.2, 0.7, 0.8) : new THREE.BoxGeometry(2.0, 2.0, 1.0);
+        let obsMat = new THREE.MeshStandardMaterial({ 
+            color: isLow ? 0x784212 : 0x7f8c8d, 
+            roughness: 0.7 
+        });
         let obs = new THREE.Mesh(obsGeo, obsMat);
         
-        obs.position.set(xPos, isLow ? 0.4 : 1.1, z);
+        obs.position.set(xPos, isLow ? 0.35 : 1.0, z);
         obs.userData = { type: isLow ? 'low' : 'high', lane: obsLane };
         scene.add(obs);
         obstacles.push(obs);
 
-        // Monete nelle altre corsie
+        // Monete dorate luccicanti
         for (let l = 0; l < 3; l++) {
             if (l !== obsLane && Math.random() < 0.7) {
                 let coin = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.3, 0.3, 0.1, 12),
-                    new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 0.8 })
+                    new THREE.CylinderGeometry(0.35, 0.35, 0.12, 16),
+                    new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.6 })
                 );
                 coin.rotation.x = Math.PI / 2;
-                coin.position.set((l - 1) * 2.5, 0.8, z + (Math.random() - 0.5) * 4);
+                coin.position.set((l - 1) * 2.5, 0.9, z + (Math.random() - 0.5) * 4);
                 scene.add(coin);
                 coins.push(coin);
             }
         }
     }
 
-    // Gestione Swipe Touch Fluido (Subway Surfers Style)
     let touchStartX = 0, touchStartY = 0;
     function setupSwipeControls() {
         window.addEventListener('touchstart', (e) => {
@@ -263,29 +307,26 @@
             let diffY = e.changedTouches[0].clientY - touchStartY;
 
             if (Math.abs(diffX) > Math.abs(diffY)) {
-                // Movimento Laterale (Swipe Orizzontale)
                 if (diffX > 40 && lane < 2) lane++;
                 else if (diffX < -40 && lane > 0) lane--;
             } else {
-                // Salto o Scivolata (Swipe Verticale)
                 if (diffY < -40 && !isJumping) {
                     isJumping = true;
-                    jumpVel = currentSkin === 2 ? 0.28 : 0.22; // Overclocker salta più in alto
+                    jumpVel = currentSkin === 2 ? 0.28 : 0.23;
                 } else if (diffY > 40 && !isCrouching) {
                     isCrouching = true;
-                    crouchTimer = 45; // Durata scivolata
+                    crouchTimer = 40;
                     player.scale.y = 0.5;
                 }
             }
         }, {passive: true});
 
-        // Supporto anche da tastiera per test da PC
         window.addEventListener('keydown', (e) => {
             if (!gameActive) return;
             if (e.key === 'ArrowLeft' && lane > 0) lane--;
             if (e.key === 'ArrowRight' && lane < 2) lane++;
-            if (e.key === 'ArrowUp' && !isJumping) { isJumping = true; jumpVel = 0.22; }
-            if (e.key === 'ArrowDown' && !isCrouching) { isCrouching = true; crouchTimer = 45; player.scale.y = 0.5; }
+            if (e.key === 'ArrowUp' && !isJumping) { isJumping = true; jumpVel = 0.23; }
+            if (e.key === 'ArrowDown' && !isCrouching) { isCrouching = true; crouchTimer = 40; player.scale.y = 0.5; }
         });
     }
 
@@ -293,7 +334,7 @@
         if (!unlockedChars[index]) {
             if (totalCoins >= charPrices[index]) {
                 totalCoins -= charPrices[index];
-                localStorage.setItem('animus_coins', totalCoins);
+                localStorage.setItem('forest_coins', totalCoins);
                 unlockedChars[index] = true;
                 document.getElementById(`c${index}-status`).innerText = "SBLOCCATO";
                 document.getElementById(`c${index}-status`).style.color = "#00ff88";
@@ -325,14 +366,13 @@
         document.getElementById('main-menu').style.display = 'none';
         document.getElementById('game-hud').style.display = 'flex';
         score = 0;
-        gameSpeed = 0.35;
+        gameSpeed = 0.22;
         lane = 1;
         gameActive = true;
     }
 
     function restartGame() {
         document.getElementById('game-over-screen').style.display = 'none';
-        // Pulisci ostacoli precedenti
         obstacles.forEach(o => scene.remove(o));
         coins.forEach(c => scene.remove(c));
         obstacles = [];
@@ -345,17 +385,15 @@
 
         if (gameActive) {
             score += Math.floor(gameSpeed * 10);
-            gameSpeed += 0.0001; // Aumenta gradualmente la velocità stile Subway Surfers
+            gameSpeed += 0.00008; // Crescita graduale e morbida della velocità
 
             document.getElementById('score').innerText = score;
             document.getElementById('coins').innerText = totalCoins;
             document.getElementById('highscore').innerText = highScore;
 
-            // Spostamento fluido verso la corsia target
             targetX = (lane - 1) * 2.5;
             player.position.x += (targetX - player.position.x) * 0.2;
 
-            // Gestione Salto
             if (isJumping) {
                 player.position.y += jumpVel;
                 jumpVel -= 0.015;
@@ -365,7 +403,6 @@
                 }
             }
 
-            // Gestione Scivolata
             if (isCrouching) {
                 crouchTimer--;
                 if (crouchTimer <= 0) {
@@ -374,26 +411,29 @@
                 }
             }
 
-            // Movimento del mondo verso il giocatore (simula la corsa)
+            // Movimento del mondo
             trackSegments.forEach(seg => {
                 seg.position.z += gameSpeed;
-                if (seg.position.z > 15) {
-                    seg.position.z -= 170; // Ricicla il segmento in fondo
-                }
+                if (seg.position.z > 15) seg.position.z -= 170;
             });
 
-            // Movimento e controllo ostacoli
+            sceneryElements.forEach(elem => {
+                elem.position.z += gameSpeed;
+                if (elem.position.z > 15) elem.position.z -= 170;
+            });
+
+            // Controllo ostacoli con Hitbox tollerante (evita i bug di collisione ingiusti)
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                let obs = obstacles.get ? obstacles[i] : obstacles[i];
+                let obs = obstacles[i];
                 obs.position.z += gameSpeed;
 
-                // Controllo Collisioni con il Giocatore
                 let dist = Math.abs(obs.position.z - player.position.z);
-                if (dist < 0.8 && obs.userData.lane === lane) {
-                    // Verifica se l'ostacolo è alto e il giocatore sta saltando, oppure se è basso e sta scivolando
+                // Allargata la tolleranza di distanza a 1.0 per dare respiro al giocatore quando schiva
+                if (dist < 1.0 && obs.userData.lane === lane) {
                     let hit = true;
                     if (obs.userData.type === 'low' && isCrouching) hit = false;
-                    if (obs.userData.type === 'high' && isJumping && player.position.y > 1.0) hit = false;
+                    // Se salti ed elimini l'altezza dell'ostacolo alto, eviti la collisione in sicurezza
+                    if (obs.userData.type === 'high' && isJumping && player.position.y > 0.8) hit = false;
 
                     if (hit) {
                         gameOver();
@@ -406,18 +446,18 @@
                 }
             }
 
-            // Movimento e raccolta monete
+            // Raccolta monete
             for (let i = coins.length - 1; i >= 0; i--) {
                 let c = coins[i];
                 c.position.z += gameSpeed;
                 c.rotation.y += 0.05;
 
                 let dist = Math.hypot(c.position.x - player.position.x, c.position.z - player.position.z);
-                if (dist < 1.0 && Math.abs(player.position.y - c.position.y) < 1.5) {
+                if (dist < 1.2 && Math.abs(player.position.y - c.position.y) < 1.6) {
                     scene.remove(c);
                     coins.splice(i, 1);
-                    totalCoins += (currentSkin === 1 ? 2 : 1); // Cyber Ninja bonus monete
-                    localStorage.setItem('animus_coins', totalCoins);
+                    totalCoins += (currentSkin === 1 ? 2 : 1);
+                    localStorage.setItem('forest_coins', totalCoins);
                 }
 
                 if (c.position.z > 10) {
@@ -426,7 +466,6 @@
                 }
             }
 
-            // Generazione continua nuova pista in lontananza
             if (Math.random() < 0.08) {
                 createTrackSegment(-150);
             }
@@ -439,7 +478,7 @@
         gameActive = false;
         if (score > highScore) {
             highScore = score;
-            localStorage.setItem('animus_high', highScore);
+            localStorage.setItem('forest_high', highScore);
         }
         document.getElementById('game-hud').style.display = 'none';
         document.getElementById('final-score').innerText = score;
@@ -449,12 +488,4 @@
     }
 
     function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    window.onload = init;
-</script>
-</body>
-</html>
+        camera.aspect = window.i
