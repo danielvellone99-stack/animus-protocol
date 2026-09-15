@@ -3,195 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Animus Protocol - 3D</title>
+    <title>SUPERHOT - Animus Protocol</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #02050b; font-family: sans-serif; color: #fff; touch-action: none;
+            background-color: #111; font-family: 'Courier New', Courier, monospace; color: #fff; touch-action: none;
         }
-        #canvas-box { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-        .ui-layer {
+        #game-canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        .superhot-ui {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
             pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; padding: 15px;
+            box-sizing: border-box; padding: 20px;
         }
-        .header {
-            display: flex; justify-content: space-between; background: rgba(3, 8, 18, 0.9);
-            border: 1px solid rgba(0, 243, 255, 0.4); padding: 12px; border-radius: 8px; font-size: 13px; pointer-events: auto;
+        .top-status {
+            display: flex; justify-content: space-between; background: rgba(0,0,0,0.8);
+            border: 2px solid #ff0033; padding: 12px; border-radius: 4px; font-size: 16px; font-weight: bold; color: #ff0033;
+            letter-spacing: 2px; pointer-events: auto;
         }
-        .reticle {
+        .crosshair {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 6px; height: 6px; background: #00f3ff; border-radius: 50%; z-index: 2;
+            width: 10px; height: 10px; border: 2px solid #ff0033; border-radius: 50%; z-index: 2;
         }
-        .pad-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 170px; z-index: 3;
+        .controls-box {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 180px; z-index: 3;
             display: flex; justify-content: space-between; padding: 15px; box-sizing: border-box; pointer-events: auto;
         }
-        .joystick { width: 120px; height: 120px; position: relative; background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 50%; }
-        .j-btn { position: absolute; background: rgba(0,243,255,0.25); border: 1px solid #00f3ff; color: #00f3ff; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
-        #jb-up { top: 5px; left: 40px; width: 40px; height: 35px; }
-        #jb-down { bottom: 5px; left: 40px; width: 40px; height: 35px; }
-        #jb-left { top: 40px; left: 5px; width: 35px; height: 40px; }
-        #jb-right { top: 40px; right: 5px; width: 35px; height: 40px; }
-        .action-btn {
-            background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; color: #00f3ff;
-            padding: 12px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px; font-size: 13px;
+        .dpad { width: 130px; height: 130px; position: relative; background: rgba(255,0,51,0.05); border: 2px solid rgba(255,0,51,0.3); border-radius: 50%; }
+        .d-btn { position: absolute; background: rgba(255,0,51,0.2); border: 2px solid #ff0033; color: #ff0033; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
+        #d-up { top: 5px; left: 45px; width: 40px; height: 35px; }
+        #d-down { bottom: 5px; left: 45px; width: 40px; height: 35px; }
+        #d-left { top: 45px; left: 5px; width: 35px; height: 40px; }
+        #d-right { top: 45px; right: 5px; width: 35px; height: 40px; }
+        .action-fire {
+            background: #ff0033; border: 2px solid #fff; color: #fff;
+            padding: 15px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;
+            box-shadow: 0 0 15px #ff0033; letter-spacing: 2px;
         }
+        .action-fire:active { background: #fff; color: #ff0033; }
     </style>
 </head>
 <body>
 
-    <div class="reticle"></div>
-    <div id="canvas-box"></div>
+    <div class="crosshair"></div>
+    <div id="game-canvas"></div>
 
-    <div class="ui-layer">
-        <div class="header">
-            <div>STATUS: <span style="color:#ff3366">SIMULAZIONE ATTIVA</span></div>
-            <div>RACCOLTI: <span id="counter" style="color:#00f3ff">0</span>/4</div>
+    <div class="superhot-ui">
+        <div class="top-status">
+            <div>SUPER... HOT...</div>
+            <div>NEMICI RIMASTI: <span id="enemy-count">5</span></div>
         </div>
-        <div style="background: rgba(10,25,47,0.95); border-left: 3px solid #00f3ff; padding: 10px; font-size: 12px; border-radius: 0 6px 6px 0; max-width: 280px;" id="text-info">
-            Trascina lo schermo per orientare lo sguardo. Trova i moduli energetici nella foresta.
+        <div style="background: rgba(0,0,0,0.85); border-left: 4px solid #ff0033; padding: 10px; font-size: 13px; max-width: 300px;" id="instruction">
+            IL TEMPO SI MUOVE SOLO QUANDO TI MUOI TU. Elimina i nemici rossi.
         </div>
-        <div class="pad-area">
-            <div class="joystick">
-                <div class="j-btn" id="jb-up" ontouchstart="setMove('f')" ontouchend="setMove('')" onmousedown="setMove('f')" onmouseup="setMove('')">▲</div>
-                <div class="j-btn" id="jb-down" ontouchstart="setMove('b')" ontouchend="setMove('')" onmousedown="setMove('b')" onmouseup="setMove('')">▼</div>
-                <div class="j-btn" id="jb-left" ontouchstart="setTurn('l')" ontouchend="setTurn('')" onmousedown="setTurn('l')" onmouseup="setTurn('')">◀</div>
-                <div class="j-btn" id="jb-right" ontouchstart="setTurn('r')" ontouchend="setTurn('')" onmousedown="setTurn('r')" onmouseup="setTurn('')">▶</div>
+        <div class="controls-box">
+            <div class="dpad">
+                <div class="d-btn" id="d-up" ontouchstart="setMove('f')" ontouchend="setMove('')" onmousedown="setMove('f')" onmouseup="setMove('')">▲</div>
+                <div class="d-btn" id="d-down" ontouchstart="setMove('b')" ontouchend="setMove('')" onmousedown="setMove('b')" onmouseup="setMove('')">▼</div>
+                <div class="d-btn" id="d-left" ontouchstart="setTurn('l')" ontouchend="setTurn('')" onmousedown="setTurn('l')" onmouseup="setTurn('')">◀</div>
+                <div class="d-btn" id="d-right" ontouchstart="setTurn('r')" ontouchend="setTurn('')" onmousedown="setTurn('r')" onmouseup="setTurn('')">▶</div>
             </div>
             <div style="display:flex; flex-direction:column; justify-content:flex-end;">
-                <button class="action-btn" onclick="gatherItem()">Raccogli</button>
-                <button class="action-btn" style="background:rgba(0,255,136,0.2); border-color:#00ff88; color:#00ff88;" onclick="triggerEscape()">Fuga</button>
+                <button class="action-fire" onclick="fireWeapon()">SPARA</button>
             </div>
         </div>
     </div>
 
 <script>
     let scene, camera, renderer;
-    let moveState = '', turnState = '';
+    let moveDir = '', turnDir = '';
     let pPos = { x: 0, z: 0, rot: 0 };
-    let score = 0, collectibles = [];
-    let touchDragging = false, lastTouch = { x: 0 };
+    let enemies = [];
+    let bullets = [];
+    let isDragging = false, lastX = 0;
 
-    function startEngine() {
+    function initGame() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x02050b);
-        scene.fog = new THREE.FogExp2(0x02050b, 0.04);
+        scene.background = new THREE.Color(0x111111);
+        scene.fog = new THREE.FogExp2(0x111111, 0.025);
 
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 1.6, 0);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-box').appendChild(renderer.domElement);
+        document.getElementById('game-canvas').appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0x08111d, 1.8));
+        // Illuminazione stile Superhot (bianco e pulito)
+        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.6);
+        dirLight.position.set(10, 20, 10);
+        scene.add(dirLight);
 
-        // Terreno
-        const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(120, 120),
-            new THREE.MeshStandardMaterial({ color: 0x050e1a, roughness: 0.9 })
-        );
-        ground.rotation.x = -Math.PI / 2;
-        scene.add(ground);
+        // Pavimento a griglia grigia
+        const floorGeo = new THREE.PlaneGeometry(100, 100);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.8 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
 
-        // Alberi procedurali
-        for (let i = 0; i < 35; i++) {
-            let tx = (Math.random() - 0.5) * 70, tz = (Math.random() - 0.5) * 70;
-            if (Math.abs(tx) < 3 && Math.abs(tz) < 3) continue;
+        // Generazione nemici rossi stilizzati (stile Superhot)
+        const enemyMat = new THREE.MeshStandardMaterial({ color: 0xff0033, roughness: 0.3 });
+        for (let i = 0; i < 5; i++) {
+            const enemyGroup = new THREE.Group();
             
-            const trunk = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.4, 0.6, 5),
-                new THREE.MeshStandardMaterial({ color: 0x0d1b2a })
-            );
-            trunk.position.set(tx, 2.5, tz);
-            scene.add(trunk);
+            // Corpo
+            const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.5), enemyMat);
+            body.position.y = 0.9;
+            enemyGroup.add(body);
+
+            // Posizionamento casuale nella stanza
+            let ex = (Math.random() - 0.5) * 30;
+            let ez = -10 - Math.random() * 20;
+            enemyGroup.position.set(ex, 0, ez);
+            
+            scene.add(enemyGroup);
+            enemies.push(enemyGroup);
         }
 
-        // Oggetti collezionabili
-        for (let i = 0; i < 4; i++) {
-            const cube = new THREE.Mesh(
-                new THREE.BoxGeometry(0.8, 0.8, 0.8),
-                new THREE.MeshStandardMaterial({ color: 0x00f3ff, emissive: 0x0088ff })
-            );
-            cube.position.set((Math.random() - 0.5) * 30, 0.4, (Math.random() - 0.5) * 30);
-            scene.add(cube);
-            collectibles.push(cube);
-        }
-
-        initListeners();
-        loop();
+        setupLookControls();
+        animateLoop();
     }
 
-    function initListeners() {
+    function setupLookControls() {
         window.addEventListener('pointerdown', (e) => {
             if (e.clientY < window.innerHeight - 180) {
-                touchDragging = true;
-                lastTouch.x = e.clientX;
+                isDragging = true;
+                lastX = e.clientX;
             }
         });
         window.addEventListener('pointermove', (e) => {
-            if (!touchDragging) return;
-            let diff = e.clientX - lastTouch.x;
-            pPos.rot -= diff * 0.004;
-            lastTouch.x = e.clientX;
+            if (!isDragging) return;
+            let delta = e.clientX - lastX;
+            pPos.rot -= delta * 0.004;
+            lastX = e.clientX;
         });
-        window.addEventListener('pointerup', () => { touchDragging = false; });
+        window.addEventListener('pointerup', () => { isDragging = false; });
     }
 
-    function setMove(m) { moveState = m; }
-    function setTurn(t) { turnState = t; }
+    function setMove(d) { moveDir = d; }
+    function setTurn(t) { turnDir = t; }
 
-    function loop() {
-        requestAnimationFrame(loop);
+    function fireWeapon() {
+        // Spara un proiettile dal giocatore verso la direzione dello sguardo
+        const bulletGeo = new THREE.SphereGeometry(0.15, 8, 8);
+        const bulletMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+        
+        bullet.position.copy(camera.position);
+        bullet.userData = {
+            dirX: -Math.sin(pPos.rot),
+            dirZ: -Math.cos(pPos.rot)
+        };
+        scene.add(bullet);
+        bullets.push(bullet);
+    }
 
-        if (moveState === 'f') {
-            pPos.x -= Math.sin(pPos.rot) * 0.1;
-            pPos.z -= Math.cos(pPos.rot) * 0.1;
-        } else if (moveState === 'b') {
-            pPos.x += Math.sin(pPos.rot) * 0.1;
-            pPos.z += Math.cos(pPos.rot) * 0.1;
+    function animateLoop() {
+        requestAnimationFrame(animateLoop);
+
+        // Calcolo del tempo SUPERHOT: il tempo scorre veloce solo se il giocatore si muove o spara
+        let isMoving = (moveDir !== '' || turnDir !== '');
+        let timeScale = isMoving ? 1.0 : 0.05; // Rallentamento estremo quando sei fermo!
+
+        if (moveDir === 'f') {
+            pPos.x -= Math.sin(pPos.rot) * 0.15;
+            pPos.z -= Math.cos(pPos.rot) * 0.15;
+        } else if (moveDir === 'b') {
+            pPos.x += Math.sin(pPos.rot) * 0.15;
+            pPos.z += Math.cos(pPos.rot) * 0.15;
         }
-
-        if (turnState === 'l') pPos.rot += 0.04;
-        if (turnState === 'r') pPos.rot -= 0.04;
+        if (turnDir === 'l') pPos.rot += 0.05;
+        if (turnDir === 'r') pPos.rot -= 0.05;
 
         camera.position.x = pPos.x;
         camera.position.z = pPos.z;
         camera.rotation.y = pPos.rot;
 
+        // Movimento rallentato dei nemici (si muovono solo se ti muovi tu)
+        enemies.forEach((enemy) => {
+            if (enemy.parent) {
+                // Avanzano lentamente verso il giocatore
+                enemy.position.z += 0.03 * timeScale;
+                
+                // Controllo collisione con il giocatore
+                let dist = Math.hypot(enemy.position.x - pPos.x, enemy.position.z - pPos.z);
+                if (dist < 1.2) {
+                    alert("SEI STATO COLPITO! SUPER... HOT...");
+                    location.reload();
+                }
+            }
+        });
+
+        // Gestione proiettili sparati dal giocatore
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.position.x += b.userData.dirX * 0.8;
+            b.position.z += b.userData.dirZ * 0.8;
+
+            // Controllo se il proiettile colpisce un nemico
+            for (let j = enemies.length - 1; j >= 0; j--) {
+                let en = enemies[j];
+                if (en.parent) {
+                    let d = Math.hypot(en.position.x - b.position.x, en.position.z - b.position.z);
+                    if (d < 1.0) {
+                        // Distruggi nemico e proiettile
+                        scene.remove(en);
+                        enemies.splice(j, 1);
+                        scene.remove(b);
+                        bullets.splice(i, 1);
+                        
+                        document.getElementById('enemy-count').innerText = enemies.length;
+                        
+                        if (enemies.length === 0) {
+                            alert("LIVELLO COMPLETATO. SUPER... HOT...");
+                            location.reload();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
         renderer.render(scene, camera);
     }
 
-    function gatherItem() {
-        let found = false;
-        collectibles.forEach(item => {
-            let dist = Math.hypot(item.position.x - pPos.x, item.position.z - pPos.z);
-            if (dist < 3 && !item.userData.collected) {
-                item.userData.collected = true;
-                scene.remove(item);
-                score++;
-                document.getElementById('counter').innerText = score;
-                document.getElementById('text-info').innerText = `Modulo acquisito (${score}/4).`;
-                found = true;
-            }
-        });
-        if (!found) {
-            document.getElementById('text-info').innerText = "Nessun modulo nel raggio d'azione.";
-        }
-    }
-
-    function triggerEscape() {
-        if (score >= 4) {
-            alert("Protocollo completato con successo!");
-            location.reload();
-        } else {
-            alert(`Moduli insufficienti: ${score}/4`);
-        }
-    }
-
-    window.onload = startEngine;
+    window.onload = initGame;
     window.onresize = () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
