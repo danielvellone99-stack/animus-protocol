@@ -12,7 +12,6 @@
         }
         #game-canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
         
-        /* Interfaccia HUD di gioco */
         .hud {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5;
             pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
@@ -33,7 +32,6 @@
             display: flex; align-items: center; gap: 8px;
         }
 
-        /* Overlay dei menu (Z-index alto e pointer-events attivo) */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20;
             background: rgba(10, 30, 20, 0.96); display: flex; flex-direction: column;
@@ -84,7 +82,6 @@
         <div class="tutorial-hint">⬅️ Scorri per muoverti • ⬆️ Salta • ⬇️ Scivola</div>
     </div>
 
-    <!-- Menu Principale -->
     <div class="overlay" id="main-menu">
         <div class="title">FOREST SURFERS</div>
         <div class="subtitle">Fuggi nel bosco incantato!</div>
@@ -109,10 +106,9 @@
             </div>
         </div>
 
-        <button class="btn-main" id="start-btn" onclick="startGame()">GIOCA ORA</button>
+        <button class="btn-main" onclick="startGame()">GIOCA ORA</button>
     </div>
 
-    <!-- Schermata Game Over -->
     <div class="overlay" id="game-over-screen" style="display:none;">
         <div class="title" style="color:#ff3333;">GAME OVER</div>
         <div class="subtitle">Sei stato acciuffato!</div>
@@ -256,11 +252,11 @@
         let xPos = (obsLane - 1) * 2.2;
 
         let isLow = Math.random() > 0.4;
-        let obsGeo = isLow ? new THREE.BoxGeometry(2.0, 0.6, 0.7) : new THREE.BoxGeometry(1.8, 1.8, 0.9);
+        let obsGeo = isLow ? new THREE.BoxGeometry(1.6, 0.5, 0.5) : new THREE.BoxGeometry(1.6, 1.5, 0.6);
         let obsMat = new THREE.MeshStandardMaterial({ color: isLow ? 0x95a5a6 : 0xe67e22, roughness: 0.6 });
         let obs = new THREE.Mesh(obsGeo, obsMat);
         
-        obs.position.set(xPos, isLow ? 0.3 : 0.9, z);
+        obs.position.set(xPos, isLow ? 0.25 : 0.75, z);
         obs.userData = { type: isLow ? 'low' : 'high', lane: obsLane };
         scene.add(obs);
         obstacles.push(obs);
@@ -403,15 +399,18 @@
                 if (elem.position.z > 15) elem.position.z -= 170;
             });
 
+            // Collisioni perfezionate e ridotte nello spessore Z per evitare falsi game over
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i];
                 obs.position.z += gameSpeed;
 
-                let dist = Math.abs(obs.position.z - player.position.z);
-                if (dist < 0.9 && obs.userData.lane === lane) {
+                let distZ = Math.abs(obs.position.z - player.position.z);
+                let distX = Math.abs(obs.position.x - player.position.x);
+
+                if (distZ < 0.6 && distX < 0.8 && obs.userData.lane === lane) {
                     let hit = true;
                     if (obs.userData.type === 'low' && isCrouching) hit = false;
-                    if (obs.userData.type === 'high' && isJumping && player.position.y > 0.6) hit = false;
+                    if (obs.userData.type === 'high' && isJumping && player.position.y > 0.4) hit = false;
                     if (hit) gameOver();
                 }
 
@@ -427,7 +426,7 @@
                 c.rotation.y += 0.06;
 
                 let dist = Math.hypot(c.position.x - player.position.x, c.position.z - player.position.z);
-                if (dist < 1.1 && Math.abs(player.position.y - c.position.y) < 1.5) {
+                if (dist < 1.0 && Math.abs(player.position.y - c.position.y) < 1.5) {
                     scene.remove(c);
                     coins.splice(i, 1);
                     totalCoins += (currentSkin === 1 ? 2 : 1);
@@ -466,5 +465,4 @@
     window.onload = init;
 </script>
 </body>
-    </html>
-    
+</html>
