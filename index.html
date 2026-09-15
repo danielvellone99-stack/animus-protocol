@@ -3,134 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Animus Protocol: Stranded Shadows - 3D</title>
+    <title>The Animus Protocol: 3D Forest</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #030812;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: #ffffff;
-            touch-action: none;
+            margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+            background-color: #030812; font-family: sans-serif; color: #fff; touch-action: none;
         }
-        #webgl-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
+        #webgl-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        .hud {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
+            pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
+            box-sizing: border-box; padding: 15px;
         }
-        .hud-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-sizing: border-box;
-            padding: 15px;
-        }
-        .top-hud {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(3, 8, 18, 0.7);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            padding: 10px 15px;
-            border-radius: 6px;
-            font-size: 13px;
-            letter-spacing: 1px;
-            pointer-events: auto;
+        .top-bar {
+            display: flex; justify-content: space-between; background: rgba(3, 8, 18, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.4); padding: 10px; border-radius: 6px; font-size: 13px; pointer-events: auto;
         }
         .crosshair {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: #00f3ff;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #00f3ff;
-            z-index: 2;
-            pointer-events: none;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 8px; height: 8px; background: #00f3ff; border-radius: 50%; z-index: 2;
         }
-        .controls-layer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 180px;
-            z-index: 3;
-            display: flex;
-            justify-content: space-between;
-            padding: 15px;
-            box-sizing: border-box;
-            pointer-events: auto;
+        .controls {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 170px; z-index: 3;
+            display: flex; justify-content: space-between; padding: 15px; box-sizing: border-box; pointer-events: auto;
         }
-        .dpad {
-            width: 130px;
-            height: 130px;
-            position: relative;
-            background: rgba(0, 243, 255, 0.05);
-            border: 1px solid rgba(0, 243, 255, 0.2);
-            border-radius: 50%;
-        }
-        .dpad-btn {
-            position: absolute;
-            background: rgba(0, 243, 255, 0.2);
-            border: 1px solid #00f3ff;
-            color: #00f3ff;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        #btn-up { top: 5px; left: 45px; width: 40px; height: 35px; }
-        #btn-down { bottom: 5px; left: 45px; width: 40px; height: 35px; }
-        #btn-left { top: 45px; left: 5px; width: 35px; height: 40px; }
-        #btn-right { top: 45px; right: 5px; width: 35px; height: 40px; }
-
-        .actions-right {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            justify-content: flex-end;
-        }
+        .dpad { width: 120px; height: 120px; position: relative; background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.2); border-radius: 50%; }
+        .dpad-btn { position: absolute; background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; color: #00f3ff; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
+        #btn-up { top: 5px; left: 40px; width: 40px; height: 35px; }
+        #btn-down { bottom: 5px; left: 40px; width: 40px; height: 35px; }
+        #btn-left { top: 40px; left: 5px; width: 35px; height: 40px; }
+        #btn-right { top: 40px; right: 5px; width: 35px; height: 40px; }
         .btn-action {
-            background: rgba(0, 243, 255, 0.15);
-            border: 1px solid #00f3ff;
-            color: #00f3ff;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
-        }
-        .btn-action:active {
-            background: #00f3ff;
-            color: #030812;
-        }
-        .mission-box {
-            background: rgba(10, 25, 47, 0.85);
-            border-left: 3px solid #00f3ff;
-            padding: 8px 12px;
-            font-size: 12px;
-            border-radius: 0 6px 6px 0;
-            max-width: 250px;
+            background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; color: #00f3ff;
+            padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px;
         }
     </style>
 </head>
@@ -139,163 +45,112 @@
     <div class="crosshair"></div>
     <div id="webgl-container"></div>
 
-    <div class="hud-overlay">
-        <div class="top-hud">
-            <div>SALUTE: <span id="stat-hp" style="color: #00f3ff;">100</span>%</div>
-            <div>RISORSE: <span id="stat-res" style="color: #00f3ff;">0</span>/4</div>
-            <div>ANIMUS: <span style="color: #ff3366;">ATTIVO</span></div>
+    <div class="hud">
+        <div class="top-bar">
+            <div>SALUTE: <span id="hp" style="color:#00f3ff">100</span>%</div>
+            <div>RISORSE: <span id="res" style="color:#00f3ff">0</span>/4</div>
         </div>
-
-        <div class="mission-box" id="mission-text">
-            Obiettivo: Esplora la foresta oscura, raccogli i moduli tecnologici e trova la via di fuga.
+        <div style="background: rgba(10,25,47,0.9); border-left: 3px solid #00f3ff; padding: 8px; font-size: 12px; border-radius: 0 6px 6px 0;" id="msg">
+            Esplora la foresta e trova i moduli luminosi azzurri.
         </div>
-
-        <div class="controls-layer">
+        <div class="controls">
             <div class="dpad">
-                <div class="dpad-btn" id="btn-up" ontouchstart="startMove('forward')" ontouchend="stopMove()" onmousedown="startMove('forward')" onmouseup="stopMove()">▲</div>
-                <div class="dpad-btn" id="btn-down" ontouchstart="startMove('backward')" ontouchend="stopMove()" onmousedown="startMove('backward')" onmouseup="stopMove()">▼</div>
-                <div class="dpad-btn" id="btn-left" ontouchstart="startTurn('left')" ontouchend="stopTurn()" onmousedown="startTurn('left')" onmouseup="stopTurn()">◀</div>
-                <div class="dpad-btn" id="btn-right" ontouchstart="startTurn('right')" ontouchend="stopTurn()" onmousedown="startTurn('right')" onmouseup="stopTurn()">▶</div>
+                <div class="dpad-btn" id="btn-up" ontouchstart="move('forward')" ontouchend="stop()" onmousedown="move('forward')" onmouseup="stop()">▲</div>
+                <div class="dpad-btn" id="btn-down" ontouchstart="move('backward')" ontouchend="stop()" onmousedown="move('backward')" onmouseup="stop()">▼</div>
+                <div class="dpad-btn" id="btn-left" ontouchstart="turn('left')" ontouchend="stopTurn()" onmousedown="turn('left')" onmouseup="stopTurn()">◀</div>
+                <div class="dpad-btn" id="btn-right" ontouchstart="turn('right')" ontouchend="stopTurn()" onmousedown="turn('right')" onmouseup="stopTurn()">▶</div>
             </div>
-
-            <div class="actions-right">
-                <button class="btn-action" onclick="collectResource()">Raccogli Risorsa</button>
-                <button class="btn-action" style="background: rgba(0, 255, 136, 0.2); border-color: #00ff88; color: #00ff88;" onclick="tryEscape()">Protocollo Fuga</button>
+            <div style="display:flex; flex-direction:column; justify-content:flex-end;">
+                <button class="btn-action" onclick="collect()">Raccogli</button>
+                <button class="btn-action" style="background:rgba(0,255,136,0.2); border-color:#00ff88; color:#00ff88;" onclick="escapeGame()">Fuga</button>
             </div>
         </div>
     </div>
 
 <script>
-    let scene, camera, renderer;
-    let moveDirection = '';
-    let turnDirection = '';
-    let playerPos = { x: 0, z: 0, angle: 0 };
-    let resourcesCollected = 0;
-    let resourceObjects = [];
+    let scene, camera, renderer, dir = '', turnDir = '', pos = { x: 0, z: 0, a: 0 }, count = 0, items = [];
 
-    function init3D() {
-        const container = document.getElementById('webgl-container');
-
+    function init() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x030812);
-        scene.fog = new THREE.FogExp2(0x030812, 0.035);
 
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 1.6, 0);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
+        document.getElementById('webgl-container').appendChild(renderer.domElement);
 
-        const ambientLight = new THREE.AmbientLight(0x0a192f, 1.2);
-        scene.add(ambientLight);
+        scene.add(new THREE.AmbientLight(0x0a192f, 1.5));
 
-        const pointLight = new THREE.PointLight(0x00f3ff, 1.5, 15);
-        pointLight.position.set(0, 2, 0);
-        camera.add(pointLight);
-        scene.add(camera);
-
-        const floorGeo = new THREE.PlaneGeometry(150, 150);
-        const floorMat = new THREE.MeshStandardMaterial({ color: 0x07111e, roughness: 0.9 });
-        const floor = new THREE.Mesh(floorGeo, floorMat);
+        // Pavimento
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshBasicMaterial({ color: 0x07111e }));
         floor.rotation.x = -Math.PI / 2;
         scene.add(floor);
 
-        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x112233 });
-        const leavesMat = new THREE.MeshStandardMaterial({ color: 0x0b253a, roughness: 0.8 });
-
-        for (let i = 0; i < 40; i++) {
-            let x = (Math.random() - 0.5) * 80;
-            let z = (Math.random() - 0.5) * 80;
+        // Alberi
+        for (let i = 0; i < 30; i++) {
+            let x = (Math.random() - 0.5) * 60, z = (Math.random() - 0.5) * 60;
             if (Math.abs(x) < 3 && Math.abs(z) < 3) continue;
-
-            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 5, 6), trunkMat);
-            trunk.position.set(x, 2.5, z);
+            const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 4), new THREE.MeshBasicMaterial({ color: 0x112233 }));
+            trunk.position.set(x, 2, z);
             scene.add(trunk);
-
-            const leaves = new THREE.Mesh(new THREE.ConeGeometry(2.5, 5, 6), leavesMat);
-            leaves.position.set(x, 6, z);
-            scene.add(leaves);
         }
 
-        const resGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
-        const resMat = new THREE.MeshStandardMaterial({ color: 0x00f3ff, emissive: 0x00aaff, emissiveIntensity: 0.5 });
-
+        // Oggetti da raccogliere
         for (let i = 0; i < 4; i++) {
-            const box = new THREE.Mesh(resGeo, resMat);
-            box.position.set((Math.random() - 0.5) * 30, 0.4, (Math.random() - 0.5) * 30);
+            const box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), new THREE.MeshBasicMaterial({ color: 0x00f3ff }));
+            box.position.set((Math.random() - 0.5) * 25, 0.4, (Math.random() - 0.5) * 25);
             scene.add(box);
-            resourceObjects.push(box);
+            items.push(box);
         }
 
         animate();
     }
 
-    function startMove(dir) { moveDirection = dir; }
-    function stopMove() { moveDirection = ''; }
-    function startTurn(dir) { turnDirection = dir; }
-    function stopTurn() { turnDirection = ''; }
+    function move(d) { dir = d; }
+    function stop() { dir = ''; }
+    function turn(t) { turnDir = t; }
+    function stopTurn() { turnDir = ''; }
 
     function animate() {
         requestAnimationFrame(animate);
+        if (dir === 'forward') { pos.x -= Math.sin(pos.a) * 0.1; pos.z -= Math.cos(pos.a) * 0.1; }
+        if (dir === 'backward') { pos.x += Math.sin(pos.a) * 0.1; pos.z += Math.cos(pos.a) * 0.1; }
+        if (turnDir === 'left') pos.a += 0.04;
+        if (turnDir === 'right') pos.a -= 0.04;
 
-        if (moveDirection === 'forward') {
-            playerPos.x -= Math.sin(playerPos.angle) * 0.1;
-            playerPos.z -= Math.cos(playerPos.angle) * 0.1;
-        } else if (moveDirection === 'backward') {
-            playerPos.x += Math.sin(playerPos.angle) * 0.1;
-            playerPos.z += Math.cos(playerPos.angle) * 0.1;
-        }
-
-        if (turnDirection === 'left') {
-            playerPos.angle += 0.04;
-        } else if (turnDirection === 'right') {
-            playerPos.angle -= 0.04;
-        }
-
-        camera.position.x = playerPos.x;
-        camera.position.z = playerPos.z;
-        camera.rotation.y = playerPos.angle;
-
+        camera.position.x = pos.x;
+        camera.position.z = pos.z;
+        camera.rotation.y = pos.a;
         renderer.render(scene, camera);
     }
 
-    function collectResource() {
-        let collected = false;
-        resourceObjects.forEach((obj) => {
-            let dist = Math.hypot(obj.position.x - playerPos.x, obj.position.z - playerPos.z);
-            if (dist < 3.5 && !obj.userData.collected) {
-                obj.userData.collected = true;
-                scene.remove(obj);
-                resourcesCollected++;
-                document.getElementById('stat-res').innerText = resourcesCollected;
-                document.getElementById('mission-text').innerText = `Hai raccolto un modulo (${resourcesCollected}/4). Continua l'esplorazione!`;
-                collected = true;
+    function collect() {
+        items.forEach((item) => {
+            let d = Math.hypot(item.position.x - pos.x, item.position.z - pos.z);
+            if (d < 3 && !item.userData.taken) {
+                item.userData.taken = true;
+                scene.remove(item);
+                count++;
+                document.getElementById('res').innerText = count;
+                document.getElementById('msg').innerText = `Modulo raccolto! (${count}/4)`;
             }
         });
-
-        if (!collected) {
-            document.getElementById('mission-text').innerText = "Nessun modulo nel raggio d'azione. Avvicinati ai cubi luminosi azzurri!";
-        }
     }
 
-    function tryEscape() {
-        if (resourcesCollected >= 4) {
-            alert("🏆 STRAORDINARIO! Hai raccolto tutti i moduli e violato la simulazione. Fuga completata con successo!");
+    function escapeGame() {
+        if (count >= 4) {
+            alert("Complimenti! Fuga completata con successo!");
             location.reload();
         } else {
-            alert(`❌ Moduli insufficienti (${resourcesCollected}/4)! Ti servono tutti i moduli luminosi sparsi nella foresta per attivare il portale.`);
+            alert(`Ti servono tutti i 4 moduli! Ne hai raccolti ${count}/4.`);
         }
     }
 
-    window.onload = init3D;
-    window.onresize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    };
+    window.onload = init;
 </script>
-
 </body>
 </html>
+
 
