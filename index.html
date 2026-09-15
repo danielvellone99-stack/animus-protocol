@@ -3,200 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>The Animus Protocol - 3D</title>
+    <title>Animus Surfers: Infinite Run</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #02050b; font-family: sans-serif; color: #fff; touch-action: none;
+            background-color: #030812; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; touch-action: none;
         }
-        #canvas-box { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
-        .ui-layer {
+        #game-canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        
+        /* Interfaccia HUD di Gioco */
+        .hud {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
             pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; padding: 15px;
+            box-sizing: border-box; padding: 20px;
         }
-        .header {
-            display: flex; justify-content: space-between; background: rgba(3, 8, 18, 0.9);
-            border: 1px solid rgba(0, 243, 255, 0.4); padding: 12px; border-radius: 8px; font-size: 13px; pointer-events: auto;
+        .top-panel {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(3, 8, 18, 0.85); border: 1px solid rgba(0, 243, 255, 0.4);
+            padding: 12px 20px; border-radius: 8px; font-size: 16px; font-weight: bold; pointer-events: auto;
         }
-        .reticle {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 6px; height: 6px; background: #00f3ff; border-radius: 50%; z-index: 2;
+        .score-val { color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
+        .coins-val { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+
+        /* Menu / Schermata Iniziale & Shop */
+        .overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+            background: rgba(2, 5, 11, 0.92); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box;
         }
-        .pad-area {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 170px; z-index: 3;
-            display: flex; justify-content: space-between; padding: 15px; box-sizing: border-box; pointer-events: auto;
+        .title { font-size: 32px; font-weight: 900; color: #00f3ff; text-shadow: 0 0 20px #00f3ff; margin-bottom: 5px; letter-spacing: 2px; }
+        .subtitle { font-size: 14px; color: #88a0c0; margin-bottom: 25px; }
+        
+        .btn-main {
+            background: linear-gradient(135deg, #00f3ff, #0066ff); border: none; color: #030812;
+            padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,243,255,0.4); margin-bottom: 15px; transition: 0.2s;
         }
-        .joystick { width: 120px; height: 120px; position: relative; background: rgba(0,243,255,0.05); border: 1px solid rgba(0,243,255,0.3); border-radius: 50%; }
-        .j-btn { position: absolute; background: rgba(0,243,255,0.25); border: 1px solid #00f3ff; color: #00f3ff; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
-        #jb-up { top: 5px; left: 40px; width: 40px; height: 35px; }
-        #jb-down { bottom: 5px; left: 40px; width: 40px; height: 35px; }
-        #jb-left { top: 40px; left: 5px; width: 35px; height: 40px; }
-        #jb-right { top: 40px; right: 5px; width: 35px; height: 40px; }
-        .action-btn {
-            background: rgba(0,243,255,0.2); border: 1px solid #00f3ff; color: #00f3ff;
-            padding: 12px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-bottom: 8px; font-size: 13px;
+        .btn-main:active { transform: scale(0.95); }
+
+        .shop-container {
+            display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center;
         }
+        .char-card {
+            background: rgba(10, 25, 47, 0.9); border: 2px solid rgba(0,243,255,0.3);
+            border-radius: 10px; padding: 12px; width: 110px; text-align: center; cursor: pointer;
+        }
+        .char-card.selected { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.3); }
+        .char-card h4 { margin: 5px 0; font-size: 14px; color: #fff; }
+        .char-card p { font-size: 11px; color: #88a0c0; margin: 5px 0; }
+
+        .tutorial-hint {
+            position: absolute; bottom: 30px; width: 100%; text-align: center;
+            font-size: 13px; color: rgba(255,255,255,0.5); pointer-events: none; letter-spacing: 1px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 0.8; } 100% { opacity: 0.3; } }
     </style>
 </head>
 <body>
 
-    <div class="reticle"></div>
-    <div id="canvas-box"></div>
+    <div id="game-canvas"></div>
 
-    <div class="ui-layer">
-        <div class="header">
-            <div>STATUS: <span style="color:#ff3366">SIMULAZIONE ATTIVA</span></div>
-            <div>RACCOLTI: <span id="counter" style="color:#00f3ff">0</span>/4</div>
+    <!-- HUD DI GIOCO -->
+    <div class="hud" id="game-hud" style="display:none;">
+        <div class="top-panel">
+            <div>DISTANZA: <span id="score" class="score-val">0</span>m</div>
+            <div>MONETE: <span id="coins" class="coins-val">0</span></div>
+            <div>RECORD: <span id="highscore" class="score-val">0</span></div>
         </div>
-        <div style="background: rgba(10,25,47,0.95); border-left: 3px solid #00f3ff; padding: 10px; font-size: 12px; border-radius: 0 6px 6px 0; max-width: 280px;" id="text-info">
-            Trascina lo schermo per orientare lo sguardo. Trova i moduli energetici nella foresta.
-        </div>
-        <div class="pad-area">
-            <div class="joystick">
-                <div class="j-btn" id="jb-up" ontouchstart="setMove('f')" ontouchend="setMove('')" onmousedown="setMove('f')" onmouseup="setMove('')">▲</div>
-                <div class="j-btn" id="jb-down" ontouchstart="setMove('b')" ontouchend="setMove('')" onmousedown="setMove('b')" onmouseup="setMove('')">▼</div>
-                <div class="j-btn" id="jb-left" ontouchstart="setTurn('l')" ontouchend="setTurn('')" onmousedown="setTurn('l')" onmouseup="setTurn('')">◀</div>
-                <div class="j-btn" id="jb-right" ontouchstart="setTurn('r')" ontouchend="setTurn('')" onmousedown="setTurn('r')" onmouseup="setTurn('')">▶</div>
+        <div class="tutorial-hint">SCORRIMENTO LIBERO: Trascina Sinistra/Destra, Su per saltare, Giù per abbassarti</div>
+    </div>
+
+    <!-- MENU PRINCIPALE & SHOP -->
+    <div class="overlay" id="main-menu">
+        <div class="title">ANIMUS SURFERS</div>
+        <div class="subtitle">La corsa infinita nel sistema</div>
+        
+        <div style="font-size: 14px; margin-bottom: 10px; color: #ffd700;">Monete disponibili: <span id="menu-coins">0</span></div>
+        
+        <div class="shop-container">
+            <div class="char-card selected" id="c-0" onclick="selectCharacter(0)">
+                <h4>Runner Base</h4>
+                <p>Standard</p>
+                <p style="color:#00ff88">ATTIVO</p>
             </div>
-            <div style="display:flex; flex-direction:column; justify-content:flex-end;">
-                <button class="action-btn" onclick="gatherItem()">Raccogli</button>
-                <button class="action-btn" style="background:rgba(0,255,136,0.2); border-color:#00ff88; color:#00ff88;" onclick="triggerEscape()">Fuga</button>
+            <div class="char-card" id="c-1" onclick="selectCharacter(1)">
+                <h4>Cyber Ninja</h4>
+                <p>+20% Monete</p>
+                <p id="c1-status" style="color:#ffd700">100 Monete</p>
+            </div>
+            <div class="char-card" id="c-2" onclick="selectCharacter(2)">
+                <h4>Overclocker</h4>
+                <p>Salto Potenziato</p>
+                <p id="c2-status" style="color:#ffd700">250 Monete</p>
             </div>
         </div>
+
+        <button class="btn-main" onclick="startGame()">AVVIA CORSA</button>
+    </div>
+
+    <!-- SCHERMATA GAME OVER -->
+    <div class="overlay" id="game-over-screen" style="display:none;">
+        <div class="title" style="color:#ff3366; text-shadow: 0 0 20px #ff3366;">CRASH DI SISTEMA</div>
+        <div class="subtitle">Sei stato eliminato dagli ostacoli della rete.</div>
+        
+        <div style="background: rgba(10,25,47,0.8); border: 1px solid rgba(0,243,255,0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px; width: 220px;">
+            <p>Distanza: <span id="final-score" class="score-val">0</span>m</p>
+            <p>Monete raccolte: <span id="final-coins" class="coins-val">0</span></p>
+        </div>
+
+        <button class="btn-main" onclick="restartGame()">RIGIOCA</button>
     </div>
 
 <script>
     let scene, camera, renderer;
-    let moveState = '', turnState = '';
-    let pPos = { x: 0, z: 0, rot: 0 };
-    let score = 0, collectibles = [];
-    let touchDragging = false, lastTouch = { x: 0 };
+    let player, lane = 1, targetX = 0; // Corsie: 0 = Sinistra (-2.5), 1 = Centro (0), 2 = Destra (2.5)
+    let isJumping = false, jumpVel = 0, isCrouching = false, crouchTimer = 0;
+    let obstacles = [], coins = [], trackSegments = [];
+    let gameActive = false, score = 0, totalCoins = 0, highScore = 0;
+    let gameSpeed = 0.35;
 
-    function startEngine() {
+    // Dati Giocatore & Shop
+    let currentSkin = 0;
+    let unlockedChars = [true, false, false];
+    let charPrices = [0, 100, 250];
+
+    // Lettura salvataggi locali
+    if (localStorage.getItem('animus_coins')) totalCoins = parseInt(localStorage.getItem('animus_coins'));
+    if (localStorage.getItem('animus_high')) highScore = parseInt(localStorage.getItem('animus_high'));
+
+    function init() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x02050b);
-        scene.fog = new THREE.FogExp2(0x02050b, 0.04);
+        scene.background = new THREE.Color(0x030812);
+        scene.fog = new THREE.FogExp2(0x030812, 0.025);
 
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 1.6, 0);
+        camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 3.5, 6);
+        camera.lookAt(0, 1.5, -5);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-box').appendChild(renderer.domElement);
+        document.getElementById('game-canvas').appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0x08111d, 1.8));
+        // Illuminazione
+        scene.add(new THREE.AmbientLight(0x0a192f, 2.0));
+        const dirLight = new THREE.DirectionalLight(0x00f3ff, 1.2);
+        dirLight.position.set(0, 20, 10);
+        scene.add(dirLight);
 
-        // Terreno
-        const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(120, 120),
-            new THREE.MeshStandardMaterial({ color: 0x050e1a, roughness: 0.9 })
-        );
-        ground.rotation.x = -Math.PI / 2;
-        scene.add(ground);
-
-        // Alberi procedurali
-        for (let i = 0; i < 35; i++) {
-            let tx = (Math.random() - 0.5) * 70, tz = (Math.random() - 0.5) * 70;
-            if (Math.abs(tx) < 3 && Math.abs(tz) < 3) continue;
-            
-            const trunk = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.4, 0.6, 5),
-                new THREE.MeshStandardMaterial({ color: 0x0d1b2a })
-            );
-            trunk.position.set(tx, 2.5, tz);
-            scene.add(trunk);
+        // Creazione Piattaforme Iniziali della Corsia
+        for (let i = -2; i < 15; i++) {
+            createTrackSegment(i * 10);
         }
 
-        // Oggetti collezionabili
-        for (let i = 0; i < 4; i++) {
-            const cube = new THREE.Mesh(
-                new THREE.BoxGeometry(0.8, 0.8, 0.8),
-                new THREE.MeshStandardMaterial({ color: 0x00f3ff, emissive: 0x0088ff })
-            );
-            cube.position.set((Math.random() - 0.5) * 30, 0.4, (Math.random() - 0.5) * 30);
-            scene.add(cube);
-            collectibles.push(cube);
-        }
+        buildPlayer();
+        setupSwipeControls();
+        updateMenuUI();
 
-        initListeners();
-        loop();
+        window.addEventListener('resize', onWindowResize);
+        animate();
     }
 
-    function initListeners() {
-        window.addEventListener('pointerdown', (e) => {
-            if (e.clientY < window.innerHeight - 180) {
-                touchDragging = true;
-                lastTouch.x = e.clientX;
+    // Costruzione del Giocatore 3D in base alla skin scelta
+    function buildPlayer() {
+        if (player) scene.remove(player);
+        
+        const group = new THREE.Group();
+        let colorBody = 0x00f3ff;
+        if (currentSkin === 1) colorBody = 0xff0055; // Cyber Ninja
+        if (currentSkin === 2) colorBody = 0xffd700; // Overclocker
+
+        const mat = new THREE.MeshStandardMaterial({ color: colorBody, emissive: colorBody, emissiveIntensity: 0.4 });
+        
+        // Corpo / Zaino
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.4), mat);
+        body.position.y = 0.6;
+        group.add(body);
+
+        // Testa
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.4), mat);
+        head.position.y = 1.4;
+        group.add(head);
+
+        player = group;
+        player.position.set(0, 0, 0);
+        scene.add(player);
+    }
+
+    function createTrackSegment(zPos) {
+        // Pavimento a 3 corsie con linee al neon
+        const trackGeo = new THREE.PlaneGeometry(8, 10);
+        const trackMat = new THREE.MeshStandardMaterial({ color: 0x060f1e, roughness: 0.9 });
+        const track = new THREE.Mesh(trackGeo, trackMat);
+        track.rotation.x = -Math.PI / 2;
+        track.position.set(0, 0, zPos);
+        scene.add(track);
+        trackSegments.push(track);
+
+        // Muri laterali estetici cyberpunk
+        const wallMat = new THREE.MeshStandardMaterial({ color: 0x0b1d3a, emissive: 0x00f3ff, emissiveIntensity: 0.1 });
+        const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4, 10), wallMat);
+        leftWall.position.set(-4.25, 2, zPos);
+        scene.add(leftWall);
+        trackSegments.push(leftWall);
+
+        const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.5, 4, 10), wallMat);
+        rightWall.position.set(4.25, 2, zPos);
+        scene.add(rightWall);
+        trackSegments.push(rightWall);
+
+        // Generazione ostacoli e monete casuali in avanti
+        if (zPos < -20 && Math.random() < 0.6) {
+            spawnObstacleAndCoins(zPos);
+        }
+    }
+
+    function spawnObstacleAndCoins(z) {
+        let obsLane = Math.floor(Math.random() * 3);
+        let xPos = (obsLane - 1) * 2.5;
+
+        // Tipo ostacolo: blocco alto o barriera bassa
+        let isLow = Math.random() > 0.5;
+        let obsGeo = isLow ? new THREE.BoxGeometry(2, 0.8, 0.8) : new THREE.BoxGeometry(2, 2.2, 0.8);
+        let obsMat = new THREE.MeshStandardMaterial({ color: 0xff0033, emissive: 0xff0033, emissiveIntensity: 0.6 });
+        let obs = new THREE.Mesh(obsGeo, obsMat);
+        
+        obs.position.set(xPos, isLow ? 0.4 : 1.1, z);
+        obs.userData = { type: isLow ? 'low' : 'high', lane: obsLane };
+        scene.add(obs);
+        obstacles.push(obs);
+
+        // Monete nelle altre corsie
+        for (let l = 0; l < 3; l++) {
+            if (l !== obsLane && Math.random() < 0.7) {
+                let coin = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.3, 0.3, 0.1, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffd700, emissiveIntensity: 0.8 })
+                );
+                coin.rotation.x = Math.PI / 2;
+                coin.position.set((l - 1) * 2.5, 0.8, z + (Math.random() - 0.5) * 4);
+                scene.add(coin);
+                coins.push(coin);
+            }
+        }
+    }
+
+    // Gestione Swipe Touch Fluido (Subway Surfers Style)
+    let touchStartX = 0, touchStartY = 0;
+    function setupSwipeControls() {
+        window.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        }, {passive: true});
+
+        window.addEventListener('touchend', (e) => {
+            if (!gameActive) return;
+            let diffX = e.changedTouches[0].clientX - touchStartX;
+            let diffY = e.changedTouches[0].clientY - touchStartY;
+
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                // Movimento Laterale (Swipe Orizzontale)
+                if (diffX > 40 && lane < 2) lane++;
+                else if (diffX < -40 && lane > 0) lane--;
+            } else {
+                // Salto o Scivolata (Swipe Verticale)
+                if (diffY < -40 && !isJumping) {
+                    isJumping = true;
+                    jumpVel = currentSkin === 2 ? 0.28 : 0.22; // Overclocker salta più in alto
+                } else if (diffY > 40 && !isCrouching) {
+                    isCrouching = true;
+                    crouchTimer = 45; // Durata scivolata
+                    player.scale.y = 0.5;
+                }
+            }
+        }, {passive: true});
+
+        // Supporto anche da tastiera per test da PC
+        window.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+            if (e.key === 'ArrowLeft' && lane > 0) lane--;
+            if (e.key === 'ArrowRight' && lane < 2) lane++;
+            if (e.key === 'ArrowUp' && !isJumping) { isJumping = true; jumpVel = 0.22; }
+            if (e.key === 'ArrowDown' && !isCrouching) { isCrouching = true; crouchTimer = 45; player.scale.y = 0.5; }
+        });
+    }
+
+    function selectCharacter(index) {
+        if (!unlockedChars[index]) {
+            if (totalCoins >= charPrices[index]) {
+                totalCoins -= charPrices[index];
+                localStorage.setItem('animus_coins', totalCoins);
+                unlockedChars[index] = true;
+                document.getElementById(`c${index}-status`).innerText = "SBLOCCATO";
+                document.getElementById(`c${index}-status`).style.color = "#00ff88";
+            } else {
+                alert("Monete insufficienti!");
+                return;
+            }
+        }
+        currentSkin = index;
+        document.querySelectorAll('.char-card').forEach((c, idx) => {
+            c.classList.remove('selected');
+            if (idx === index) c.classList.add('selected');
+        });
+        buildPlayer();
+        updateMenuUI();
+    }
+
+    function updateMenuUI() {
+        document.getElementById('menu-coins').innerText = totalCoins;
+        unlockedChars.forEach((unlocked, idx) => {
+            if (unlocked && idx > 0) {
+                document.getElementById(`c${idx}-status`).innerText = "SBLOCCATO";
+                document.getElementById(`c${idx}-status`).style.color = "#00ff88";
             }
         });
-        window.addEventListener('pointermove', (e) => {
-            if (!touchDragging) return;
-            let diff = e.clientX - lastTouch.x;
-            pPos.rot -= diff * 0.004;
-            lastTouch.x = e.clientX;
-        });
-        window.addEventListener('pointerup', () => { touchDragging = false; });
     }
 
-    function setMove(m) { moveState = m; }
-    function setTurn(t) { turnState = t; }
+    function startGame() {
+        document.getElementById('main-menu').style.display = 'none';
+        document.getElementById('game-hud').style.display = 'flex';
+        score = 0;
+        gameSpeed = 0.35;
+        lane = 1;
+        gameActive = true;
+    }
 
-    function loop() {
-        requestAnimationFrame(loop);
+    function restartGame() {
+        document.getElementById('game-over-screen').style.display = 'none';
+        // Pulisci ostacoli precedenti
+        obstacles.forEach(o => scene.remove(o));
+        coins.forEach(c => scene.remove(c));
+        obstacles = [];
+        coins = [];
+        startGame();
+    }
 
-        if (moveState === 'f') {
-            pPos.x -= Math.sin(pPos.rot) * 0.1;
-            pPos.z -= Math.cos(pPos.rot) * 0.1;
-        } else if (moveState === 'b') {
-            pPos.x += Math.sin(pPos.rot) * 0.1;
-            pPos.z += Math.cos(pPos.rot) * 0.1;
+    function animate() {
+        requestAnimationFrame(animate);
+
+        if (gameActive) {
+            score += Math.floor(gameSpeed * 10);
+            gameSpeed += 0.0001; // Aumenta gradualmente la velocità stile Subway Surfers
+
+            document.getElementById('score').innerText = score;
+            document.getElementById('coins').innerText = totalCoins;
+            document.getElementById('highscore').innerText = highScore;
+
+            // Spostamento fluido verso la corsia target
+            targetX = (lane - 1) * 2.5;
+            player.position.x += (targetX - player.position.x) * 0.2;
+
+            // Gestione Salto
+            if (isJumping) {
+                player.position.y += jumpVel;
+                jumpVel -= 0.015;
+                if (player.position.y <= 0) {
+                    player.position.y = 0;
+                    isJumping = false;
+                }
+            }
+
+            // Gestione Scivolata
+            if (isCrouching) {
+                crouchTimer--;
+                if (crouchTimer <= 0) {
+                    isCrouching = false;
+                    player.scale.y = 1.0;
+                }
+            }
+
+            // Movimento del mondo verso il giocatore (simula la corsa)
+            trackSegments.forEach(seg => {
+                seg.position.z += gameSpeed;
+                if (seg.position.z > 15) {
+                    seg.position.z -= 170; // Ricicla il segmento in fondo
+                }
+            });
+
+            // Movimento e controllo ostacoli
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles.get ? obstacles[i] : obstacles[i];
+                obs.position.z += gameSpeed;
+
+                // Controllo Collisioni con il Giocatore
+                let dist = Math.abs(obs.position.z - player.position.z);
+                if (dist < 0.8 && obs.userData.lane === lane) {
+                    // Verifica se l'ostacolo è alto e il giocatore sta saltando, oppure se è basso e sta scivolando
+                    let hit = true;
+                    if (obs.userData.type === 'low' && isCrouching) hit = false;
+                    if (obs.userData.type === 'high' && isJumping && player.position.y > 1.0) hit = false;
+
+                    if (hit) {
+                        gameOver();
+                    }
+                }
+
+                if (obs.position.z > 10) {
+                    scene.remove(obs);
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            // Movimento e raccolta monete
+            for (let i = coins.length - 1; i >= 0; i--) {
+                let c = coins[i];
+                c.position.z += gameSpeed;
+                c.rotation.y += 0.05;
+
+                let dist = Math.hypot(c.position.x - player.position.x, c.position.z - player.position.z);
+                if (dist < 1.0 && Math.abs(player.position.y - c.position.y) < 1.5) {
+                    scene.remove(c);
+                    coins.splice(i, 1);
+                    totalCoins += (currentSkin === 1 ? 2 : 1); // Cyber Ninja bonus monete
+                    localStorage.setItem('animus_coins', totalCoins);
+                }
+
+                if (c.position.z > 10) {
+                    scene.remove(c);
+                    coins.splice(i, 1);
+                }
+            }
+
+            // Generazione continua nuova pista in lontananza
+            if (Math.random() < 0.08) {
+                createTrackSegment(-150);
+            }
         }
-
-        if (turnState === 'l') pPos.rot += 0.04;
-        if (turnState === 'r') pPos.rot -= 0.04;
-
-        camera.position.x = pPos.x;
-        camera.position.z = pPos.z;
-        camera.rotation.y = pPos.rot;
 
         renderer.render(scene, camera);
     }
 
-    function gatherItem() {
-        let found = false;
-        collectibles.forEach(item => {
-            let dist = Math.hypot(item.position.x - pPos.x, item.position.z - pPos.z);
-            if (dist < 3 && !item.userData.collected) {
-                item.userData.collected = true;
-                scene.remove(item);
-                score++;
-                document.getElementById('counter').innerText = score;
-                document.getElementById('text-info').innerText = `Modulo acquisito (${score}/4).`;
-                found = true;
-            }
-        });
-        if (!found) {
-            document.getElementById('text-info').innerText = "Nessun modulo nel raggio d'azione.";
+    function gameOver() {
+        gameActive = false;
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('animus_high', highScore);
         }
+        document.getElementById('game-hud').style.display = 'none';
+        document.getElementById('final-score').innerText = score;
+        document.getElementById('final-coins').innerText = totalCoins;
+        document.getElementById('game-over-screen').style.display = 'flex';
+        updateMenuUI();
     }
 
-    function triggerEscape() {
-        if (score >= 4) {
-            alert("Protocollo completato con successo!");
-            location.reload();
-        } else {
-            alert(`Moduli insufficienti: ${score}/4`);
-        }
-    }
-
-    window.onload = startEngine;
-    window.onresize = () => {
+    function onWindowResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-    };
+    }
+
+    window.onload = init;
 </script>
 </body>
 </html>
