@@ -3,61 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Forest Surfers: Infinite Run</title>
+    <title>Forest Surfers</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
-            background-color: #1a4d2e; font-family: 'Segoe UI', Tahoma, sans-serif; color: #fff; touch-action: none;
+            background-color: #1a4d2e; font-family: 'Montserrat', 'Segoe UI', Tahoma, sans-serif; color: #fff; touch-action: none;
         }
         #game-canvas { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
         
+        /* Interfaccia stile Subway Surfers (HUD) */
         .hud {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
             pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; padding: 15px;
+            box-sizing: border-box; padding: 20px;
         }
-        .top-panel {
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(15, 35, 20, 0.9); border: 2px solid rgba(0, 255, 136, 0.5);
-            padding: 10px 15px; border-radius: 12px; font-size: 14px; font-weight: bold; pointer-events: auto;
-            box-shadow: 0 0 15px rgba(0,255,136,0.3);
+        .subway-header {
+            display: flex; justify-content: space-between; align-items: flex-start; width: 100%;
         }
-        .score-val { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
-        .coins-val { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .score-pill {
+            background: rgba(0, 0, 0, 0.5); border: 3px solid #ffcc00; border-radius: 20px;
+            padding: 8px 18px; font-size: 22px; font-weight: 900; color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); text-shadow: 2px 2px 0px #000;
+        }
+        .coins-pill {
+            background: rgba(0, 0, 0, 0.5); border: 3px solid #ff9900; border-radius: 20px;
+            padding: 8px 18px; font-size: 22px; font-weight: 900; color: #ffcc00;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); text-shadow: 2px 2px 0px #000;
+            display: flex; align-items: center; gap: 8px;
+        }
 
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
-            background: rgba(10, 25, 15, 0.96); display: flex; flex-direction: column;
+            background: rgba(10, 30, 20, 0.95); display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center; padding: 15px; box-sizing: border-box;
             overflow-y: auto;
         }
-        .title { font-size: 26px; font-weight: 900; color: #00ff88; text-shadow: 0 0 20px #00ff88; margin-bottom: 2px; letter-spacing: 1px; }
-        .subtitle { font-size: 12px; color: #a2ffce; margin-bottom: 15px; }
+        .title { font-size: 32px; font-weight: 900; color: #ffcc00; text-shadow: 3px 3px 0px #ff3300, 0 0 20px rgba(255,204,0,0.6); margin-bottom: 2px; letter-spacing: 2px; }
+        .subtitle { font-size: 13px; color: #a2ffce; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; }
         
         .btn-main {
-            background: linear-gradient(135deg, #00ff88, #00aa55); border: none; color: #0a190f;
-            padding: 14px 35px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
-            box-shadow: 0 0 20px rgba(0,255,136,0.5); margin-top: 10px; transition: 0.2s; pointer-events: auto; z-index: 15;
+            background: linear-gradient(180deg, #ffcc00, #ff6600); border: 3px solid #fff; color: #fff;
+            padding: 15px 45px; font-size: 20px; font-weight: 900; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 6px 0px #b33600, 0 10px 20px rgba(0,0,0,0.4); margin-top: 15px; transition: 0.1s; pointer-events: auto; z-index: 15;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
         }
-        .btn-main:active { transform: scale(0.95); }
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0px #b33600, 0 5px 10px rgba(0,0,0,0.4); }
 
         .shop-container {
-            display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center;
-            max-width: 320px;
+            display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; max-width: 350px;
         }
         .char-card {
-            background: rgba(20, 45, 25, 0.9); border: 2px solid rgba(0,255,136,0.3);
-            border-radius: 10px; padding: 8px; width: 95px; text-align: center; cursor: pointer; pointer-events: auto;
+            background: rgba(20, 50, 30, 0.9); border: 3px solid #2ecc71;
+            border-radius: 15px; padding: 10px; width: 100px; text-align: center; cursor: pointer; pointer-events: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;
         }
-        .char-card.selected { border-color: #00ff88; box-shadow: 0 0 12px rgba(0,255,136,0.6); background: rgba(30, 70, 40, 0.9); }
-        .char-card h4 { margin: 3px 0; font-size: 12px; color: #fff; }
-        .char-card p { font-size: 10px; color: #a2ffce; margin: 3px 0; }
+        .char-card.selected { border-color: #ffcc00; background: rgba(40, 90, 50, 0.95); transform: scale(1.05); box-shadow: 0 0 15px rgba(255,204,0,0.5); }
+        .char-card h4 { margin: 4px 0; font-size: 13px; color: #fff; font-weight: 900; }
+        .char-card p { font-size: 10px; color: #a2ffce; margin: 3px 0; font-weight: bold; }
 
         .tutorial-hint {
-            position: absolute; bottom: 20px; width: 100%; text-align: center;
-            font-size: 11px; color: rgba(255,255,255,0.7); pointer-events: none; letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8); padding: 0 10px; box-sizing: border-box;
+            position: absolute; bottom: 15px; width: 100%; text-align: center;
+            font-size: 12px; color: rgba(255,255,255,0.8); pointer-events: none; font-weight: bold;
+            text-shadow: 1px 1px 2px #000; padding: 0 10px; box-sizing: border-box;
         }
     </style>
 </head>
@@ -66,48 +74,49 @@
     <div id="game-canvas"></div>
 
     <div class="hud" id="game-hud" style="display:none;">
-        <div class="top-panel">
-            <div>DIST: <span id="score" class="score-val">0</span>m</div>
-            <div>MONETE: <span id="coins" class="coins-val">0</span></div>
-            <div>RECORD: <span id="highscore" class="score-val">0</span></div>
+        <div class="subway-header">
+            <div class="score-pill"><span id="score">0</span>m</div>
+            <div class="coins-pill">🪙 <span id="coins">0</span></div>
         </div>
-        <div class="tutorial-hint">Trascina a Sinistra/Destra per cambiare corsia • Su per saltare • Giù per scivolare</div>
+        <div class="tutorial-hint">⬅️ Scorri o Usa Frecce per muoverti • ⬆️ Salta • ⬇️ Scivola ⬇️</div>
     </div>
 
     <div class="overlay" id="main-menu">
         <div class="title">FOREST SURFERS</div>
-        <div class="subtitle">Corsa selvaggia nella natura luminescente</div>
+        <div class="subtitle">Fuggi nel bosco incantato!</div>
         
-        <div style="font-size: 13px; margin-bottom: 8px; color: #ffd700;">Monete disponibili: <span id="menu-coins">0</span></div>
+        <div style="font-size: 14px; margin-bottom: 10px; color: #ffcc00; font-weight: bold;">Monete: <span id="menu-coins">0</span></div>
         
         <div class="shop-container">
             <div class="char-card selected" id="c-0" onclick="selectCharacter(0)">
-                <h4>Explorer</h4>
+                <h4>Jake Forest</h4>
                 <p>Standard</p>
                 <p style="color:#00ff88">ATTIVO</p>
             </div>
             <div class="char-card" id="c-1" onclick="selectCharacter(1)">
-                <h4>Ranger</h4>
+                <h4>Ninja Green</h4>
                 <p>+20% Monete</p>
-                <p id="c1-status" style="color:#ffd700">100 Monete</p>
+                <p id="c1-status" style="color:#ffcc00">100 Monete</p>
             </div>
             <div class="char-card" id="c-2" onclick="selectCharacter(2)">
-                <h4>Spirit</h4>
-                <p>Salto Alto</p>
-                <p id="c2-status" style="color:#ffd700">250 Monete</p>
+                <h4>Cyber Boy</h4>
+                <p>Super Salto</p>
+                <p id="c2-status" style="color:#ffcc00">250 Monete</p>
             </div>
         </div>
 
-        <button class="btn-main" id="start-btn" onclick="startGame()">ENTRA NEL BOSCO</button>
+        <button class="btn-main" onclick="startGame()">GIORA ORA</button>
     </div>
 
+    <div class="overlay" id="main-menu-compat" style="display:none;"></div>
+
     <div class="overlay" id="game-over-screen" style="display:none;">
-        <div class="title" style="color:#ff3366; text-shadow: 0 0 20px #ff3366;">FINE DELLA CORSA</div>
-        <div class="subtitle">Sei inciampato tra i rami del bosco!</div>
+        <div class="title" style="color:#ff3333; text-shadow: 3px 3px 0px #660000;">GAME OVER</div>
+        <div class="subtitle">Sei stato acciuffato!</div>
         
-        <div style="background: rgba(20,45,25,0.8); border: 1px solid rgba(0,255,136,0.3); padding: 12px; border-radius: 10px; margin-bottom: 15px; width: 200px;">
-            <p style="margin: 5px 0;">Distanza: <span id="final-score" class="score-val">0</span>m</p>
-            <p style="margin: 5px 0;">Monete: <span id="final-coins" class="coins-val">0</span></p>
+        <div style="background: rgba(20,50,30,0.9); border: 3px solid #ffcc00; padding: 15px; border-radius: 15px; margin-bottom: 20px; width: 220px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+            <p style="margin: 8px 0; font-weight: bold;">Distanza: <span id="final-score" style="color:#00ff88">0</span>m</p>
+            <p style="margin: 8px 0; font-weight: bold;">Monete: <span id="final-coins" style="color:#ffcc00">0</span></p>
         </div>
 
         <button class="btn-main" onclick="restartGame()">RIPROVA</button>
@@ -119,7 +128,9 @@
     let isJumping = false, jumpVel = 0, isCrouching = false, crouchTimer = 0;
     let obstacles = [], coins = [], trackSegments = [], sceneryElements = [];
     let gameActive = false, score = 0, totalCoins = 0, highScore = 0;
-    let gameSpeed = 0.22;
+    
+    // Velocità ridotta e stabile per evitare lag e problemi di salto
+    let gameSpeed = 0.16; 
 
     let currentSkin = 0;
     let unlockedChars = [true, false, false];
@@ -130,79 +141,75 @@
 
     function init() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x3498db);
-        scene.fog = new THREE.FogExp2(0x3498db, 0.018);
+        scene.background = new THREE.Color(0x2980b9);
+        scene.fog = new THREE.FogExp2(0x2980b9, 0.015);
 
         camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 3.2, 5.5);
-        camera.lookAt(0, 1.2, -5);
+        camera.position.set(0, 3.0, 5.0);
+        camera.lookAt(0, 1.0, -5);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('game-canvas').appendChild(renderer.domElement);
 
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.9));
         const dirLight = new THREE.DirectionalLight(0xfffaed, 1.2);
         dirLight.position.set(10, 30, 20);
         scene.add(dirLight);
-
-        const groundLight = new THREE.DirectionalLight(0x2ecc71, 0.5);
-        groundLight.position.set(-10, -10, -10);
-        scene.add(groundLight);
 
         for (let i = -2; i < 15; i++) {
             createTrackSegment(i * 10);
         }
 
         buildPlayer();
-        setupSwipeControls();
+        setupControls();
         updateMenuUI();
 
         window.addEventListener('resize', onWindowResize);
         animate();
     }
 
+    // Costruzione personaggi personalizzati e coloratissimi
     function buildPlayer() {
         if (player) scene.remove(player);
         
         const group = new THREE.Group();
-        let primaryColor = 0xe74c3c;
-        let pantsColor = 0x2980b9;
-        let skinColor = 0xffdbac;
+        let shirtColor = 0xe74c3c, pantsColor = 0x34495e, skinColor = 0xffdbac;
 
-        if (currentSkin === 1) {
-            primaryColor = 0x27ae60;
-            pantsColor = 0x7f8c8d;
-        } else if (currentSkin === 2) {
-            primaryColor = 0x9b59b6;
-            pantsColor = 0x8e44ad;
-            skinColor = 0x00ffff;
+        if (currentSkin === 1) { // Ninja Green
+            shirtColor = 0x27ae60; pantsColor = 0x111111; skinColor = 0xdddddd;
+        } else if (currentSkin === 2) { // Cyber Boy
+            shirtColor = 0x00ffff; pantsColor = 0x8e44ad; skinColor = 0xff00ff;
         }
 
-        const clothesMat = new THREE.MeshStandardMaterial({ color: primaryColor, roughness: 0.4 });
-        const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.6 });
-        const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.5 });
+        const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.3 });
+        const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.5 });
+        const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.4 });
 
-        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.7, 0.3), clothesMat);
-        torso.position.y = 0.8;
+        // Busto
+        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.65, 0.3), shirtMat);
+        torso.position.y = 0.75;
         group.add(torso);
 
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.38), skinMat);
-        head.position.y = 1.35;
+        // Testa
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), skinMat);
+        head.position.y = 1.3;
         group.add(head);
 
-        const hatMat = new THREE.MeshStandardMaterial({ color: 0x34495e });
-        const hat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.15, 0.42), hatMat);
-        hat.position.y = 1.57;
-        group.add(hat);
+        // Accessorio testa (Cappello o Capelli)
+        const accMat = new THREE.MeshStandardMaterial({ color: currentSkin === 0 ? 0xf1c40f : (currentSkin === 1 ? 0x2ecc71 : 0xff0055) });
+        const acc = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.12, 0.38), accMat);
+        acc.position.y = 1.5;
+        group.add(acc);
 
-        const legGeo = new THREE.BoxGeometry(0.2, 0.5, 0.22);
+        // Gambe
+        const legGeo = new THREE.BoxGeometry(0.18, 0.45, 0.2);
         const leftLeg = new THREE.Mesh(legGeo, pantsMat);
-        leftLeg.position.set(-0.15, 0.3, 0);
+        leftLeg.position.set(-0.13, 0.25, 0);
         group.add(leftLeg);
 
         const rightLeg = new THREE.Mesh(legGeo, pantsMat);
-        rightLeg.position.set(0.15, 0.3, 0);
+        rightLeg.position.set(0.13, 0.25, 0);
         group.add(rightLeg);
 
         player = group;
@@ -212,15 +219,15 @@
 
     function createTrackSegment(zPos) {
         const trackGeo = new THREE.PlaneGeometry(8, 10);
-        const trackMat = new THREE.MeshStandardMaterial({ color: 0x27ae60, roughness: 0.8 });
+        const trackMat = new THREE.MeshStandardMaterial({ color: 0x2ecc71, roughness: 0.8 });
         const track = new THREE.Mesh(trackGeo, trackMat);
         track.rotation.x = -Math.PI / 2;
         track.position.set(0, 0, zPos);
         scene.add(track);
         trackSegments.push(track);
 
-        const pathGeo = new THREE.PlaneGeometry(7.2, 10);
-        const pathMat = new THREE.MeshStandardMaterial({ color: 0xd68910, roughness: 0.9 });
+        const pathGeo = new THREE.PlaneGeometry(7.0, 10);
+        const pathMat = new THREE.MeshStandardMaterial({ color: 0xd35400, roughness: 0.9 });
         const path = new THREE.Mesh(pathGeo, pathMat);
         path.rotation.x = -Math.PI / 2;
         path.position.set(0, 0.01, zPos);
@@ -232,59 +239,58 @@
             spawnTree(5.5, zPos);
         }
 
-        if (zPos < -20 && Math.random() < 0.65) {
+        if (zPos < -20 && Math.random() < 0.6) {
             spawnObstacleAndCoins(zPos);
         }
     }
 
     function spawnTree(x, z) {
-        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x784212, roughness: 0.9 });
-        const leavesMat = new THREE.MeshStandardMaterial({ color: 0x1e8449, roughness: 0.6 });
+        const trunkMat = new THREE.MeshStandardMaterial({ color: 0x8e44ad, roughness: 0.9 });
+        const leavesMat = new THREE.MeshStandardMaterial({ color: 0x27ae60, roughness: 0.5 });
 
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3, 8), trunkMat);
-        trunk.position.set(x, 1.5, z);
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.5, 2.5, 6), trunkMat);
+        trunk.position.set(x, 1.25, z);
         scene.add(trunk);
         sceneryElements.push(trunk);
 
-        const leaves = new THREE.Mesh(new THREE.ConeGeometry(2, 4, 8), leavesMat);
-        leaves.position.set(x, 4, z);
+        const leaves = new THREE.Mesh(new THREE.ConeGeometry(1.8, 3.5, 6), leavesMat);
+        leaves.position.set(x, 3.2, z);
         scene.add(leaves);
         sceneryElements.push(leaves);
     }
 
     function spawnObstacleAndCoins(z) {
         let obsLane = Math.floor(Math.random() * 3);
-        let xPos = (obsLane - 1) * 2.5;
+        let xPos = (obsLane - 1) * 2.2;
 
-        let isLow = Math.random() > 0.5;
-        let obsGeo = isLow ? new THREE.BoxGeometry(2.2, 0.7, 0.8) : new THREE.BoxGeometry(2.0, 2.0, 1.0);
-        let obsMat = new THREE.MeshStandardMaterial({ 
-            color: isLow ? 0x784212 : 0x7f8c8d, 
-            roughness: 0.7 
-        });
+        let isLow = Math.random() > 0.4;
+        let obsGeo = isLow ? new THREE.BoxGeometry(2.0, 0.6, 0.7) : new THREE.BoxGeometry(1.8, 1.8, 0.9);
+        let obsMat = new THREE.MeshStandardMaterial({ color: isLow ? 0x95a5a6 : 0xe67e22, roughness: 0.6 });
         let obs = new THREE.Mesh(obsGeo, obsMat);
         
-        obs.position.set(xPos, isLow ? 0.35 : 1.0, z);
+        obs.position.set(xPos, isLow ? 0.3 : 0.9, z);
         obs.userData = { type: isLow ? 'low' : 'high', lane: obsLane };
         scene.add(obs);
         obstacles.push(obs);
 
+        // Monete lungo la corsia libera
         for (let l = 0; l < 3; l++) {
-            if (l !== obsLane && Math.random() < 0.7) {
+            if (l !== obsLane && Math.random() < 0.6) {
                 let coin = new THREE.Mesh(
-                    new THREE.CylinderGeometry(0.35, 0.35, 0.12, 16),
-                    new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.6 })
+                    new THREE.CylinderGeometry(0.3, 0.3, 0.1, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xf1c40f, emissive: 0xf1c40f, emissiveIntensity: 0.8 })
                 );
                 coin.rotation.x = Math.PI / 2;
-                coin.position.set((l - 1) * 2.5, 0.9, z + (Math.random() - 0.5) * 4);
+                coin.position.set((l - 1) * 2.2, 0.8, z + (Math.random() - 0.5) * 3);
                 scene.add(coin);
                 coins.push(coin);
             }
         }
     }
 
+    // Controlli touch ultra-reattivi (risolve il problema del salto non registrato)
     let touchStartX = 0, touchStartY = 0;
-    function setupSwipeControls() {
+    function setupControls() {
         window.addEventListener('touchstart', (e) => {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
@@ -296,15 +302,15 @@
             let diffY = e.changedTouches[0].clientY - touchStartY;
 
             if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (diffX > 40 && lane < 2) lane++;
-                else if (diffX < -40 && lane > 0) lane--;
+                if (diffX > 30 && lane < 2) lane++;
+                else if (diffX < -30 && lane > 0) lane--;
             } else {
-                if (diffY < -40 && !isJumping) {
+                if (diffY < -30 && !isJumping) {
                     isJumping = true;
-                    jumpVel = currentSkin === 2 ? 0.28 : 0.23;
-                } else if (diffY > 40 && !isCrouching) {
+                    jumpVel = currentSkin === 2 ? 0.25 : 0.21; // Salto calibrato e fluido
+                } else if (diffY > 30 && !isCrouching) {
                     isCrouching = true;
-                    crouchTimer = 40;
+                    crouchTimer = 35;
                     player.scale.y = 0.5;
                 }
             }
@@ -314,8 +320,8 @@
             if (!gameActive) return;
             if (e.key === 'ArrowLeft' && lane > 0) lane--;
             if (e.key === 'ArrowRight' && lane < 2) lane++;
-            if (e.key === 'ArrowUp' && !isJumping) { isJumping = true; jumpVel = 0.23; }
-            if (e.key === 'ArrowDown' && !isCrouching) { isCrouching = true; crouchTimer = 40; player.scale.y = 0.5; }
+            if (e.key === 'ArrowUp' && !isJumping) { isJumping = true; jumpVel = 0.21; }
+            if (e.key === 'ArrowDown' && !isCrouching) { isCrouching = true; crouchTimer = 35; player.scale.y = 0.5; }
         });
     }
 
@@ -328,7 +334,7 @@
                 document.getElementById(`c${index}-status`).innerText = "SBLOCCATO";
                 document.getElementById(`c${index}-status`).style.color = "#00ff88";
             } else {
-                alert("Monete insufficienti!");
+                alert("Monete non sufficienti!");
                 return;
             }
         }
@@ -355,7 +361,7 @@
         document.getElementById('main-menu').style.display = 'none';
         document.getElementById('game-hud').style.display = 'flex';
         score = 0;
-        gameSpeed = 0.22;
+        gameSpeed = 0.16; // Partenza fluida e controllata
         lane = 1;
         gameActive = true;
     }
@@ -373,19 +379,18 @@
         requestAnimationFrame(animate);
 
         if (gameActive) {
-            score += Math.floor(gameSpeed * 10);
-            gameSpeed += 0.00008;
+            score += Math.floor(gameSpeed * 8);
+            gameSpeed += 0.00004; // Aumento della velocità molto graduale per non appesantire il gioco
 
             document.getElementById('score').innerText = score;
             document.getElementById('coins').innerText = totalCoins;
-            document.getElementById('highscore').innerText = highScore;
 
-            targetX = (lane - 1) * 2.5;
-            player.position.x += (targetX - player.position.x) * 0.2;
+            targetX = (lane - 1) * 2.2;
+            player.position.x += (targetX - player.position.x) * 0.25;
 
             if (isJumping) {
                 player.position.y += jumpVel;
-                jumpVel -= 0.015;
+                jumpVel -= 0.014;
                 if (player.position.y <= 0) {
                     player.position.y = 0;
                     isJumping = false;
@@ -410,15 +415,16 @@
                 if (elem.position.z > 15) elem.position.z -= 170;
             });
 
+            // Gestione collisioni precisa e permissiva
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i];
                 obs.position.z += gameSpeed;
 
                 let dist = Math.abs(obs.position.z - player.position.z);
-                if (dist < 1.0 && obs.userData.lane === lane) {
+                if (dist < 0.9 && obs.userData.lane === lane) {
                     let hit = true;
                     if (obs.userData.type === 'low' && isCrouching) hit = false;
-                    if (obs.userData.type === 'high' && isJumping && player.position.y > 0.8) hit = false;
+                    if (obs.userData.type === 'high' && isJumping && player.position.y > 0.6) hit = false;
 
                     if (hit) {
                         gameOver();
@@ -434,10 +440,10 @@
             for (let i = coins.length - 1; i >= 0; i--) {
                 let c = coins[i];
                 c.position.z += gameSpeed;
-                c.rotation.y += 0.05;
+                c.rotation.y += 0.06;
 
                 let dist = Math.hypot(c.position.x - player.position.x, c.position.z - player.position.z);
-                if (dist < 1.2 && Math.abs(player.position.y - c.position.y) < 1.6) {
+                if (dist < 1.1 && Math.abs(player.position.y - c.position.y) < 1.5) {
                     scene.remove(c);
                     coins.splice(i, 1);
                     totalCoins += (currentSkin === 1 ? 2 : 1);
@@ -460,10 +466,6 @@
 
     function gameOver() {
         gameActive = false;
-        if (score > highScore) {
-            highScore = score;
-            localStorage.setItem('forest_high', highScore);
-        }
         document.getElementById('game-hud').style.display = 'none';
         document.getElementById('final-score').innerText = score;
         document.getElementById('final-coins').innerText = totalCoins;
@@ -475,10 +477,4 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    window.onload = init;
-</script>
-</body>
-    </html>
-    
+  
