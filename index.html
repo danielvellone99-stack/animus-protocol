@@ -15,12 +15,12 @@
         .hud {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
             pointer-events: none; display: flex; flex-direction: column; justify-content: space-between;
-            box-sizing: border-box; padding: 20px;
+            box-sizing: border-box; padding: 15px;
         }
         .top-panel {
             display: flex; justify-content: space-between; align-items: center;
-            background: rgba(15, 35, 20, 0.85); border: 2px solid rgba(0, 255, 136, 0.5);
-            padding: 12px 20px; border-radius: 12px; font-size: 16px; font-weight: bold; pointer-events: auto;
+            background: rgba(15, 35, 20, 0.9); border: 2px solid rgba(0, 255, 136, 0.5);
+            padding: 10px 15px; border-radius: 12px; font-size: 14px; font-weight: bold; pointer-events: auto;
             box-shadow: 0 0 15px rgba(0,255,136,0.3);
         }
         .score-val { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
@@ -28,34 +28,36 @@
 
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
-            background: rgba(10, 25, 15, 0.94); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; text-align: center; padding: 20px; box-sizing: border-box;
+            background: rgba(10, 25, 15, 0.96); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; padding: 15px; box-sizing: border-box;
+            overflow-y: auto;
         }
-        .title { font-size: 32px; font-weight: 900; color: #00ff88; text-shadow: 0 0 20px #00ff88; margin-bottom: 5px; letter-spacing: 2px; }
-        .subtitle { font-size: 14px; color: #a2ffce; margin-bottom: 25px; }
+        .title { font-size: 26px; font-weight: 900; color: #00ff88; text-shadow: 0 0 20px #00ff88; margin-bottom: 2px; letter-spacing: 1px; }
+        .subtitle { font-size: 12px; color: #a2ffce; margin-bottom: 15px; }
         
         .btn-main {
             background: linear-gradient(135deg, #00ff88, #00aa55); border: none; color: #0a190f;
-            padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 10px; cursor: pointer;
-            box-shadow: 0 0 20px rgba(0,255,136,0.5); margin-bottom: 15px; transition: 0.2s;
+            padding: 14px 35px; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0,255,136,0.5); margin-top: 10px; transition: 0.2s; pointer-events: auto; z-index: 15;
         }
         .btn-main:active { transform: scale(0.95); }
 
         .shop-container {
-            display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; justify-content: center;
+            display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; justify-content: center;
+            max-width: 320px;
         }
         .char-card {
             background: rgba(20, 45, 25, 0.9); border: 2px solid rgba(0,255,136,0.3);
-            border-radius: 12px; padding: 12px; width: 110px; text-align: center; cursor: pointer;
+            border-radius: 10px; padding: 8px; width: 95px; text-align: center; cursor: pointer; pointer-events: auto;
         }
-        .char-card.selected { border-color: #00ff88; box-shadow: 0 0 15px rgba(0,255,136,0.6); background: rgba(30, 70, 40, 0.9); }
-        .char-card h4 { margin: 5px 0; font-size: 14px; color: #fff; }
-        .char-card p { font-size: 11px; color: #a2ffce; margin: 5px 0; }
+        .char-card.selected { border-color: #00ff88; box-shadow: 0 0 12px rgba(0,255,136,0.6); background: rgba(30, 70, 40, 0.9); }
+        .char-card h4 { margin: 3px 0; font-size: 12px; color: #fff; }
+        .char-card p { font-size: 10px; color: #a2ffce; margin: 3px 0; }
 
         .tutorial-hint {
-            position: absolute; bottom: 30px; width: 100%; text-align: center;
-            font-size: 13px; color: rgba(255,255,255,0.7); pointer-events: none; letter-spacing: 1px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            position: absolute; bottom: 20px; width: 100%; text-align: center;
+            font-size: 11px; color: rgba(255,255,255,0.7); pointer-events: none; letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8); padding: 0 10px; box-sizing: border-box;
         }
     </style>
 </head>
@@ -65,7 +67,7 @@
 
     <div class="hud" id="game-hud" style="display:none;">
         <div class="top-panel">
-            <div>DISTANZA: <span id="score" class="score-val">0</span>m</div>
+            <div>DIST: <span id="score" class="score-val">0</span>m</div>
             <div>MONETE: <span id="coins" class="coins-val">0</span></div>
             <div>RECORD: <span id="highscore" class="score-val">0</span></div>
         </div>
@@ -76,7 +78,7 @@
         <div class="title">FOREST SURFERS</div>
         <div class="subtitle">Corsa selvaggia nella natura luminescente</div>
         
-        <div style="font-size: 14px; margin-bottom: 10px; color: #ffd700;">Monete disponibili: <span id="menu-coins">0</span></div>
+        <div style="font-size: 13px; margin-bottom: 8px; color: #ffd700;">Monete disponibili: <span id="menu-coins">0</span></div>
         
         <div class="shop-container">
             <div class="char-card selected" id="c-0" onclick="selectCharacter(0)">
@@ -85,27 +87,27 @@
                 <p style="color:#00ff88">ATTIVO</p>
             </div>
             <div class="char-card" id="c-1" onclick="selectCharacter(1)">
-                <h4>Forest Ranger</h4>
+                <h4>Ranger</h4>
                 <p>+20% Monete</p>
                 <p id="c1-status" style="color:#ffd700">100 Monete</p>
             </div>
             <div class="char-card" id="c-2" onclick="selectCharacter(2)">
-                <h4>Spirit Runner</h4>
+                <h4>Spirit</h4>
                 <p>Salto Alto</p>
                 <p id="c2-status" style="color:#ffd700">250 Monete</p>
             </div>
         </div>
 
-        <button class="btn-main" onclick="startGame()">ENTRA NEL BOSCO</button>
+        <button class="btn-main" id="start-btn" onclick="startGame()">ENTRA NEL BOSCO</button>
     </div>
 
     <div class="overlay" id="game-over-screen" style="display:none;">
         <div class="title" style="color:#ff3366; text-shadow: 0 0 20px #ff3366;">FINE DELLA CORSA</div>
         <div class="subtitle">Sei inciampato tra i rami del bosco!</div>
         
-        <div style="background: rgba(20,45,25,0.8); border: 1px solid rgba(0,255,136,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; width: 220px;">
-            <p>Distanza: <span id="final-score" class="score-val">0</span>m</p>
-            <p>Monete raccolte: <span id="final-coins" class="coins-val">0</span></p>
+        <div style="background: rgba(20,45,25,0.8); border: 1px solid rgba(0,255,136,0.3); padding: 12px; border-radius: 10px; margin-bottom: 15px; width: 200px;">
+            <p style="margin: 5px 0;">Distanza: <span id="final-score" class="score-val">0</span>m</p>
+            <p style="margin: 5px 0;">Monete: <span id="final-coins" class="coins-val">0</span></p>
         </div>
 
         <button class="btn-main" onclick="restartGame()">RIPROVA</button>
@@ -117,7 +119,7 @@
     let isJumping = false, jumpVel = 0, isCrouching = false, crouchTimer = 0;
     let obstacles = [], coins = [], trackSegments = [], sceneryElements = [];
     let gameActive = false, score = 0, totalCoins = 0, highScore = 0;
-    let gameSpeed = 0.22; // Velocità iniziale ridotta e più gestibile
+    let gameSpeed = 0.22;
 
     let currentSkin = 0;
     let unlockedChars = [true, false, false];
@@ -128,7 +130,6 @@
 
     function init() {
         scene = new THREE.Scene();
-        // Cielo luminoso sfumato dal verde chiaro all'azzurro cielo
         scene.background = new THREE.Color(0x3498db);
         scene.fog = new THREE.FogExp2(0x3498db, 0.018);
 
@@ -140,13 +141,11 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('game-canvas').appendChild(renderer.domElement);
 
-        // Illuminazione solare brillante e calda
         scene.add(new THREE.AmbientLight(0xffffff, 0.8));
         const dirLight = new THREE.DirectionalLight(0xfffaed, 1.2);
         dirLight.position.set(10, 30, 20);
         scene.add(dirLight);
 
-        // Luce secondaria di rimbalzo dal prato
         const groundLight = new THREE.DirectionalLight(0x2ecc71, 0.5);
         groundLight.position.set(-10, -10, -10);
         scene.add(groundLight);
@@ -163,19 +162,18 @@
         animate();
     }
 
-    // Costruzione di un Personaggio dettagliato (corpo, testa, braccia, gambe, zaino/cappuccio)
     function buildPlayer() {
         if (player) scene.remove(player);
         
         const group = new THREE.Group();
-        let primaryColor = 0xe74c3c; // Giacca rossa classica explorer
+        let primaryColor = 0xe74c3c;
         let pantsColor = 0x2980b9;
         let skinColor = 0xffdbac;
 
-        if (currentSkin === 1) { // Forest Ranger
+        if (currentSkin === 1) {
             primaryColor = 0x27ae60;
             pantsColor = 0x7f8c8d;
-        } else if (currentSkin === 2) { // Spirit Runner
+        } else if (currentSkin === 2) {
             primaryColor = 0x9b59b6;
             pantsColor = 0x8e44ad;
             skinColor = 0x00ffff;
@@ -185,23 +183,19 @@
         const pantsMat = new THREE.MeshStandardMaterial({ color: pantsColor, roughness: 0.6 });
         const skinMat = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.5 });
 
-        // Busto
         const torso = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.7, 0.3), clothesMat);
         torso.position.y = 0.8;
         group.add(torso);
 
-        // Testa
         const head = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.38, 0.38), skinMat);
         head.position.y = 1.35;
         group.add(head);
 
-        // Cappello / Capelli
         const hatMat = new THREE.MeshStandardMaterial({ color: 0x34495e });
         const hat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.15, 0.42), hatMat);
         hat.position.y = 1.57;
         group.add(hat);
 
-        // Gambe
         const legGeo = new THREE.BoxGeometry(0.2, 0.5, 0.22);
         const leftLeg = new THREE.Mesh(legGeo, pantsMat);
         leftLeg.position.set(-0.15, 0.3, 0);
@@ -217,7 +211,6 @@
     }
 
     function createTrackSegment(zPos) {
-        // Sentiero in terra battuta / erba curata
         const trackGeo = new THREE.PlaneGeometry(8, 10);
         const trackMat = new THREE.MeshStandardMaterial({ color: 0x27ae60, roughness: 0.8 });
         const track = new THREE.Mesh(trackGeo, trackMat);
@@ -226,7 +219,6 @@
         scene.add(track);
         trackSegments.push(track);
 
-        // Sentiero centrale in pietra/legno chiaro
         const pathGeo = new THREE.PlaneGeometry(7.2, 10);
         const pathMat = new THREE.MeshStandardMaterial({ color: 0xd68910, roughness: 0.9 });
         const path = new THREE.Mesh(pathGeo, pathMat);
@@ -235,7 +227,6 @@
         scene.add(path);
         trackSegments.push(path);
 
-        // Alberi laterali decorativi per creare il bosco visibile
         if (zPos % 20 === 0) {
             spawnTree(-5.5, zPos);
             spawnTree(5.5, zPos);
@@ -265,7 +256,6 @@
         let obsLane = Math.floor(Math.random() * 3);
         let xPos = (obsLane - 1) * 2.5;
 
-        // Ostacoli naturali del bosco: Tronco d'albero caduto (basso) o masso di roccia (alto)
         let isLow = Math.random() > 0.5;
         let obsGeo = isLow ? new THREE.BoxGeometry(2.2, 0.7, 0.8) : new THREE.BoxGeometry(2.0, 2.0, 1.0);
         let obsMat = new THREE.MeshStandardMaterial({ 
@@ -279,7 +269,6 @@
         scene.add(obs);
         obstacles.push(obs);
 
-        // Monete dorate luccicanti
         for (let l = 0; l < 3; l++) {
             if (l !== obsLane && Math.random() < 0.7) {
                 let coin = new THREE.Mesh(
@@ -385,7 +374,7 @@
 
         if (gameActive) {
             score += Math.floor(gameSpeed * 10);
-            gameSpeed += 0.00008; // Crescita graduale e morbida della velocità
+            gameSpeed += 0.00008;
 
             document.getElementById('score').innerText = score;
             document.getElementById('coins').innerText = totalCoins;
@@ -411,7 +400,6 @@
                 }
             }
 
-            // Movimento del mondo
             trackSegments.forEach(seg => {
                 seg.position.z += gameSpeed;
                 if (seg.position.z > 15) seg.position.z -= 170;
@@ -422,17 +410,14 @@
                 if (elem.position.z > 15) elem.position.z -= 170;
             });
 
-            // Controllo ostacoli con Hitbox tollerante (evita i bug di collisione ingiusti)
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i];
                 obs.position.z += gameSpeed;
 
                 let dist = Math.abs(obs.position.z - player.position.z);
-                // Allargata la tolleranza di distanza a 1.0 per dare respiro al giocatore quando schiva
                 if (dist < 1.0 && obs.userData.lane === lane) {
                     let hit = true;
                     if (obs.userData.type === 'low' && isCrouching) hit = false;
-                    // Se salti ed elimini l'altezza dell'ostacolo alto, eviti la collisione in sicurezza
                     if (obs.userData.type === 'high' && isJumping && player.position.y > 0.8) hit = false;
 
                     if (hit) {
@@ -446,7 +431,6 @@
                 }
             }
 
-            // Raccolta monete
             for (let i = coins.length - 1; i >= 0; i--) {
                 let c = coins[i];
                 c.position.z += gameSpeed;
@@ -488,4 +472,13 @@
     }
 
     function onWindowResize() {
-        camera.aspect = window.i
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    window.onload = init;
+</script>
+</body>
+    </html>
+    
