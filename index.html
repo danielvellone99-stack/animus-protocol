@@ -3,133 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>RunGPT - La tua AI</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>RunGPT - Crea Siti Web</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,sans-serif;background:#212121;color:#ececec;height:100vh;overflow:hidden;display:flex}
-#side{width:260px;background:#171717;display:flex;flex-direction:column;padding:10px;transition:.3s;z-index:20}
-#side.mob{position:fixed;left:-260px;top:0;bottom:0}
-#side.mob.open{left:0}
-#new{background:#facc15;color:#000;border:0;padding:10px 14px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:10px}
-#new:hover{background:#fde047}
-#chats{flex:1;overflow-y:auto}
-.chat-item{padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0;display:flex;align-items:center;gap:10px;color:#aaa}
-.chat-item:hover{background:#2f2f2f;color:#fff}
-.chat-item.on{background:#2f2f2f;color:#fff}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#ececec;height:100vh;display:flex;overflow:hidden}
+#side{width:270px;background:#171717;border-right:1px solid #2a2a2a;display:flex;flex-direction:column;padding:12px}
+#logo{display:flex;align-items:center;gap:10px;padding:8px 6px 16px;font-weight:800;font-size:18px}
+#logo span{color:#facc15}
+#new{background:#facc15;color:#000;border:0;padding:12px 16px;border-radius:12px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px}
+#new:hover{background:#fde047;transform:translateY(-1px)}
+#chats{flex:1;overflow:auto;margin-top:12px}
+.c{padding:10px 12px;border-radius:10px;color:#8e8e8e;cursor:pointer;font-size:13px;display:flex;gap:10px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0}
+.c:hover{background:#212121;color:#fff}
+.c.on{background:#212121;color:#fff;border:1px solid #2a2a2a}
 #main{flex:1;display:flex;flex-direction:column;background:#212121;position:relative}
-#top{height:52px;display:flex;align-items:center;padding:0 16px;border-bottom:1px solid #2f2f2f;justify-content:space-between}
-#top b{font-size:18px}
-#msgs{flex:1;overflow-y:auto;padding:20px 0}
-.msg{max-width:750px;margin:0 auto;padding:18px 20px;display:flex;gap:16px}
-.msg.user{background:#212121}
-.msg.ai{background:#2f2f2f0a}
-.av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.av.user{background:#facc15;color:#000}
-.av.ai{background:#fff;color:#000}
-.bubble{flex:1;line-height:1.6;font-size:15px;white-space:pre-wrap;word-break:break-word}
-.bubble code{background:#0005;padding:2px 6px;border-radius:6px;font-size:13px}
-#welcome{max-width:700px;margin:60px auto;text-align:center;padding:20px}
-#welcome h1{font-size:32px;margin-bottom:10px}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
-.card{border:1px solid #3f3f3f;border-radius:12px;padding:14px;text-align:left;cursor:pointer}
-.card:hover{background:#2f2f2f}
-.card b{display:block;font-size:13px;margin-bottom:4px}
-.card p{font-size:12px;color:#aaa}
-#inputBox{padding:12px 16px 20px;max-width:800px;width:100%;margin:0 auto}
-#inputWrap{background:#2f2f2f;border-radius:26px;display:flex;align-items:end;padding:8px 10px 8px 18px;gap:8px}
-#inp{flex:1;background:transparent;border:0;color:#fff;font-size:16px;resize:none;outline:0;max-height:120px;min-height:24px;font-family:inherit;padding:6px 0}
-#send{width:32px;height:32px;border-radius:50%;background:#fff;color:#000;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
-#send:disabled{opacity:.3}
-#mobBtn{display:none;background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer}
-@media(max-width:700px){#side{position:fixed;left:-260px;top:0;bottom:0;width:260px}#side.open{left:0}#mobBtn{display:block}.cards{grid-template-columns:1fr}}
+#top{height:54px;border-bottom:1px solid #2a2a2a;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+#msgs{flex:1;overflow:auto}
+.wel{max-width:760px;margin:40px auto;padding:20px;text-align:center}
+.wel h1{font-size:36px;font-weight:800;letter-spacing:-1px}
+.wel h1 i{color:#facc15;font-style:normal}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0;text-align:left}
+.card{background:#171717;border:1px solid #2a2a2a;border-radius:16px;padding:16px;cursor:pointer;transition:.2s}
+.card:hover{border-color:#facc15;background:#1e1e1e;transform:translateY(-2px)}
+.card b{font-size:14px;display:block;margin-bottom:4px}
+.card p{font-size:12px;color:#888}
+.msg{max-width:800px;margin:0 auto;padding:20px;display:flex;gap:14px;border-bottom:1px solid #2a2a2a11}
+.av{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;font-size:14px}
+.av.u{background:#facc15;color:#000}
+.av.a{background:#fff;color:#000}
+.bub{flex:1;line-height:1.65;font-size:15px;white-space:pre-wrap;word-break:break-word}
+.codeBox{background:#0a0a0a;border:1px solid #2a2a2a;border-radius:14px;overflow:hidden;margin:12px 0}
+.codeHead{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#171717;border-bottom:1px solid #2a2a2a;font-size:12px;color:#888}
+.codeBtn{background:#facc15;color:#000;border:0;padding:6px 12px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;margin-left:6px}
+.codeBtn:hover{background:#fff}
+pre{padding:14px;overflow:auto;font-size:13px;line-height:1.5;max-height:400px}
+.preview{border-top:1px solid #2a2a2a;background:#fff}
+.preview iframe{width:100%;height:400px;border:0;display:block}
+#inputArea{padding:14px 18px 22px;max-width:840px;width:100%;margin:0 auto}
+#wrap{background:#2f2f2f;border:1px solid #3a3a3a;border-radius:28px;display:flex;align-items:end;padding:8px 10px 8px 18px;gap:10px;box-shadow:0 4px 20px #0006}
+#inp{flex:1;background:transparent;border:0;color:#fff;font-size:16px;outline:0;resize:none;min-height:24px;max-height:140px;font-family:inherit;padding:6px 0}
+#send{width:36px;height:36px;border-radius:50%;background:#fff;color:#000;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900}
+#send:hover{background:#facc15}
+#hint{text-align:center;font-size:10px;color:#555;margin-top:8px}
+@media(max-width:700px){#side{position:fixed;left:-280px;top:0;bottom:0;z-index:20;transition:.3s}#side.open{left:0}.cards{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div id="side">
-<button id="new"><i class="fa-solid fa-plus"></i> Nuova chat</button>
+<div id="logo">🦇 Run<span>GPT</span></div>
+<button id="new">+ Nuova chat</button>
 <div id="chats"></div>
-<div style="border-top:1px solid #2f2f2f;padding:12px 6px;font-size:12px;color:#888">
-<div><i class="fa-solid fa-bolt" style="color:#facc15"></i> RunGPT v1.0</div>
-<div style="margin-top:4px">By danielvellone99-stack</div>
+<div style="margin-top:auto;padding:12px 6px;border-top:1px solid #2a2a2a;font-size:11px;color:#666">
+<div style="color:#facc15">● RunGPT PRO - Website Builder</div>
+<div style="margin-top:4px">Crea siti come Meta AI</div>
 </div>
 </div>
 <div id="main">
 <div id="top">
-<button id="mobBtn"><i class="fa-solid fa-bars"></i></button>
-<b>RunGPT <span style="color:#facc15">●</span></b>
-<div style="font-size:12px;color:#888">AI Generale</div>
+<div style="display:flex;align-items:center;gap:12px"><button id="menuBtn" style="display:none;background:transparent;border:0;color:#fff;font-size:20px">☰</button><b>RunGPT</b><span style="background:#facc15;color:#000;font-size:10px;padding:3px 8px;border-radius:99px;font-weight:800;margin-left:8px">PRO</span></div>
+<div style="font-size:12px;color:#666">Crea siti web istantanei</div>
 </div>
-<div id="msgs">
-<div id="welcome">
-<h1>Ciao, sono RunGPT 🦇</h1>
-<p style="color:#aaa;margin-bottom:20px">La tua intelligenza artificiale personale, pronta ad aiutarti</p>
-<div class="cards">
-<div class="card" onclick="quick('Spiegami la teoria della relatività in modo semplice')"><b>📚 Studia con me</b><p>Spiegami qualsiasi argomento</p></div>
-<div class="card" onclick="quick('Scrivimi un codice in Python per un gioco')"><b>💻 Codice</b><p>Programma qualsiasi cosa</p></div>
-<div class="card" onclick="quick('Dammi 10 idee per un nome di startup')"><b>💡 Idee</b><p>Brainstorming creativo</p></div>
-<div class="card" onclick="quick('Correggi questo testo: ')"><b>✍️ Scrivi meglio</b><p>Traduci, correggi, migliora</p></div>
+<div id="msgs"></div>
+<div id="inputArea">
+<div id="wrap">
+<textarea id="inp" placeholder="Chiedi: fammi un sito portfolio giallo e nero..."></textarea>
+<button id="send">↑</button>
 </div>
-</div>
-</div>
-<div id="inputBox">
-<div id="inputWrap">
-<textarea id="inp" placeholder="Messaggio a RunGPT..." rows="1"></textarea>
-<button id="send"><i class="fa-solid fa-arrow-up"></i></button>
-</div>
-<p style="text-align:center;font-size:10px;color:#666;margin-top:8px">RunGPT può commettere errori. Verifica le informazioni importanti.</p>
+<div id="hint">RunGPT crea siti, giochi, app in un file solo. Pronto per GitHub.</div>
 </div>
 </div>
 <script>
-let chats=JSON.parse(localStorage.getItem('rg_chats')||'[]'),curId=null;
-const msgsEl=document.getElementById('msgs'),inp=document.getElementById('inp'),sendBtn=document.getElementById('send'),chatsEl=document.getElementById('chats');
-function save(){localStorage.setItem('rg_chats',JSON.stringify(chats))}
-function newChat(){
- curId=Date.now().toString();chats.unshift({id:curId,title:'Nuova chat',msgs:[]});save();renderChats();renderMsgs();
- document.getElementById('welcome').style.display='block';
-}
-function renderChats(){
- chatsEl.innerHTML='';chats.forEach(c=>{
-  let d=document.createElement('div');d.className='chat-item'+(c.id==curId?' on':'');
-  d.innerHTML=`<i class="fa-regular fa-message"></i> ${c.title}`;d.onclick=()=>{curId=c.id;renderChats();renderMsgs();if(window.innerWidth<700)document.getElementById('side').classList.remove('open')};chatsEl.appendChild(d);
- });
-}
-function renderMsgs(){
- if(!curId){msgsEl.innerHTML=document.getElementById('welcome').outerHTML;return}
- let ch=chats.find(x=>x.id==curId);if(!ch||ch.msgs.length==0){msgsEl.innerHTML=document.getElementById('welcome').outerHTML;return}
- msgsEl.innerHTML='';ch.msgs.forEach(m=>{
-  let div=document.createElement('div');div.className='msg '+(m.role=='user'?'user':'ai');
-  div.innerHTML=`<div class="av ${m.role}">${m.role=='user'?'D':'🤖'}</div><div class="bubble">${esc(m.text)}</div>`;msgsEl.appendChild(div);
- });
- msgsEl.scrollTop=msgsEl.scrollHeight;
-}
-function esc(t){return t.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/```([\s\S]*?)```/g,'<pre style="background:#0008;padding:12px;border-radius:10px;overflow:auto;margin:8px 0"><code>$1</code></pre>')}
-async function send(){
- let txt=inp.value.trim();if(!txt) return;
- if(!curId) newChat();
- let ch=chats.find(x=>x.id==curId);
- if(ch.msgs.length==0){ch.title=txt.slice(0,30);renderChats()}
- ch.msgs.push({role:'user',text:txt});inp.value='';renderMsgs();save();
- let loadDiv=document.createElement('div');loadDiv.className='msg ai';loadDiv.innerHTML=`<div class="av ai">🤖</div><div class="bubble">●●●</div>`;msgsEl.appendChild(loadDiv);msgsEl.scrollTop=msgsEl.scrollHeight;
- try{
-  let res=await fetch('https://text.pollinations.ai/openai',{
-   method:'POST',headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({model:'openai',messages:[{role:'system',content:'Sei RunGPT, un assistente AI generale utile, amichevole, parli italiano, creato da danielvellone99-stack. Rispondi in modo chiaro, utile, come ChatGPT. Usa emoji quando serve.'},{role:'user',content:txt}],stream:false})
-  });
-  let data=await res.json();let ans=data.choices?.[0]?.message?.content||data.content||'Errore, riprova';
-  ch.msgs.push({role:'assistant',text:ans});save();renderMsgs();
- }catch(e){
-  ch.msgs.push({role:'assistant',text:'⚠️ Errore di connessione. Riprova. (Se offline, controllo...)\n\nIntanto posso aiutarti offline: dimmi cosa ti serve e ti rispondo con quello che so!'});save();renderMsgs();
+let chats=JSON.parse(localStorage.getItem('rg_pro')||'[]'),cur=null;
+const msgs=document.getElementById('msgs'),inp=document.getElementById('inp');
+function save(){localStorage.setItem('rg_pro',JSON.stringify(chats))}
+function newChat(){cur=Date.now()+'';chats.unshift({id:cur,t:'Nuova chat',m:[]});save();renderList();render()}
+function renderList(){let el=document.getElementById('chats');el.innerHTML='';chats.forEach(c=>{let d=document.createElement('div');d.className='c'+(c.id==cur?' on':'');d.innerHTML='💬 '+c.t;d.onclick=()=>{cur=c.id;renderList();render();document.getElementById('side').classList.remove('open')};el.appendChild(d)})}
+function esc(s){return s.replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function formatWithCode(text){
+ let parts=text.split(/```(html)?([\s\S]*?)```/gi);
+ let html='';for(let i=0;i<parts.length;i++){
+  if(i%3==0){html+=`<div style="white-space:pre-wrap">${esc(parts[i])}</div>`}
+  else if(i%3==2){
+   let code=parts[i].trim();let id='code_'+Date.now()+'_'+i;
+   html+=`<div class="codeBox"><div class="codeHead"><span>🌐 Sito Generato</span><span><button class="codeBtn" onclick="copyCode('${id}')">📋 Copia</button><button class="codeBtn" onclick="previewCode('${id}')">👁️ Anteprima</button></span></div><pre id="${id}">${esc(code)}</pre><div id="prev_${id}" class="preview" style="display:none"><iframe></iframe></div></div>`;
+  }
  }
+ return html;
 }
-function quick(t){inp.value=t;send()}
+function copyCode(id){let c=document.getElementById(id).innerText;navigator.clipboard.writeText(c);alert('Codice copiato! Incollalo su GitHub come index.html')}
+function previewCode(id){let box=document.getElementById('prev_'+id);let code=document.getElementById(id).innerText;box.style.display=box.style.display=='none'?'block':'none';box.querySelector('iframe').srcdoc=code}
+function render(){
+ if(!cur||!chats.find(x=>x.id==cur)?.m.length){
+  msgs.innerHTML=`<div class="wel"><h1>Come creo siti io? Chiedilo a <i>RunGPT</i></h1><p style="color:#888;margin:12px 0 20px">Dimmi che sito vuoi e te lo creo in un file solo, pronto per GitHub - come fa Meta AI</p><div class="cards"><div class="card" onclick="quick('Crea un sito portfolio personale giallo e nero stile Batman, moderno')"><b>🎨 Sito Portfolio</b><p>Portfolio dark con animazioni</p></div><div class="card" onclick="quick('Crea un gioco Flappy Bird in un file html')"><b>🎮 Gioco</b><p>Giochi completi in un file</p></div><div class="card" onclick="quick('Crea un sito e-commerce per vendere scarpe')"><b>🛒 E-commerce</b><p>Shop online completo</p></div><div class="card" onclick="quick('Crea un clone di Instagram in html')"><b>📸 Clone App</b><p>Cloni di app famose</p></div></div></div>`;return}
+ msgs.innerHTML='';chats.find(x=>x.id==cur).m.forEach(m=>{
+  let div=document.createElement('div');div.className='msg';
+  let content=m.t.includes('```')?formatWithCode(m.t):`<div style="white-space:pre-wrap">${esc(m.t)}</div>`;
+  div.innerHTML=`<div class="av ${m.r=='u'?'u':'a'}">${m.r=='u'?'D':'🤖'}</div><div class="bub">${content}</div>`;
+  msgs.appendChild(div);
+ });msgs.scrollTop=999999;
+}
+async function send(t){
+ if(!t) return;if(!cur)newChat();let c=chats.find(x=>x.id==cur);if(c.m.length==0){c.t=t.slice(0,28);renderList()}c.m.push({r:'u',t});inp.value='';render();save();
+ let load=document.createElement('div');load.className='msg';load.innerHTML='<div class="av a">🤖</div><div class="bub">●●● Sto creando...</div>';msgs.appendChild(load);msgs.scrollTop=999999;
+ try{
+  let prompt=`Sei RunGPT PRO, creatore di siti web come Meta AI. Utente vuole: ${t}. Se chiede sito/gioco/app, rispondi con breve spiegazione + CODICE COMPLETO in unico file HTML (CSS e JS inline) dentro blocco \`\`\`html... \`\`\`. Siti moderni, dark, giallo #facc15, responsive, animati. Se non chiede sito, rispondi normale come ChatGPT. Italiano.`;
+  let r=await fetch('https://text.pollinations.ai/openai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'openai',messages:[{role:'user',content:prompt}]})});
+  let j=await r.json();let ans=j.choices?.[0]?.message?.content||j.content||'Errore';
+  c.m.push({r:'a',t:ans});
+ }catch(e){c.m.push({r:'a',t:'Offline - ecco un sito base:\n```html\n<!DOCTYPE html><html><head><style>body{background:#0a0a0a;color:#facc15;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif}</style></head><body><h1>Il tuo sito 🚀</h1></body></html>\n```'})}
+ save();render();
+}
+function quick(t){send(t)}
 document.getElementById('new').onclick=newChat;
-sendBtn.onclick=send;
-inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
-inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=inp.scrollHeight+'px'});
-document.getElementById('mobBtn').onclick=()=>document.getElementById('side').classList.toggle('open');
-if(chats.length==0)newChat();else{curId=chats[0].id;renderChats();renderMsgs()}
+document.getElementById('send').onclick=()=>send(inp.value.trim());
+inp.onkeydown=e=>{if(e.key=='Enter'&&!e.shiftKey){e.preventDefault();send(inp.value.trim())}};
+inp.oninput=()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,140)+'px'};
+document.getElementById('menuBtn').onclick=()=>document.getElementById('side').classList.toggle('open');
+if(window.innerWidth<700)document.getElementById('menuBtn').style.display='block';
+if(chats.length){cur=chats[0].id;renderList();render()}else newChat();
 </script>
 </body>
 </html>
