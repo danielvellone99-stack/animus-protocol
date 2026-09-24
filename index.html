@@ -3,120 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Grisolia Runner - Batman Edition</title>
+<title>Grisolia Runner - Batman</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@700;900&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:#0a0a14;color:#fff;font-family:'Fredoka',sans-serif;overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
-#game{position:relative;width:100%;max-width:400px;height:100%;max-height:750px;background:linear-gradient(180deg,#1e1b4b 0%,#312e81 30%,#0a0a14 100%);overflow:hidden;border:3px solid #facc15;box-shadow:0 0 30px #facc1588}
-canvas{display:block;width:100%;height:100%}
-#ui{position:absolute;top:0;left:0;right:0;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;z-index:10}
-.badge{background:#000a;color:#facc15;border:2px solid #facc15;padding:6px 12px;border-radius:99px;font-weight:900;font-size:14px}
-#menu{position:absolute;inset:0;background:linear-gradient(180deg,#1e1b4be6,#0a0a14f0);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;text-align:center;padding:20px}
-h1{font-size:42px;color:#facc15;text-shadow:0 4px 0 #000,0 0 20px #facc15;letter-spacing:2px;line-height:0.9}
-h1 span{color:#fff}
-.btn{background:#facc15;color:#000;border:0;padding:14px 28px;border-radius:99px;font-weight:900;font-size:18px;font-family:'Fredoka',sans-serif;cursor:pointer;box-shadow:0 6px 0 #a68a0a,0 0 20px #facc15aa;transition:.1s;margin:8px}
-.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #a68a0a}
-.btn2{background:#fff;color:#000;box-shadow:0 6px 0 #999}
-.shop{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0;width:100%;max-width:320px}
-.skin{background:#ffffff11;border:2px solid #ffffff33;border-radius:16px;padding:12px;cursor:pointer}
-.skin.on{border-color:#facc15;background:#facc1522;box-shadow:0 0 15px #facc15aa}
-.skin b{display:block;font-size:13px;margin-top:6px}
-.dot{width:40px;height:40px;border-radius:50%;margin:0 auto}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050510;color:#fff;font-family:'Fredoka',sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#box{position:relative;width:100%;max-width:420px;height:100%;max-height:800px;background:radial-gradient(120% 80% at 50% 0%,#2a2a6a 0%,#1a1a40 35%,#0a0a1a 100%);border:3px solid #facc15;box-shadow:0 0 40px #facc1566;overflow:hidden}
+canvas{width:100%;height:100%;display:block}
+#top{position:absolute;top:0;left:0;right:0;padding:10px 14px;display:flex;justify-content:space-between;z-index:5}
+.pill{background:#000c;border:2px solid #facc15;color:#facc15;padding:6px 14px;border-radius:99px;font-weight:900;font-size:15px;box-shadow:0 2px 10px #000}
+#center{position:absolute;inset:0;background:linear-gradient(180deg,#1a1a40ee,#050510f5);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center}
+h1{font-size:48px;line-height:.85;color:#facc15;text-shadow:0 4px 0 #000,0 0 30px #facc15;letter-spacing:1px}
+h1 i{color:#fff;font-style:normal}
+.bt{background:#facc15;color:#000;border:0;padding:14px 32px;border-radius:99px;font-family:'Fredoka';font-weight:900;font-size:18px;margin:8px;cursor:pointer;box-shadow:0 5px 0 #8a6d00,0 0 20px #facc15aa}
+.bt:active{transform:translateY(3px);box-shadow:0 2px 0 #8a6d00}
+.bt2{background:#fff;box-shadow:0 5px 0 #888;color:#000}
+#shopBox{display:none;width:100%;max-width:340px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.card{background:#ffffff15;border:2px solid #ffffff30;border-radius:14px;padding:10px 6px;cursor:pointer;transition:.2s}
+.card.on{border-color:#facc15;background:#facc1525;box-shadow:0 0 12px #facc15}
+.card b{font-size:11px;display:block;margin-top:4px}
+.em{font-size:28px;line-height:1}
 </style>
 </head>
 <body>
-<div id="game">
-<canvas id="c" width="400" height="750"></canvas>
-<div id="ui">
-<div class="badge" id="sc">0</div>
-<div class="badge" id="co">💰 0</div>
+<div id="box">
+<canvas id="c" width="420" height="800"></canvas>
+<div id="top"><div class="pill" id="s">0</div><div class="pill" id="m">💰 0</div></div>
+<div id="center">
+<h1>GRISOLIA<br><i>RUNNER</i></h1>
+<div style="color:#facc15;margin:10px 0;font-size:13px;letter-spacing:1px">BATMAN EDITION • TAP TO JUMP</div>
+<div style="display:flex;flex-wrap:wrap;justify-content:center">
+<button class="bt" onclick="go()">▶ GIOCA</button>
+<button class="bt bt2" onclick="togShop()">🛒 SHOP</button>
 </div>
-<div id="menu">
-<h1>GRISOLIA<br><span>RUNNER</span></h1>
-<p style="margin:12px 0;color:#facc15;font-size:14px">BATMAN EDITION • TAP PER SALTARE</p>
-<button class="btn" onclick="start()">▶ GIOCA</button>
-<button class="btn btn2" onclick="openShop()">🛒 SHOP</button>
-<div id="shop" style="display:none;width:100%">
-<div class="shop" id="skins"></div>
-<button class="btn btn2" onclick="closeShop()">CHIUDI</button>
+<div id="shopBox">
+<div class="grid" id="g"></div>
+<button class="bt bt2" onclick="togShop()">CHIUDI</button>
 </div>
-<p style="margin-top:14px;font-size:11px;opacity:.6">Monete salvate • Record: <span id="rec">0</span></p>
+<div style="margin-top:14px;font-size:11px;opacity:.6">Record: <span id="r">0</span> • Monete salvate</div>
 </div>
 </div>
 <script>
-const C=document.getElementById('c'),X=C.getContext('2d');
-let W=400,H=750,player={x:60,y:600,w:36,h:36,vy:0,j:false},obs=[],coins=[],score=0,coin=parseInt(localStorage.getItem('gr_co')||'0'),rec=parseInt(localStorage.getItem('gr_rec')||'0'),run=false,skinId=localStorage.getItem('gr_skin')||'bat',skins=[
-{id:'bat',n:'BATMAN',c:'#facc15',e:'🦇'},
-{id:'def',n:'GRISOLIA',c:'#22c55e',e:'🏃'},
-{id:'spi',n:'SPIDER',c:'#ef4444',e:'🕷️'},
-{id:'fla',n:'FLASH',c:'#ef4444',e:'⚡'},
-{id:'ice',n:'GHIACCIO',c:'#38bdf8',e:'❄️'},
-{id:'gol',n:'GOLD',c:'#facc15',e:'👑'}
-],cost={bat:0,def:0,spi:50,fla:100,ice:150,gol:300},owned=JSON.parse(localStorage.getItem('gr_own')||'["bat","def"]');
-document.getElementById('co').innerText='💰 '+coin;
-document.getElementById('rec').innerText=rec;
-function openShop(){document.getElementById('shop').style.display='block';renderSkins()}
-function closeShop(){document.getElementById('shop').style.display='none'}
-function renderSkins(){
+const C=document.getElementById('c'),X=C.getContext('2d'),W=420,H=800;
+let pl={x:60,y:620,w:44,h:44,vy:0,j:0},ob=[],co=[],sc=0,coins=+localStorage.getItem('gc')||0,rec=+localStorage.getItem('gr')||0,run=0,skin=localStorage.getItem('sk')||'bat',skins=[
+{id:'bat',n:'BATMAN',col:'#facc15',em:'🦇',p:0},
+{id:'def',n:'RUNNER',col:'#22c55e',em:'🏃',p:0},
+{id:'spi',n:'SPIDER',col:'#ef4444',em:'🕷️',p:60},
+{id:'fla',n:'FLASH',col:'#f43f5e',em:'⚡',p:120},
+{id:'ice',n:'ICE',col:'#38bdf8',em:'❄️',p:200},
+{id:'gol',n:'GOLD',col:'#fbbf24',em:'👑',p:350}
+],own=JSON.parse(localStorage.getItem('ow')||'["bat","def"]');
+document.getElementById('m').innerText='💰 '+coins;document.getElementById('r').innerText=rec;
+function togShop(){let b=document.getElementById('shopBox');b.style.display=b.style.display==='block'?'none':'block';drawShop()}
+function drawShop(){
  let h='';skins.forEach(s=>{
-  let has=owned.includes(s.id),on=skinId===s.id;
-  h+=`<div class="skin ${on?'on':''}" onclick="buy('${s.id}')"><div class="dot" style="background:${s.c}"></div><b>${s.e} ${s.n}</b><small style="font-size:10px;opacity:.7">${has?(on?'EQUIPAGGIATO':'USA'):(s.c==='#facc15'&&s.id==='bat'?'GRATIS':cost[s.id]+' 💰')}</small></div>`;
- });document.getElementById('skins').innerHTML=h;
+  let has=own.includes(s.id),on=skin==s.id;
+  h+=`<div class="card ${on?'on':''}" onclick="buy('${s.id}')"><div class="em">${s.em}</div><b>${s.n}</b><small style="font-size:9px;opacity:.7">${has?(on?'EQUIP':'USA'):s.p+' 💰'}</small></div>`;
+ });document.getElementById('g').innerHTML=h;
 }
 function buy(id){
- if(!owned.includes(id)){
-  if(coin<cost[id]){alert('Servono '+cost[id]+' monete!');return}
-  coin-=cost[id];owned.push(id);
-  localStorage.setItem('gr_co',coin);localStorage.setItem('gr_own',JSON.stringify(owned));
-  document.getElementById('co').innerText='💰 '+coin;
+ let s=skins.find(x=>x.id==id);
+ if(!own.includes(id)){
+  if(coins<s.p){alert('Ti servono '+s.p+' monete!');return}
+  coins-=s.p;own.push(id);localStorage.setItem('gc',coins);localStorage.setItem('ow',JSON.stringify(own));document.getElementById('m').innerText='💰 '+coins;
  }
- skinId=id;localStorage.setItem('gr_skin',id);renderSkins();
+ skin=id;localStorage.setItem('sk',id);drawShop();
 }
-function start(){
- run=true;score=0;obs=[];coins=[];player.y=600;player.vy=0;
- document.getElementById('menu').style.display='none';
- loop();
+function go(){run=1;sc=0;ob=[];co=[];pl.y=620;pl.vy=0;document.getElementById('center').style.display='none';loop()}
+function over(){
+ run=0;if(sc>rec){rec=Math.floor(sc);localStorage.setItem('gr',rec)}document.getElementById('r').innerText=rec;
+ document.getElementById('center').style.display='flex';document.getElementById('center').querySelector('h1').innerHTML='GAME<br><i>OVER</i>';
 }
-function gameOver(){
- run=false;
- if(score>rec){rec=Math.floor(score);localStorage.setItem('gr_rec',rec)}
- document.getElementById('rec').innerText=rec;
- document.getElementById('menu').style.display='flex';
- document.getElementById('menu').querySelector('h1').innerHTML='GAME<br><span>OVER</span>';
+function batman(x,y,w){
+ let s=skins.find(a=>a.id==skin)||skins[0];
+ X.fillStyle='#000';X.beginPath();X.moveTo(x-6,y+10);X.lineTo(x+w+6,y+10);X.lineTo(x+w/2+10,y+w-6);X.fill();
+ X.fillStyle=s.col;X.fillRect(x,y,w,w);
+ X.fillStyle='#000';X.fillRect(x+4,y-6,8,10);X.fillRect(x+w-12,y-6,8,10);
+ X.fillStyle='#fff';X.fillRect(x+8,y+8,8,4);X.fillRect(x+w-16,y+8,8,4);
+ X.fillStyle=s.em;X.font='bold 18px Fredoka';X.textAlign='center';X.fillText(s.em,x+w/2,y+w-4);X.textAlign='left';
 }
 function loop(){
  if(!run) return;
- score+=0.15;
- if(Math.random()<0.025){obs.push({x:W+20,y:630,w:30+Math.random()*20,h:30+Math.random()*30})}
- if(Math.random()<0.02){coins.push({x:W+20,y:500+Math.random()*120,r:10,taken:false})}
- player.vy+=0.7;player.y+=player.vy;
- if(player.y>610){player.y=610;player.vy=0;player.j=false}
- obs.forEach(o=>o.x-=4+score/100);
- coins.forEach(o=>o.x-=4+score/100);
- obs=obs.filter(o=>o.x>-50);
- coins=coins.filter(o=>!o.taken&&o.x>-30);
- for(let o of obs){if(player.x+player.w>o.x&&player.x<o.x+o.w&&player.y+player.h>o.y){gameOver();return}}
- for(let o of coins){
-  let dx=(player.x+player.w/2)-(o.x),dy=(player.y+player.h/2)-(o.y);
-  if(Math.sqrt(dx*dx+dy*dy)<28){o.taken=true;coin++;localStorage.setItem('gr_co',coin);document.getElementById('co').innerText='💰 '+coin}
- }
+ sc+=0.18;
+ if(Math.random()<0.022+sc/5000){ob.push({x:W+30,y:660-Math.random()*20,w:28+Math.random()*18,h:28+Math.random()*24})}
+ if(Math.random()<0.018){co.push({x:W+30,y:520+Math.random()*110,r:12,ok:0})}
+ pl.vy+=0.72;pl.y+=pl.vy;if(pl.y>620){pl.y=620;pl.vy=0;pl.j=0}
+ ob.forEach(o=>o.x-=5+sc/80);co.forEach(o=>o.x-=5+sc/80);
+ ob=ob.filter(o=>o.x>-50);co=co.filter(o=>!o.ok&&o.x>-40);
+ for(let o of ob){if(pl.x+pl.w-8>o.x&&pl.x+8<o.x+o.w&&pl.y+pl.h-6>o.y){over();return}}
+ for(let o of co){let dx=pl.x+pl.w/2-o.x,dy=pl.y+pl.h/2-o.y;if(Math.sqrt(dx*dx+dy*dy)<30){o.ok=1;coins++;localStorage.setItem('gc',coins);document.getElementById('m').innerText='💰 '+coins}}
  X.clearRect(0,0,W,H);
- X.fillStyle='#111';X.fillRect(0,650,W,100);
- X.fillStyle='#facc1533';X.fillRect(0,648,W,4);
- obs.forEach(o=>{X.fillStyle='#1f1f2e';X.fillRect(o.x,o.y,o.w,o.h);X.fillStyle='#facc15';X.fillRect(o.x,o.y-4,o.w,4)});
- coins.forEach(o=>{X.beginPath();X.arc(o.x,o.y,o.r,0,Math.PI*2);X.fillStyle='#facc15';X.fill();X.fillStyle='#000';X.font='10px Fredoka';X.fillText('€',o.x-4,o.y+3)});
- let sk=skins.find(s=>s.id===skinId)||skins[0];
- X.fillStyle=sk.c;X.fillRect(player.x,player.y,player.w,player.h);
- X.fillStyle='#000';X.font='20px serif';X.fillText(sk.e,player.x+6,player.y+26);
- X.fillStyle='#0006';X.fillRect(player.x+4,610,player.w-8,6);
- document.getElementById('sc').innerText=Math.floor(score);
+ X.fillStyle='#ffffff08';for(let i=0;i<3;i++){X.beginPath();X.moveTo(0,600-i*30);X.quadraticCurveTo(W*0.3,540-i*30-Math.sin(sc/50+i)*10,W*0.6,580-i*30);X.quadraticCurveTo(W*0.8,620-i*30,W,600-i*30);X.lineTo(W,650);X.lineTo(0,650);X.fill()}
+ X.fillStyle='#101018';X.fillRect(0,680,W,120);X.fillStyle='#facc15';X.fillRect(0,678,W,4);
+ ob.forEach(o=>{X.fillStyle='#1e1e2f';X.fillRect(o.x,o.y,o.w,o.h);X.fillStyle='#facc15aa';X.fillRect(o.x,o.y,o.w,4);X.fillStyle='#0008';X.fillRect(o.x+2,o.y+6,4,o.h-6)});
+ co.forEach(o=>{
+  X.save();X.translate(o.x,o.y);X.rotate(sc/20);
+  X.beginPath();X.arc(0,0,o.r,0,Math.PI*2);X.fillStyle='#facc15';X.fill();X.strokeStyle='#fff8';X.lineWidth=2;X.stroke();
+  X.fillStyle='#000';X.font='900 12px Fredoka';X.textAlign='center';X.fillText('$',0,4);X.restore();X.textAlign='left';
+ });
+ batman(pl.x,pl.y,pl.w);
+ X.fillStyle='#0005';X.fillRect(pl.x+8,680,pl.w-16,6);
+ document.getElementById('s').innerText=Math.floor(sc);
  requestAnimationFrame(loop);
 }
-C.addEventListener('touchstart',e=>{e.preventDefault();if(run&&!player.j){player.vy=-14;player.j=true}else if(!run) start()},{passive:false});
-C.addEventListener('mousedown',()=>{if(run&&!player.j){player.vy=-14;player.j=true}});
-window.addEventListener('keydown',e=>{if(e.code==='Space'){if(run&&!player.j){player.vy=-14;player.j=true}else if(!run) start()}});
-renderSkins();
+C.addEventListener('touchstart',e=>{e.preventDefault();if(run&&!pl.j){pl.vy=-13.5;pl.j=1}else if(!run) go()},{passive:false});
+C.addEventListener('mousedown',()=>{if(run&&!pl.j){pl.vy=-13.5;pl.j=1}});
+addEventListener('keydown',e=>{if(e.code==='Space'){if(run&&!pl.j){pl.vy=-13.5;pl.j=1}else if(!run) go()}});
+drawShop();
 </script>
 </body>
 </html>
