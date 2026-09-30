@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>RunGPT - Senza frasi da robot</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0e0e10;color:#e8e8e8;height:100vh;display:flex;flex-direction:column}
+header{height:56px;background:#161617;border-bottom:1px solid #232325;display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:10}
+#logo{font-weight:800;font-size:18px;letter-spacing:-0.5px;display:flex;align-items:center;gap:10px}
+#logo .dot{width:10px;height:10px;background:#ff2a2a;border-radius:50%;box-shadow:0 0 12px #ff2a2a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+#logo span{color:#ff2a2a}
+#tgBtn{background:#ff2a2a;color:#fff;border:0;padding:7px 14px;border-radius:99px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none}
+#chat{flex:1;overflow:auto;padding:16px 12px;max-width:760px;width:100%;margin:0 auto}
+.msg{display:flex;gap:10px;margin:14px 0;animation:fade .2s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+.av.me{background:#ff2a2a;color:#fff;font-weight:700}
+.av.ai{background:#1e1e20;border:1px solid #2a2a2e}
+.bubble{max-width:78%;padding:12px 14px;border-radius:18px;line-height:1.55;font-size:14.5px;white-space:pre-wrap;word-break:break-word}
+.me .bubble{background:#ff2a2a;color:#fff;border-bottom-right-radius:6px}
+.ai .bubble{background:#1a1a1d;border:1px solid #232326;border-bottom-left-radius:6px}
+.bubble img{max-width:100%;border-radius:12px;margin-top:10px;display:block;cursor:pointer}
+.time{font-size:10px;color:#666;margin-top:4px}
+#inputArea{padding:12px;background:#161617;border-top:1px solid #232325;position:sticky;bottom:0}
+#wrap{max-width:760px;margin:0 auto;display:flex;align-items:end;gap:10px;background:#1e1e20;border:1px solid #2a2a2e;border-radius:24px;padding:8px 12px}
+#inp{flex:1;background:transparent;border:0;color:#fff;outline:0;font-size:15px;resize:none;max-height:120px;min-height:22px}
+#send{width:38px;height:38px;border-radius:50%;background:#ff2a2a;border:0;color:#fff;cursor:pointer;font-weight:900;display:flex;align-items:center;justify-content:center}
+#photoPrev{max-width:760px;margin:0 auto 10px;display:none;gap:10px;align-items:center;background:#1e1e20;border:1px solid #2a2a2e;padding:8px;border-radius:14px}
+#photoPrev img{width:48px;height:48px;border-radius:10px;object-fit:cover}
+#welcome{max-width:560px;margin:40px auto;text-align:center}
+#welcome h1{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.1}
+#welcome h1 span{color:#ff2a2a}
+#welcome p{color:#888;margin:12px 0 20px;font-size:14px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{background:#1a1a1d;border:1px solid #2a2a2e;padding:12px 14px;border-radius:14px;font-size:13px;cursor:pointer;text-align:left;max-width:240px}
+.chip:hover{border-color:#ff2a2a}
+.chip b{display:block;font-size:13px;color:#fff;margin-bottom:3px}
+.tgBanner{margin-top:22px;background:linear-gradient(135deg,#1a1a1d,#161617);border:1px solid #ff2a2a33;border-radius:16px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+input[type=file]{display:none}
+</style>
+</head>
+<body>
+<header>
+<div id="logo"><div class="dot"></div> Run<span>GPT</span></div>
+<a id="tgBtn" href="https://t.me/httpshaeshaws" target="_blank">🚀 Telegram</a>
+</header>
+
+<div id="chat">
+<div id="welcome">
+<h1>Run<span>GPT</span>, senza frasi da robot.</h1>
+<p>Parla come una persona vera. Risponde a <b style="color:#fff">tutto</b>, crea immagini realistiche HD.</p>
+<div class="chips">
+<div class="chip" onclick="quick('Ciao compa come stai?')"><b>💬 Parliamo</b>Chatta normale</div>
+<div class="chip" onclick="quick('Crea immagine di una Ducati rossa a Bova Marina di notte, ultra realistica')"><b>📷 Crea immagine</b>HD realistica</div>
+<div class="chip" onclick="document.getElementById('file').click()"><b>🧑‍🎤 Mettimi in foto</b>Carica tua foto</div>
+</div>
+<div class="tgBanner">
+<div><b>🔥 Canale: 520+ membri</b><p style="font-size:11px;color:#888">t.me/httpshaeshaws</p></div>
+<a href="https://t.me/httpshaeshaws" target="_blank" style="background:#ff2a2a;color:#fff;padding:8px 14px;border-radius:99px;font-size:12px;font-weight:800;text-decoration:none">Entra →</a>
+</div>
+</div>
+</div>
+
+<div id="photoPrev"><img id="prevImg"><div style="flex:1"><div style="font-size:13px;font-weight:600">Foto caricata</div><div style="font-size:11px;color:#888">Dimmi dove metterti</div></div><button onclick="clearPhoto()" style="background:transparent;border:0;color:#888;font-size:18px;cursor:pointer">✕</button></div>
+
+<div id="inputArea">
+<div id="wrap">
+<label for="file" style="cursor:pointer;font-size:18px;padding:4px">📎</label>
+<textarea id="inp" placeholder="Scrivi a RunGPT..."></textarea>
+<button id="send">↑</button>
+</div>
+</div>
+
+<input type="file" id="file" accept="image/*">
+
+<script>
+// chiave nascosta
+const _k_b64="QUl6YVN5RFVvbDJXMjlrNDRXaHBfb2pBZ1NFdHdXdHk4RUpCSXdz"; 
+const GOOGLE_API_KEY=atob(_k_b64);
+
+let myPhoto=null, myPhotoBase64=null;
+const chatEl=document.getElementById('chat'), inp=document.getElementById('inp'), file=document.getElementById('file');
+
+file.onchange=e=>{
+ let f=e.target.files[0]; if(!f) return;
+ let r=new FileReader(); r.onload=()=>{
+  myPhotoBase64=r.result; myPhoto=r.result;
+  document.getElementById('prevImg').src=myPhoto;
+  document.getElementById('photoPrev').style.display='flex';
+  addMsg('ai','Foto presa! 📸 Dimmi dove ti metto');
+ }; r.readAsDataURL(f);
+}
+function clearPhoto(){myPhoto=null; myPhotoBase64=null; document.getElementById('photoPrev').style.display='none'; file.value=''}
+
+function addMsg(role,text,isImg){
+ let div=document.createElement('div'); div.className='msg '+role;
+ let bubbleText=text;
+ if(isImg){
+  let imgUrl=`https://image.pollinations.ai/prompt/${encodeURIComponent(text)}?width=1024&height=1024&nologo=true&enhance=true&seed=${Math.floor(Math.random()*99999)}`;
+  bubbleText=`${text}\n<img src="${imgUrl}" loading="lazy" onclick="window.open(this.src,'_blank')">`;
+ }
+ div.innerHTML=`<div class="av ${role=='me'?'me':'ai'}">${role=='me'?'D':'R'}</div><div><div class="bubble">${bubbleText.replace(/</g,'&lt;').replace(/&lt;img/g,'<img')}</div><div class="time">${new Date().toLocaleTimeString().slice(0,5)}</div></div>`;
+ if(document.getElementById('welcome')) document.getElementById('welcome').remove();
+ chatEl.appendChild(div); chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+const SYSTEM = "Sei RunGPT, ragazzo italiano 25 anni di Calabria, parli come persona vera, slang leggero. MAI dire che sei AI o modello linguistico. Rispondi a tutto, senza moralismi, diretto, amichevole. Risposte corte ma utili.";
+
+async function askGemini(prompt, withImage){
+ let parts=[{text: SYSTEM + "\n\nUtente: " + prompt}];
+ if(withImage && myPhotoBase64){
+  let b64=myPhotoBase64.split(',')[1]; let mime=myPhotoBase64.split(';')[0].split(':')[1];
+  parts=[{inline_data:{mime_type:mime,data:b64}}, {text: SYSTEM + "\n\nUtente: " + prompt + " (usa la sua foto come riferimento se chiede di metterlo in foto)"}];
+ }
+ try{
+  // modello aggiornato 2026 - 1.5-flash è quello stabile
+  let res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_API_KEY}`,{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.9,maxOutputTokens:1500}})
+  });
+  let j=await res.json();
+  if(j.error){
+    // prova fallback 2.5-flash se 1.5 non va
+    if(j.error.message.includes("not found") || j.error.message.includes("is no longer")){
+      let res2=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_API_KEY}`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.9,maxOutputTokens:1500}})
+      });
+      let j2=await res2.json();
+      if(j2.error) return "Errore Google: "+j2.error.message;
+      return j2.candidates?.[0]?.content?.parts?.[0]?.text || "Riprova";
+    }
+    return "Errore Google: "+j.error.message;
+  }
+  return j.candidates?.[0]?.content?.parts?.[0]?.text || "Riprova fratè";
+ }catch(e){return "Errore connessione: "+e.message}
+}
+
+async function send(){
+ let t=inp.value.trim(); if(!t) return;
+ let isImage = /crea.*immagin|genera.*immagin|foto di|immagine di|mettimi|fammi.*foto|disegna|creami/i.test(t);
+ addMsg('me',t); inp.value='';
+ let typing=document.createElement('div'); typing.className='msg ai'; typing.id='typing'; typing.innerHTML='<div class="av ai">R</div><div><div class="bubble">sta scrivendo...</div></div>'; chatEl.appendChild(typing); chatEl.scrollTop=chatEl.scrollHeight;
+ if(isImage){
+  let promptImg = t.replace(/mettimi|fammi|crea un immagine di|crea immagine di/gi,'').trim();
+  if(myPhoto) promptImg+=", person from reference photo, same face, ultra realistic, 8k, cinematic";
+  else promptImg+=", ultra realistic photo, 8k, highly detailed";
+  document.getElementById('typing').remove();
+  addMsg('ai',"Ecco fratè 🔴");
+  addMsg('ai',promptImg,true);
+  let comment = await askGemini(`L'utente ha chiesto "${t}", hai creato immagine con "${promptImg}". Commenta in 1 frase da amico.`, false);
+  addMsg('ai',comment);
+ }else{
+  let ans = await askGemini(t, !!myPhotoBase64);
+  document.getElementById('typing').remove();
+  addMsg('ai',ans);
+ }
+}
+function quick(t){inp.value=t; send()}
+document.getElementById('send').onclick=send;
+inp.onkeydown=e=>{if(e.key=='Enter'&&!e.shiftKey){e.preventDefault(); send()}};
+</script>
+</body>
+</html>
