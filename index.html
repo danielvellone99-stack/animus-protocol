@@ -1,219 +1,162 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<title>Gestore di Attività – Versione Stand‑alone</title>
+<meta charset="UTF-8">
+<title>Runner Simile a Subway Surfers</title>
 <style>
-  /* ---------- Layout ---------- */
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#fafafa}
-  header{background:#333;color:#fff;padding:1rem;text-align:center}
-  header a{color:#ffeb3b;text-decoration:none;margin:0 .5rem}
-  main{padding:1rem}
-  footer{background:#333;color:#fff;text-align:center;padding:.5rem}
-
-  /* ---------- Table ---------- */
-  table{width:100%;border-collapse:collapse;margin-top:1rem}
-  th,td{border:1px solid #ddd;padding:.5rem;text-align:left}
-  th{background:#eee;cursor:pointer}
-  tr:nth-child(even){background:#f9f9f9}
-
-  /* ---------- Forms ---------- */
-  form{margin-top:1rem}
-  label{display:block;margin:.5rem 0}
-  input[type=text],input[type=date],textarea{width:100%;padding:.4rem;border:1px solid #ccc;border-radius:4px}
-  button{padding:.4rem 1rem;margin-top:.5rem;background:#4caf50;color:#fff;border:none;border-radius:4px}
-  button.delete{background:#f44336}
-  button:disabled{background:#9e9e9e}
-  .completed{color:#4caf50;font-weight:bold}
-
-  /* ---------- Modal ---------- */
-  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);justify-content:center;align-items:center}
-  .modal-content{background:#fff;padding:1rem;border-radius:4px;width:90%;max-width:500px}
+  body{margin:0;overflow:hidden;background:#87CEEB;display:flex;justify-content:center;align-items:center;height:100vh;}
+  canvas{background:#fff;border:2px solid #555;}
+  #score{position:absolute;top:20px;left:20px;font:20px Arial,Helvetica,sans-serif;color:#fff;text-shadow:0 0 5px #000;}
 </style>
 </head>
 <body>
-<header>
-  <h1>Gestore di Attività</h1>
-  <nav>
-    <a href="#" id="viewAll">Home</a>
-    <a href="#" id="newTaskBtn">Nuovo</a>
-    <a href="#" id="downloadBtn">Scarica HTML</a>
-  </nav>
-</header>
-
-<main id="app">
-  <!-- Content will be injected by JS -->
-</main>
-
-<footer>
-  © 2026 Gestore – Tutti i diritti riservati
-</footer>
-
-<!-- Modal for create/edit -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h2 id="modalTitle">Nuova Attività</h2>
-    <form id="taskForm">
-      <label>Titolo: <input type="text" name="title" required></label>
-      <label>Descrizione: <textarea name="description"></textarea></label>
-      <label>Scadenza: <input type="date" name="due"></label>
-      <label>Completata: <input type="checkbox" name="completed"></label>
-      <button type="submit" id="saveBtn">Salva</button>
-      <button type="button" id="cancelBtn">Annulla</button>
-    </form>
-  </div>
-</div>
+<div id="score">0</div>
+<canvas id="game" width="400" height="600"></canvas>
 
 <script>
-/* ---------- Utility ---------- */
-const storageKey = 'gestor_tasks';
+/* ==================== CONFIG ==================== */
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const WIDTH = canvas.width;
+const HEIGHT = canvas.height;
 
-function loadTasks() {
-  const data = localStorage.getItem(storageKey);
-  return data ? JSON.parse(data) : [];
-}
-function saveTasks(tasks) {
-  localStorage.setItem(storageKey, JSON.stringify(tasks));
-}
-function generateId() {
-  return Date.now() + Math.random().toString(36).substr(2, 5);
-}
+const GRAVITY = 0.6;          // accelerazione verso il basso
+const JUMP_STRENGTH = -12;    // forza del salto
+const MOVE_SPEED = 4;         // velocità di scorrimento del mondo
+const OBSTACLE_SPEED = 4;     // velocità ostacoli (uguale a MOVE_SPEED)
+const SPAWN_INTERVAL = 1500;  // ms fra due ostacoli (diminuisce col punteggio)
+const PLAYER_WIDTH = 30;
+const PLAYER_HEIGHT = 50;
+const OBSTACLE_WIDTH = 30;
+const OBSTACLE_HEIGHT = 50;
 
-/* ---------- UI Rendering ---------- */
-function renderList(tasks) {
-  const main = document.getElementById('app');
-  main.innerHTML = 
-    <table>
-      <thead>
-        <tr>
-          <th>Titolo</th>
-          <th>Scadenza</th>
-          <th>Completata</th>
-          <th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${tasks.map(t => 
-          <tr data-id="${t.id}">
-            <td>${t.title}</td>
-            <td>${t.due || 'N/A'}</td>
-            <td class="completed">${t.completed ? '✔️' : ''}</td>
-            <td>
-              <button class="editBtn">Modifica</button>
-              <button class="deleteBtn delete">Elimina</button>
-            </td>
-          </tr>
-        ).join('')}
-      </tbody>
-    </table>
-  ;
-  // Attach listeners
-  main.querySelectorAll('.editBtn').forEach(btn => {
-    btn.addEventListener('click', () => openEditModal(btn.closest('tr').dataset.id));
-  });
-  main.querySelectorAll('.deleteBtn').forEach(btn => {
-    btn.addEventListener('click', () => deleteTask(btn.closest('tr').dataset.id));
-  });
-}
+/* ==================== STATE ==================== */
+let player = {x:50, y:HEIGHT-70, vx:0, vy:0, width:PLAYER_WIDTH, height:PLAYER_HEIGHT, onGround:false};
+let obstacles = [];           // array di oggetti {x,y,width,height}
+let lastSpawn = 0;
+let score = 0;
+let gameOver = false;
+let keys = {};
 
-function renderForm(task = null) {
-  const main = document.getElementById('app');
-  main.innerHTML = 
-    <h2>${task ? 'Modifica Attività' : 'Nuova Attività'}</h2>
-    <form id="taskForm">
-      <label>Titolo: <input type="text" name="title" value="${task?.title || ''}" required></label>
-      <label>Descrizione: <textarea name="description">${task?.description || ''}</textarea></label>
-      <label>Scadenza: <input type="date" name="due" value="${task?.due || ''}"></label>
-      <label>Completata: <input type="checkbox" name="completed" ${task?.completed ? 'checked' : ''}></label>
-      <button type="submit">Salva</button>
-      <button type="button" id="cancelBtn">Annulla</button>
-    </form>
-  ;
-  document.getElementById('taskForm').addEventListener('submit', e => {
-    e.preventDefault();
-    if (task) updateTask(task.id, new FormData(e.target));
-    else addTask(new FormData(e.target));
-  });
-  document.getElementById('cancelBtn').addEventListener('click', () => renderList(loadTasks()));
-}
+/* ==================== INPUT ==================== */
+document.addEventListener('keydown', e=>{keys[e.key]=true;});
+document.addEventListener('keyup',   e=>{keys[e.key]=false;});
 
-/* ---------- CRUD ---------- */
-function addTask(formData) {
-  const tasks = loadTasks();
-  const newTask = {
-    id: generateId(),
-    title: formData.get('title'),
-    description: formData.get('description'),
-    due: formData.get('due'),
-    completed: !!formData.get('completed')
+/* ==================== HELPERS ==================== */
+function rectsIntersect(a,b){
+  return a.x<a.x+b.width && a.x+a.width>b.x &&
+         a.y<a.y+b.height && a.y+a.height>b.y;
+}
+function spawnObstacle(){
+  const type = Math.random()<0.5 ? 'cactus' : 'bird';
+  const obs = {
+    x:WIDTH,
+    y:HEIGHT-50,
+    width:OBSTACLE_WIDTH,
+    height:OBSTACLE_HEIGHT,
+    type
   };
-  tasks.push(newTask);
-  saveTasks(tasks);
-  renderList(tasks);
+  obstacles.push(obs);
+}
+function resetGame(){
+  player.y = HEIGHT-70; player.vy = 0; player.onGround = false;
+  obstacles = []; score = 0; gameOver = false; lastSpawn = 0;
+  document.getElementById('score').textContent = score;
 }
 
-function updateTask(id, formData) {
-  const tasks = loadTasks();
-  const index = tasks.findIndex(t => t.id == id);
-  if (index !== -1) {
-    tasks[index] = {
-      id,
-      title: formData.get('title'),
-      description: formData.get('description'),
-      due: formData.get('due'),
-      completed: !!formData.get('completed')
-    };
-    saveTasks(tasks);
-    renderList(tasks);
+/* ==================== GAME LOOP ==================== */
+function update(delta){
+  if(gameOver) return;
+
+  // --- movimento orizzontale del mondo (e degli ostacoli) ---
+  obstacles.forEach(o=>{ o.x -= MOVE_SPEED; });
+  // rimuovi ostacoli fuori schermo
+  while(obstacles.length && obstacles[0].x+OBSTACLE_WIDTH<0){
+    obstacles.shift();
+    score++;
+    document.getElementById('score').textContent = score;
+  }
+
+  // --- gravità e salto del giocatore ---
+  player.vy += GRAVITY;
+  player.y += player.vy;
+
+  // terra
+  if(player.y+player.height>=HEIGHT){
+    player.y = HEIGHT-player.height;
+    player.vy = 0;
+    player.onGround = true;
+  }
+
+  // salto con spazio o con tap
+  if((keys[' ']||keys['ArrowUp']||keys['TouchStart']) && player.onGround){
+    player.vy = JUMP_STRENGTH;
+    player.onGround = false;
+    keys[' ']=keys['ArrowUp']=keys['TouchStart']=false; // reset per un singolo salto
+  }
+
+  // --- collisioni ---
+  for(const obs of obstacles){
+    const playerRect = {x:player.x, y:player.y, width:player.width, height:player.height};
+    const obsRect   = {x:obs.x, y:obs.y, width:obs.width, height:obs.height};
+    if(rectsIntersect(playerRect,obsRect)){
+      gameOver = true;
+      alert('Game Over! Ricarica la pagina per rigiocare.');
+    }
+  }
+
+  // --- aumento difficoltà (riduci intervallo di spawn) ---
+  if(Date.now()-lastSpawn>SPAWN_INTERVAL-(score/20)){
+    spawnObstacle();
+    lastSpawn = Date.now();
   }
 }
 
-function deleteTask(id) {
-  if (!confirm('Eliminare questa attività?')) return;
-  const tasks = loadTasks().filter(t => t.id != id);
-  saveTasks(tasks);
-  renderList(tasks);
+/* ==================== RENDER ==================== */
+function draw(){
+  // clear
+  ctx.clearRect(0,0,WIDTH,HEIGHT);
+  ctx.fillStyle = '#87CEEB';
+  ctx.fillRect(0,0,WIDTH,HEIGHT);
+
+  // piattaforma (terra)
+  ctx.fillStyle = '#8B4513';
+  ctx.fillRect(0,HEIGHT-30,WIDTH,30);
+
+  // player
+  ctx.fillStyle = '#4CAF50';
+  ctx.fillRect(player.x,player.y,player.width,player.height);
+
+  // ostacoli
+  obstacles.forEach(o=>{
+    ctx.fillStyle = o.type==='cactus' ? '#A52A2A' : '#FF4500';
+    ctx.fillRect(o.x,o.y,o.width,o.height);
+    // disegna un semplice "segno di pericolo" sopra l'ostacolo
+    ctx.fillStyle = '#fff';
+    ctx.font = '12px Arial';
+    ctx.fillText('!', o.x+5, o.y+15);
+  });
 }
 
-/* ---------- Modal Handling ---------- */
-function openEditModal(id) {
-  const tasks = loadTasks();
-  const task = tasks.find(t => t.id == id);
-  if (!task) return;
-  renderForm(task);
-}
+/* ==================== MAIN LOOP ==================== */
+let lastTime = 0;
+function loop(timestamp){
+  const delta = timestamp-lastTime;
+  lastTime = timestamp;
 
-function openNewModal() {
-  renderForm();
-}
+  if(!gameOver) update(delta);
+  draw();
 
-/* ---------- Download HTML ---------- */
-function downloadHTML() {
-  // Grab the current page's HTML
-  const htmlContent = document.documentElement.outerHTML;
-  const blob = new Blob([htmlContent], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'gestor.html';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  requestAnimationFrame(loop);
 }
+requestAnimationFrame(loop);
 
-/* ---------- Event Listeners ---------- */
-document.getElementById('newTaskBtn').addEventListener('click', e => {
-  e.preventDefault();
-  openNewModal();
+/* ==================== TOUCH (mobile) ==================== */
+canvas.addEventListener('touchstart', e=>{
+  if(gameOver) return;
+  keys['TouchStart'] = true;
 });
-document.getElementById('downloadBtn').addEventListener('click', e => {
-  e.preventDefault();
-  downloadHTML();
-});
-
-/* ---------- Init ---------- */
-renderList(loadTasks());
+canvas.addEventListener('touchend',   e=>{keys['TouchStart'] = false;});
 </script>
 </body>
 </html>
