@@ -496,29 +496,34 @@
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
                     const ctx = canvas.getContext('2d');
+                    
+                    // Disegna l'immagine originale
                     ctx.drawImage(img, 0, 0);
 
-                    const watermarkWidth = 140;
-                    const watermarkHeight = 40;
-                    const offsetRight = 10;
-                    const offsetBottom = 10;
+                    // Dimensioni e posizione del rettangolo di copertura nell'angolo in basso a destra
+                    const wmWidth = 160;
+                    const wmHeight = 40;
+                    const wmX = canvas.width - wmWidth - 10;
+                    const wmY = canvas.height - wmHeight - 10;
 
-                    const srcX = img.naturalWidth - watermarkWidth - offsetRight;
-                    const srcY = img.naturalHeight - watermarkHeight * 2 - offsetBottom;
-                    const dstX = img.naturalWidth - watermarkWidth - offsetRight;
-                    const dstY = img.naturalHeight - watermarkHeight - offsetBottom;
+                    // 1. Disegna un riquadro scuro che cancella completamente la vecchia filigrana sotto
+                    ctx.fillStyle = "#070202";
+                    ctx.fillRect(wmX, wmY, wmWidth, wmHeight);
 
-                    if (srcY > 0) {
-                      const patchData = ctx.getImageData(srcX, srcY, watermarkWidth, watermarkHeight);
-                      ctx.putImageData(patchData, dstX, dstY);
-                    }
+                    // 2. Scrive pulito il brand "DARK GPT" sopra al riquadro pulito
+                    ctx.font = "bold 20px sans-serif";
+                    ctx.fillStyle = "#ff2222";
+                    ctx.shadowColor = "#000000";
+                    ctx.shadowBlur = 4;
+                    ctx.textAlign = "center";
+                    ctx.fillText("DARK GPT", wmX + wmWidth / 2, wmY + wmHeight / 2 + 7);
 
-                    const cleanImageUrl = canvas.toDataURL('image/jpeg');
+                    const brandedImageUrl = canvas.toDataURL('image/jpeg');
 
                     const newGen = {
                         id: Date.now().toString(),
                         prompt: promptText,
-                        image: cleanImageUrl
+                        image: brandedImageUrl
                     };
 
                     generations.unshift(newGen);
@@ -528,7 +533,7 @@
                     startCooldown();
 
                 } catch (err) {
-                    console.error("Rimozione filigrana non riuscita:", err);
+                    console.error("Filigrana personalizzata non applicata:", err);
                     const newGen = {
                         id: Date.now().toString(),
                         prompt: promptText,
