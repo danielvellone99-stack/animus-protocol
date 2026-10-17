@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BLACK GPT — Realistic AI Image Engine</title>
+<title>BLACK GPT — Generatore Fotorealistico con Tuo Viso</title>
 <style>
-:root{--bg:#050505;--card:#111;--line:#262626;--txt:#fff;--mut:#8a8a8a;--on:#000}
+:root{--bg:#050505;--card:#111;--line:#262626;--txt:#fff;--mut:#8a8a8a;--on:#000;--accent:#3b82f6}
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Inter,sans-serif}
 body{background:var(--bg);color:var(--txt);min-height:100vh;padding:28px 16px 60px;display:flex;flex-direction:column;align-items:center}
 header{text-align:center;margin-bottom:24px}
@@ -15,15 +15,38 @@ h1{font-size:3.4rem;font-weight:900;letter-spacing:6px;
 .badge{background:#161616;border:1px solid var(--line);color:#aaa;padding:4px 12px;border-radius:20px;font-size:.7rem;letter-spacing:1px;text-transform:uppercase}
 .badge.ok{color:#7dffa8;border-color:#1f4d33}
 .badge.wait{color:#ffd479;border-color:#4d3c1f}
-.layout{width:100%;max-width:1200px;display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start}
+.badge.face{color:#60a5fa;border-color:#1e3a8a}
+
+.layout{width:100%;max-width:1200px;display:grid;grid-template-columns:360px 1fr;gap:22px;align-items:start}
 @media(max-width:900px){.layout{grid-template-columns:1fr}}
+
 .panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
 .lbl{font-size:.68rem;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;margin:0 0 6px;display:block}
-textarea,input[type=text],input[type=number],select{width:100%;background:#080808;border:1px solid var(--line);
+textarea,input[type=text],select{width:100%;background:#080808;border:1px solid var(--line);
   color:var(--txt);padding:12px 14px;border-radius:12px;font-size:.92rem;outline:none;resize:vertical}
 textarea:focus,input:focus,select:focus{border-color:#5a5a5a}
 .grp{margin-bottom:14px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* SEZIONE CARICA FOTO PERSONALIZZATA */
+.photo-uploader{
+  border: 1px dashed #444;
+  border-radius: 14px;
+  padding: 12px;
+  background: #0a0a0a;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  margin-bottom: 15px;
+}
+.photo-uploader:hover{ border-color: #888; background: #0f0f0f; }
+.photo-preview-wrap{ display: none; align-items: center; gap: 12px; }
+.photo-preview{ width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; }
+.photo-info{ text-align: left; font-size: 0.85rem; flex: 1; }
+.photo-info b{ display: block; color: #7dffa8; }
+.photo-remove{ color: #ff5555; background: none; border: none; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+
 .tog{display:flex;align-items:center;gap:9px;font-size:.85rem;color:#cfcfcf;cursor:pointer;user-select:none;padding:6px 0}
 .tog input{accent-color:#fff;width:16px;height:16px;cursor:pointer}
 .btn{background:var(--txt);color:var(--on);border:none;padding:14px;border-radius:12px;font-weight:800;
@@ -33,6 +56,7 @@ textarea:focus,input:focus,select:focus{border-color:#5a5a5a}
 .btn.ghost:hover{background:#2b2b2b}
 .btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .btnrow .btn{flex:1;min-width:110px;padding:11px;font-size:.78rem}
+
 .stage{background:#0c0c0c;border:1px solid var(--line);border-radius:22px;min-height:520px;
        display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:14px}
 #main{max-width:100%;max-height:70vh;border-radius:14px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.9)}
@@ -41,13 +65,12 @@ textarea:focus,input:focus,select:focus{border-color:#5a5a5a}
 .spin{width:44px;height:44px;border:3px solid #232323;border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 #status{font-size:.85rem;color:var(--mut);min-height:20px;margin-top:12px;text-align:center}
+
 .gal{width:100%;max-width:1200px;margin-top:34px}
 .gal h2{font-size:.85rem;color:var(--mut);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between}
 .ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .ggrid img{width:100%;height:190px;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer;transition:.2s;background:#0d0d0d}
 .ggrid img:hover{transform:scale(1.03);border-color:#777}
-#cd{font-variant-numeric:tabular-nums}
-.fileUp{margin-top:6px}
 </style>
 </head>
 <body>
@@ -56,85 +79,74 @@ textarea:focus,input:focus,select:focus{border-color:#5a5a5a}
   <h1>BLACK GPT</h1>
   <div class="badges">
     <span class="badge ok">Flux Engine</span>
+    <span class="badge face">Face Sync Attivo</span>
     <span class="badge ok">Senza watermark</span>
-    <span class="badge ok">Gratis & illimitato</span>
     <span class="badge wait" id="cdBadge">Pronto</span>
   </div>
 </header>
 
 <div class="layout">
 
-  <!-- CONTROLLI -->
+  <!-- PANNELLO CONTROLLI -->
   <div class="panel">
+    
+    <!-- CARICAMENTO DEL TUO VISO -->
     <div class="grp">
-      <label class="lbl">Prompt — cosa vuoi creare</label>
-      <textarea id="prompt" rows="3" placeholder="es. un vecchio pescatore sulla spiaggia al tramonto"></textarea>
+      <label class="lbl">Metti te stesso nell'immagine (Opzionale)</label>
+      <input type="file" id="userPhotoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+      
+      <div class="photo-uploader" id="uploadZone" onclick="document.getElementById('userPhotoInput').click()">
+        <div id="uploadPlaceholder">
+          <span style="font-size: 1.5rem;">📸</span>
+          <p style="font-size: 0.85rem; color:#aaa; margin-top:4px;"><b>Clicca qui per caricare il tuo viso</b><br><small style="color:#666">Usa un selfie o un ritratto chiaro</small></p>
+        </div>
+        <div class="photo-preview-wrap" id="uploadPreviewWrap">
+          <img id="photoThumb" class="photo-preview" src="" alt="Tuo viso">
+          <div class="photo-info">
+            <b>Viso Acquisito ✔</b>
+            <button class="photo-remove" onclick="removePhoto(event)">Rimuovi foto</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="grp">
-      <label class="lbl">Negative prompt (cosa evitare)</label>
-      <input type="text" id="neg" value="blurry, low quality, watermark, text, logo, cartoon, deformed hands, extra fingers, distorted face">
+      <label class="lbl">Descrivi la scena</label>
+      <textarea id="prompt" rows="3" placeholder="es. Io vestito come un astronauta su Marte con la terra sullo sfondo"></textarea>
     </div>
 
     <div class="grp">
       <label class="lbl">Stile fotografico</label>
       <select id="style">
-        <option value="raw photo, 8k uhd, dslr, soft natural lighting, film grain, shallow depth of field">📷 Foto reale (standard)</option>
-        <option value="professional studio portrait, 85mm lens, f/1.4, bokeh, dramatic rim lighting, hyper detailed skin">🧑 Ritratto perfetto</option>
-        <option value="cinematic still, anamorphic lens, color graded, movie scene, IMAX 70mm, dramatic lighting">🎬 Cinematografico</option>
-        <option value="national geographic wildlife photography, macro details, golden hour, sharp focus">🦁 Natura / animali</option>
-        <option value="product photography, studio softbox, white seamless background, commercial advertising">📦 Prodotto / e-commerce</option>
-        <option value="neon cyberpunk city, volumetric fog, teal and orange grade, blade runner atmosphere">🌃 Cyberpunk / notte</option>
-        <option value="35mm analog film, kodak portra 400, vintage grain, nostalgic tones">🎞️ Analogico vintage</option>
-        <option value="">⚪ Nessuno (prompt puro)</option>
+        <option value="raw photo, 8k uhd, dslr, soft natural lighting, film grain, hyper detailed skin texture">📷 Foto Reale & Dettagliata</option>
+        <option value="professional luxury studio portrait, dramatic key light, sharp focus, magazine cover">🧑 Ritratto da Copertina</option>
+        <option value="cinematic still, wide angle, movie scene, color graded, dramatic lighting, IMAX 70mm">🎬 Cinematografico / Film</option>
+        <option value="cyberpunk night portrait, neon reflections, ultra detailed, volumetric light">🌃 Cyberpunk / Futuristico</option>
       </select>
     </div>
 
     <div class="row2">
       <div class="grp">
-        <label class="lbl">Modello</label>
-        <select id="model">
-          <option value="flux">FLUX (realismo max)</option>
-          <option value="turbo">Turbo (veloce)</option>
-        </select>
-      </div>
-      <div class="grp">
         <label class="lbl">Formato</label>
         <select id="size">
           <option value="1024x1024">Quadrato 1:1</option>
-          <option value="832x1216">Verticale 9:16</option>
+          <option value="832x1216" selected>Verticale 9:16 (Top per persone)</option>
           <option value="1216x832">Orizzontale 16:9</option>
-          <option value="896x1152">Ritratto 3:4</option>
+        </select>
+      </div>
+      <div class="grp">
+        <label class="lbl">Modello</label>
+        <select id="model">
+          <option value="flux">FLUX (Consigliato)</option>
+          <option value="turbo">Turbo (Rapido)</option>
         </select>
       </div>
     </div>
 
-    <div class="row2">
-      <div class="grp">
-        <label class="lbl">Seed (0 = casuale)</label>
-        <input type="number" id="seed" value="0" min="0">
-      </div>
-      <div class="grp">
-        <label class="lbl">Quantità (max 4)</label>
-        <select id="batch">
-          <option value="1">1 immagine</option>
-          <option value="2">2 immagini</option>
-          <option value="3">3 immagini</option>
-          <option value="4">4 immagini</option>
-        </select>
-      </div>
-    </div>
+    <label class="tog"><input type="checkbox" id="balanceMulti" checked>👥 Bilanciamento Multi-Soggetto (se ci sono più persone)</label>
+    <label class="tog"><input type="checkbox" id="boost" checked>🔥 Booster realismo (pori della pelle, 8K)</label>
 
-    <label class="tog"><input type="checkbox" id="enhance" checked>✨ Auto-enhance prompt (motore Pollinations)</label>
-    <label class="tog"><input type="checkbox" id="boost" checked>🔥 Booster realismo (tag tecnici extra)</label>
-    <label class="tog"><input type="checkbox" id="lockseed">🔒 Blocca seed (riproducibile)</label>
-
-    <div class="grp fileUp">
-      <label class="lbl">Immagine di riferimento (opzionale)</label>
-      <input type="file" id="refFile" accept="image/*">
-    </div>
-
-    <button class="btn" id="go" style="width:100%" onclick="run()">⚡ Genera</button>
+    <button class="btn" id="go" style="width:100%; margin-top: 15px;" onclick="run()">⚡ Genera</button>
     <div class="btnrow">
       <button class="btn ghost" onclick="dice()">🎲 Idea casuale</button>
       <button class="btn ghost" onclick="copyPrompt()">⧉ Copia prompt</button>
@@ -144,15 +156,14 @@ textarea:focus,input:focus,select:focus{border-color:#5a5a5a}
   <!-- RISULTATO -->
   <div>
     <div class="stage">
-      <p class="ph" id="ph">Scrivi un'idea e premi GENERA.<br>L'immagine apparirà qui.</p>
-      <div class="load" id="load"><div class="spin"></div><p id="loadTxt">Elaborazione neurale...</p></div>
+      <p class="ph" id="ph">Carica il tuo viso (se vuoi), scrivi la scena e premi GENERA.<br>Il risultato apparirà qui.</p>
+      <div class="load" id="load"><div class="spin"></div><p id="loadTxt">Elaborazione in corso...</p></div>
       <img id="main" alt="Immagine Black GPT">
     </div>
     <div id="status"></div>
     <div class="btnrow">
       <a class="btn ghost" id="dl" download="BlackGPT.jpg" style="text-align:center;text-decoration:none">⬇ Scarica HD</a>
-      <button class="btn ghost" id="upBtn" onclick="upscale()" disabled>🔍 Upscale 2x</button>
-      <button class="btn ghost" id="varBtn" onclick="variation()" disabled>🎨 Variazione</button>
+      <button class="btn ghost" id="varBtn" onclick="variation()" disabled>🎨 Nuova Variazione</button>
     </div>
   </div>
 </div>
@@ -164,65 +175,125 @@ textarea:focus,input:focus,select:focus{border-color:#5a5a5a}
 
 <script>
 const $ = id => document.getElementById(id);
-const BOOST = "photorealistic, hyperrealistic, ultra detailed, masterpiece, professional photography, sharp focus";
-let cur = null; // ultima configurazione
+const BOOST = "photorealistic, hyperrealistic, ultra detailed, masterpiece, realistic skin pores, lifelike features, accurate lighting";
+let cur = null;
 let cooldownUntil = 0;
+let userImageFile = null;
 
-/* ---------- COSTRUZIONE URL ---------- */
-function buildUrl(p, opts){
-  let full = p;
-  if ($('boost').checked && opts.style) full += ", " + opts.style;
-  if ($('boost').checked) full += ", " + BOOST;
-  const q = new URLSearchParams({
-    width: opts.w, height: opts.h, seed: opts.seed, model: opts.model, nologo: true
+// Gestione caricamento foto viso
+function handlePhotoUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  userImageFile = file;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    $('photoThumb').src = evt.target.result;
+    $('uploadPlaceholder').style.display = 'none';
+    $('uploadPreviewWrap').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(e) {
+  e.stopPropagation();
+  userImageFile = null;
+  $('userPhotoInput').value = "";
+  $('uploadPlaceholder').style.display = 'block';
+  $('uploadPreviewWrap').style.display = 'none';
+}
+
+// Carica la foto sul web temporaneamente per passarla all'IA
+async function uploadToCloud(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await fetch('https://tmpfiles.org/api/v1/upload', {
+    method: 'POST',
+    body: formData
   });
-  if ($('enhance').checked) q.set('enhance','true');
-  if (opts.neg) q.set('negative_prompt', opts.neg);
-  if (opts.ref) q.set('image', opts.ref);
-  return "https://image.pollinations.ai/prompt/" + encodeURIComponent(full) + "?" + q.toString();
+  if (!response.ok) throw new Error("Errore nel caricamento del viso");
+  const json = await response.json();
+  // Trasforma in link diretto
+  return json.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+}
+
+async function translateToEnglish(text) {
+  try {
+    const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=it|en`);
+    const data = await res.json();
+    return data.responseData.translatedText || text;
+  } catch(e) {
+    return text;
+  }
+}
+
+async function buildUrl(p, opts, uploadedImageUrl){
+  const translated = await translateToEnglish(p);
+  let finalPrompt = translated;
+
+  // Se c'è la foto caricata, costringi l'IA a clonare i lineamenti
+  if (uploadedImageUrl) {
+    finalPrompt = `A photograph of the person in the reference image, preserving exact facial structure, recognizable features, ${finalPrompt}`;
+  }
+
+  if ($('balanceMulti').checked && /\b(con|e|insieme|with|and)\b/i.test(p)) {
+    finalPrompt += ", both subjects clearly visible in frame, balanced dual composition";
+  }
+
+  if ($('boost').checked && opts.style) finalPrompt += ", " + opts.style;
+  if ($('boost').checked) finalPrompt += ", " + BOOST;
+
+  const q = new URLSearchParams({
+    width: opts.w,
+    height: opts.h,
+    seed: opts.seed,
+    model: opts.model,
+    nologo: true
+  });
+
+  if (uploadedImageUrl) {
+    q.set('image', uploadedImageUrl); // Passa la tua foto come riferimento visivo
+  }
+
+  return "https://image.pollinations.ai/prompt/" + encodeURIComponent(finalPrompt) + "?" + q.toString();
 }
 
 function readCfg(){
   const [w,h] = $('size').value.split('x').map(Number);
   return {
     prompt: $('prompt').value.trim(),
-    neg: $('neg').value.trim(),
     style: $('style').value,
     model: $('model').value,
-    w, h,
-    ref: localStorage.getItem('bgpt_ref') || '',
-    lock: $('lockseed').checked
+    w, h
   };
 }
 
-/* ---------- GENERAZIONE CON GESTIONE ATTESA ---------- */
-async function fetchWithWait(url, cb){
+async function fetchWithWait(url){
   let attempt = 0;
-  while (attempt < 12){
+  while (attempt < 10){
     const now = Date.now();
     if (now < cooldownUntil){
       const s = Math.ceil((cooldownUntil - now)/1000);
-      setStatus(`⏳ Rispettiamo il limite del server: riprovo tra ${s}s...`);
+      setStatus(`⏳ Attesa server: riprovo tra ${s}s...`);
       $('cdBadge').textContent = 'Attesa ' + s + 's';
       await sleep(4000);
       attempt++; continue;
     }
     try {
-      setStatus(cb ? cb(attempt) : 'Generazione in corso...');
       const r = await fetch(url);
       if (r.status === 429){
         cooldownUntil = Date.now() + 45000;
         attempt++; continue;
       }
       if (!r.ok) throw new Error('HTTP ' + r.status);
-      cooldownUntil = Date.now() + 8000; // pausa educata tra richieste
+      cooldownUntil = Date.now() + 6000;
       return await r.blob();
     } catch(e){
       attempt++;
       await sleep(3000);
     }
   }
-  throw new Error('Il server è occupato. Riprova fra un minuto.');
+  throw new Error('Server occupato, riprova tra qualche istante.');
 }
 
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
@@ -230,93 +301,83 @@ function setStatus(t){ $('status').textContent = t; }
 
 async function run(){
   const cfg = readCfg();
-  if (!cfg.prompt) return alert('Scrivi prima una descrizione!');
+  if (!cfg.prompt) return alert('Scrivi prima cosa vuoi creare!');
+  
   $('go').disabled = true;
   $('ph').style.display='none';
   $('load').style.display='flex';
   $('main').style.display='none';
 
-  const n = parseInt($('batch').value);
-  for (let i=0; i<n; i++){
-    const seed = cfg.lock ? (parseInt($('seed').value)||12345) : Math.floor(Math.random()*9999999);
-    const opts = {...cfg, seed};
-    const url = buildUrl(cfg.prompt, opts);
-    try {
-      const blob = await fetchWithWait(url, a => `Generazione ${i+1}/${n} — il motore Flux sta disegnando${'.'.repeat((a%3)+1)}`);
-      const ou = URL.createObjectURL(blob);
-      show(ou, {prompt: cfg.prompt, style: opts.style, model: opts.model, w: opts.w, h: opts.h, seed});
-    } catch(e){
-      setStatus('⚠ ' + e.message);
+  let uploadedUrl = null;
+
+  try {
+    // 1. Se hai caricato una foto, la prepariamo per l'IA
+    if (userImageFile) {
+      setStatus('Caricamento e scansione lineamenti del tuo viso...');
+      uploadedUrl = await uploadToCloud(userImageFile);
     }
+
+    setStatus('Traduzione e allestimento della scena...');
+    const seed = Math.floor(Math.random()*9999999);
+    const opts = {...cfg, seed, uploadedUrl};
+
+    const url = await buildUrl(cfg.prompt, opts, uploadedUrl);
+    
+    setStatus('Black GPT sta generando la tua immagine ultra-realistica...');
+    const blob = await fetchWithWait(url);
+    const ou = URL.createObjectURL(blob);
+    show(ou, opts);
+  } catch(e){
+    setStatus('⚠ ' + e.message);
+  } finally {
+    $('load').style.display='none';
+    $('go').disabled = false;
+    $('cdBadge').textContent = 'Pronto';
   }
-  $('load').style.display='none';
-  $('go').disabled = false;
-  $('cdBadge').textContent = 'Pronto';
 }
 
 function show(url, meta){
   $('main').src = url; $('main').style.display='block';
   $('dl').href = url; $('dl').download = `BlackGPT-${meta.seed}.jpg`;
-  $('upBtn').disabled = false; $('varBtn').disabled = false;
+  $('varBtn').disabled = false;
   cur = meta;
-  setStatus('✅ Pronta — nessuna filigrana');
+  setStatus('✅ Immagine creata con successo!');
   addGallery(meta, url);
 }
 
-function upscale(){
+async function variation(){
   if(!cur) return;
-  const opts = {prompt: cur.prompt, neg: $('neg').value, style: cur.style, model: cur.model,
-                w: Math.min(cur.w*2, 2048), h: Math.min(cur.h*2, 2048), seed: cur.seed, ref: cur.ref||''};
-  doAction(buildUrl(cur.prompt, opts), 'Upscaling in corso (2x)...', opts);
-}
-
-function variation(){
-  if(!cur) return;
-  const seed = Math.floor(Math.random()*9999999);
-  const opts = {prompt: cur.prompt, neg: $('neg').value, style: cur.style, model: cur.model,
-                w: cur.w, h: cur.h, seed, ref: cur.ref||''};
-  doAction(buildUrl(cur.prompt, opts), 'Nuova variazione...', opts);
-}
-
-async function doAction(url, msg, opts){
-  $('load').style.display='flex'; setStatus(msg);
-  try{
+  cur.seed = Math.floor(Math.random()*9999999);
+  $('load').style.display='flex';
+  setStatus('Creazione variazione con lo stesso viso...');
+  try {
+    const url = await buildUrl(cur.prompt, cur, cur.uploadedUrl);
     const blob = await fetchWithWait(url);
-    show(URL.createObjectURL(blob), {prompt: opts.prompt, style: opts.style, model: opts.model, w: opts.w, h: opts.h, seed: opts.seed});
-  }catch(e){ setStatus('⚠ '+e.message); }
-  $('load').style.display='none';
+    show(URL.createObjectURL(blob), cur);
+  } catch(e){
+    setStatus('⚠ ' + e.message);
+  } finally {
+    $('load').style.display='none';
+  }
 }
 
-/* ---------- IMMAGINE DI RIFERIMENTO ---------- */
-$('refFile').addEventListener('change', e=>{
-  const f = e.target.files[0]; if(!f) return;
-  const r = new FileReader();
-  r.onload = ()=>{ localStorage.setItem('bgpt_ref', r.result); setStatus('🖼️ Reference caricata: verrà usata nella prossima generazione'); };
-  r.readAsDataURL(f);
-});
-
-/* ---------- IDEE CASUALI ---------- */
 const IDEAS = [
- "Un leone anziano seduto su una sedia di velluto rosso in un teatro abbandonato",
- "Un barista robot che prepara caffè in un locale anni '50, luce neon",
- "Una ballerina di balletto sotto la neve, motion blur, Parigi di notte",
- "Un pescatore con la barba bianca che ripara una rete al tramonto",
- "Una biblioteca infinita con scale a chiocciola, luce dorata dalle finestre",
- "Un lupo artico che cammina su un iceberg, cieli aurora boreale",
- "Una chef stellata che impasta in una cucina professionale, vapore e luce calda",
- "Un samurai nel Giappone feudale sotto la pioggia, kimono rosso"
+ "Io che guido una supercar decapottabile al tramonto a Miami",
+ "Io vestito con un'armatura medievale dorata dentro una sala del trono",
+ "Io che cammino per le strade di Tokyo di notte con luci al neon riflesse nella pioggia",
+ "Io in smoking elegante sul red carpet circondato da fotografi",
+ "Io mentre bevo un caffè in una terrazza panoramica a Parigi vista Torre Eiffel"
 ];
 function dice(){ $('prompt').value = IDEAS[Math.floor(Math.random()*IDEAS.length)]; }
+
 function copyPrompt(){
-  let p = $('prompt').value;
-  if ($('boost').checked) p += ", " + ($('style').value ? $('style').value + ", " : "") + BOOST;
-  navigator.clipboard.writeText(p); setStatus('📋 Prompt completo copiato!');
+  navigator.clipboard.writeText($('prompt').value);
+  setStatus('📋 Prompt copiato negli appunti!');
 }
 
-/* ---------- GALLERIA PERSISTENTE ---------- */
 const KEY='bgpt_gallery';
 function loadGallery(){ try{ return JSON.parse(localStorage.getItem(KEY))||[] }catch(e){ return [] } }
-function saveGallery(g){ localStorage.setItem(KEY, JSON.stringify(g.slice(0,40))); }
+function saveGallery(g){ localStorage.setItem(KEY, JSON.stringify(g.slice(0,30))); }
 function addGallery(meta, url){
   const g = loadGallery();
   g.unshift({...meta, url, ts: Date.now()});
