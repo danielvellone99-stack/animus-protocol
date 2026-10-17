@@ -3,959 +3,337 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Black GPT</title>
+<title>BLACK GPT — Realistic AI Image Engine</title>
 <style>
-  * { box-sizing: border-box; }
-  body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background:#0f1115; color:#e8e8ea; height:100vh; overflow:hidden; }
-  #app { display:flex; height:100vh; }
-  #sidebar { width:280px; background:#15171d; display:flex; flex-direction:column; border-right:1px solid #262a33; }
-  #sidebar .top { padding:14px; border-bottom:1px solid #262a33; }
-  #sidebar button.newchat { width:100%; padding:10px; background:#1f6feb; border:none; color:#fff; border-radius:8px; cursor:pointer; font-size:14px; }
-  #chatlist { flex:1; overflow-y:auto; padding:8px; }
-  .chatitem { padding:10px; border-radius:8px; cursor:pointer; margin-bottom:4px; font-size:13px; color:#c7c9d1; display:flex; justify-content:space-between; align-items:center; }
-  .chatitem:hover { background:#1c1f27; }
-  .chatitem.active { background:#232735; color:#fff; }
-  .chatitem .del { opacity:0.5; font-size:11px; }
-  .chatitem .del:hover { opacity:1; color:#ff6b6b; }
-  #sidebar .tools { padding:10px; border-top:1px solid #262a33; display:flex; flex-direction:column; gap:6px; }
-  #sidebar .tools button { padding:8px; background:#1c1f27; border:1px solid #2b303c; color:#c7c9d1; border-radius:6px; cursor:pointer; font-size:12px; text-align:left; }
-  #sidebar .tools button:hover { background:#262a33; color:#fff; }
-  #sidebar .tools button.danger:hover { background:#3a1d1d; color:#ff8080; }
-  #sidebar .tools button.highlight { border-color:#1f6feb; }
-  #main { flex:1; display:flex; flex-direction:column; }
-  #header { padding:12px 20px; border-bottom:1px solid #262a33; display:flex; align-items:center; gap:10px; }
-  #modelSelect { background:#1c1f27; color:#fff; border:1px solid #2b303c; padding:8px 14px; border-radius:8px; font-size:14px; font-weight:600; }
-  #chatbox { flex:1; overflow-y:auto; padding:24px; display:flex; flex-direction:column; gap:16px; }
-  .msg { max-width:760px; padding:12px 16px; border-radius:12px; line-height:1.5; font-size:14px; white-space:pre-wrap; }
-  .msg.user { align-self:flex-end; background:#1f6feb; color:#fff; }
-  .msg.bot { align-self:flex-start; background:#1c1f27; border:1px solid #262a33; }
-  .msg.bot a { color:#4ea1ff; }
-  .welcome { max-width:700px; margin:40px auto; text-align:center; color:#9aa0ab; }
-  .welcome h1 { color:#fff; font-size:28px; }
-  .welcome .notice { font-size:12px; background:#1c1f27; border:1px solid #2b303c; padding:10px 14px; border-radius:8px; margin-top:16px; color:#9aa0ab; }
-  .suggestions { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:20px; }
-  .suggestions span { background:#1c1f27; border:1px solid #2b303c; padding:8px 14px; border-radius:20px; font-size:13px; cursor:pointer; color:#c7c9d1; }
-  .suggestions span:hover { background:#262a33; color:#fff; }
-  #inputbar { padding:16px 24px; border-top:1px solid #262a33; display:flex; gap:10px; }
-  #inputbar textarea { flex:1; resize:none; background:#1c1f27; border:1px solid #2b303c; color:#fff; padding:12px 14px; border-radius:10px; font-size:14px; font-family:inherit; height:48px; }
-  #inputbar button { padding:0 22px; background:#1f6feb; border:none; color:#fff; border-radius:10px; cursor:pointer; font-size:14px; }
-  .sitecard { border:1px solid #2b303c; border-radius:10px; overflow:hidden; margin-top:10px; background:#0f1115; }
-  .sitecard iframe { width:100%; height:360px; border:none; background:#fff; }
-  .sitecard .bar { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#1c1f27; font-size:12px; }
-  .sitecard .bar button { background:#1f6feb; border:none; color:#fff; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; }
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:50; }
-  .modal-overlay.show { display:flex; }
-  .modal { background:#15171d; border:1px solid #2b303c; border-radius:12px; width:520px; max-width:90vw; padding:20px; max-height:85vh; display:flex; flex-direction:column; }
-  .modal.wide { width:640px; }
-  .modal.small { width:380px; }
-  .modal h3 { margin-top:0; }
-  .modal input, .modal textarea { width:100%; background:#1c1f27; border:1px solid #2b303c; color:#fff; padding:10px; border-radius:8px; font-family:inherit; font-size:13px; margin-bottom:10px; }
-  .modal textarea { height:140px; resize:vertical; }
-  .modal .actions { display:flex; justify-content:flex-end; gap:8px; }
-  .modal .actions button { padding:8px 16px; border-radius:8px; border:none; cursor:pointer; font-size:13px; }
-  .modal .actions .cancel { background:#2b303c; color:#fff; }
-  .modal .actions .confirm { background:#1f6feb; color:#fff; }
-  .hint { font-size:11px; color:#777d8a; margin-bottom:10px; }
-  .errorText { font-size:12px; color:#ff6b6b; margin:-4px 0 10px; display:none; }
-  #pendingList { overflow-y:auto; flex:1; margin-bottom:10px; }
-  .pendingItem { border:1px solid #2b303c; border-radius:8px; padding:10px; margin-bottom:10px; background:#1c1f27; }
-  .pendingItem .qtext { font-size:13px; color:#fff; margin-bottom:4px; }
-  .pendingItem .meta { font-size:11px; color:#777d8a; margin-bottom:8px; }
-  .pendingItem textarea { height:60px; margin-bottom:8px; }
-  .pendingItem .row { display:flex; gap:8px; justify-content:flex-end; }
-  .pendingItem .row button { padding:6px 12px; border-radius:6px; border:none; cursor:pointer; font-size:12px; }
-  .pendingItem .row .save { background:#1f6feb; color:#fff; }
-  .pendingItem .row .dismiss { background:#2b303c; color:#fff; }
-  .emptyPending { text-align:center; color:#777d8a; font-size:13px; padding:30px 0; }
+:root{--bg:#050505;--card:#111;--line:#262626;--txt:#fff;--mut:#8a8a8a;--on:#000}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',Inter,sans-serif}
+body{background:var(--bg);color:var(--txt);min-height:100vh;padding:28px 16px 60px;display:flex;flex-direction:column;align-items:center}
+header{text-align:center;margin-bottom:24px}
+h1{font-size:3.4rem;font-weight:900;letter-spacing:6px;
+   background:linear-gradient(180deg,#fff 20%,#666);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.badge{background:#161616;border:1px solid var(--line);color:#aaa;padding:4px 12px;border-radius:20px;font-size:.7rem;letter-spacing:1px;text-transform:uppercase}
+.badge.ok{color:#7dffa8;border-color:#1f4d33}
+.badge.wait{color:#ffd479;border-color:#4d3c1f}
+.layout{width:100%;max-width:1200px;display:grid;grid-template-columns:340px 1fr;gap:22px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
+.lbl{font-size:.68rem;color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;margin:0 0 6px;display:block}
+textarea,input[type=text],input[type=number],select{width:100%;background:#080808;border:1px solid var(--line);
+  color:var(--txt);padding:12px 14px;border-radius:12px;font-size:.92rem;outline:none;resize:vertical}
+textarea:focus,input:focus,select:focus{border-color:#5a5a5a}
+.grp{margin-bottom:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tog{display:flex;align-items:center;gap:9px;font-size:.85rem;color:#cfcfcf;cursor:pointer;user-select:none;padding:6px 0}
+.tog input{accent-color:#fff;width:16px;height:16px;cursor:pointer}
+.btn{background:var(--txt);color:var(--on);border:none;padding:14px;border-radius:12px;font-weight:800;
+     letter-spacing:1px;cursor:pointer;transition:.15s;text-transform:uppercase;font-size:.9rem}
+.btn:hover{background:#d4d4d4}.btn:disabled{background:#333;color:#777;cursor:not-allowed}
+.btn.ghost{background:#1a1a1a;color:#fff;border:1px solid #3d3d3d}
+.btn.ghost:hover{background:#2b2b2b}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btnrow .btn{flex:1;min-width:110px;padding:11px;font-size:.78rem}
+.stage{background:#0c0c0c;border:1px solid var(--line);border-radius:22px;min-height:520px;
+       display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:14px}
+#main{max-width:100%;max-height:70vh;border-radius:14px;display:none;box-shadow:0 20px 60px rgba(0,0,0,.9)}
+.ph{color:#3f3f3f;font-size:1.05rem;text-align:center;line-height:1.7}
+.load{display:none;flex-direction:column;align-items:center;gap:14px;color:var(--mut)}
+.spin{width:44px;height:44px;border:3px solid #232323;border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#status{font-size:.85rem;color:var(--mut);min-height:20px;margin-top:12px;text-align:center}
+.gal{width:100%;max-width:1200px;margin-top:34px}
+.gal h2{font-size:.85rem;color:var(--mut);text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:16px;display:flex;justify-content:space-between}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.ggrid img{width:100%;height:190px;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer;transition:.2s;background:#0d0d0d}
+.ggrid img:hover{transform:scale(1.03);border-color:#777}
+#cd{font-variant-numeric:tabular-nums}
+.fileUp{margin-top:6px}
 </style>
 </head>
 <body>
-<div id="app">
-  <div id="sidebar">
-    <div class="top">
-      <button class="newchat" onclick="createNewChat()">+ Nuova chat</button>
-    </div>
-    <div id="chatlist"></div>
-    <div class="tools">
-      <button onclick="loadBuiltInDataset()">★ Carica pacchetto base <span id="dsCount"></span></button>
-      <button onclick="openTeachModal()">➕ Insegna un esempio</button>
-      <button onclick="openBulkModal()">⇅ Importa in blocco</button>
-      <button class="highlight" onclick="requestPendingAccess()">🔒 Domande senza risposta <span id="pendingCount"></span></button>
-      <button class="danger" onclick="resetExamples()">🗑 Resetta memoria esempi</button>
-    </div>
+
+<header>
+  <h1>BLACK GPT</h1>
+  <div class="badges">
+    <span class="badge ok">Flux Engine</span>
+    <span class="badge ok">Senza watermark</span>
+    <span class="badge ok">Gratis & illimitato</span>
+    <span class="badge wait" id="cdBadge">Pronto</span>
   </div>
-  <div id="main">
-    <div id="header">
-      <select id="modelSelect" disabled>
-        <option selected>Black GPT 2 · Offline</option>
+</header>
+
+<div class="layout">
+
+  <!-- CONTROLLI -->
+  <div class="panel">
+    <div class="grp">
+      <label class="lbl">Prompt — cosa vuoi creare</label>
+      <textarea id="prompt" rows="3" placeholder="es. un vecchio pescatore sulla spiaggia al tramonto"></textarea>
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Negative prompt (cosa evitare)</label>
+      <input type="text" id="neg" value="blurry, low quality, watermark, text, logo, cartoon, deformed hands, extra fingers, distorted face">
+    </div>
+
+    <div class="grp">
+      <label class="lbl">Stile fotografico</label>
+      <select id="style">
+        <option value="raw photo, 8k uhd, dslr, soft natural lighting, film grain, shallow depth of field">📷 Foto reale (standard)</option>
+        <option value="professional studio portrait, 85mm lens, f/1.4, bokeh, dramatic rim lighting, hyper detailed skin">🧑 Ritratto perfetto</option>
+        <option value="cinematic still, anamorphic lens, color graded, movie scene, IMAX 70mm, dramatic lighting">🎬 Cinematografico</option>
+        <option value="national geographic wildlife photography, macro details, golden hour, sharp focus">🦁 Natura / animali</option>
+        <option value="product photography, studio softbox, white seamless background, commercial advertising">📦 Prodotto / e-commerce</option>
+        <option value="neon cyberpunk city, volumetric fog, teal and orange grade, blade runner atmosphere">🌃 Cyberpunk / notte</option>
+        <option value="35mm analog film, kodak portra 400, vintage grain, nostalgic tones">🎞️ Analogico vintage</option>
+        <option value="">⚪ Nessuno (prompt puro)</option>
       </select>
     </div>
-    <div id="chatbox"></div>
-    <div id="inputbar">
-      <textarea id="userInput" placeholder="Scrivi un messaggio..." onkeydown="handleKey(event)"></textarea>
-      <button onclick="sendMessage()">Invia</button>
+
+    <div class="row2">
+      <div class="grp">
+        <label class="lbl">Modello</label>
+        <select id="model">
+          <option value="flux">FLUX (realismo max)</option>
+          <option value="turbo">Turbo (veloce)</option>
+        </select>
+      </div>
+      <div class="grp">
+        <label class="lbl">Formato</label>
+        <select id="size">
+          <option value="1024x1024">Quadrato 1:1</option>
+          <option value="832x1216">Verticale 9:16</option>
+          <option value="1216x832">Orizzontale 16:9</option>
+          <option value="896x1152">Ritratto 3:4</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="grp">
+        <label class="lbl">Seed (0 = casuale)</label>
+        <input type="number" id="seed" value="0" min="0">
+      </div>
+      <div class="grp">
+        <label class="lbl">Quantità (max 4)</label>
+        <select id="batch">
+          <option value="1">1 immagine</option>
+          <option value="2">2 immagini</option>
+          <option value="3">3 immagini</option>
+          <option value="4">4 immagini</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="tog"><input type="checkbox" id="enhance" checked>✨ Auto-enhance prompt (motore Pollinations)</label>
+    <label class="tog"><input type="checkbox" id="boost" checked>🔥 Booster realismo (tag tecnici extra)</label>
+    <label class="tog"><input type="checkbox" id="lockseed">🔒 Blocca seed (riproducibile)</label>
+
+    <div class="grp fileUp">
+      <label class="lbl">Immagine di riferimento (opzionale)</label>
+      <input type="file" id="refFile" accept="image/*">
+    </div>
+
+    <button class="btn" id="go" style="width:100%" onclick="run()">⚡ Genera</button>
+    <div class="btnrow">
+      <button class="btn ghost" onclick="dice()">🎲 Idea casuale</button>
+      <button class="btn ghost" onclick="copyPrompt()">⧉ Copia prompt</button>
+    </div>
+  </div>
+
+  <!-- RISULTATO -->
+  <div>
+    <div class="stage">
+      <p class="ph" id="ph">Scrivi un'idea e premi GENERA.<br>L'immagine apparirà qui.</p>
+      <div class="load" id="load"><div class="spin"></div><p id="loadTxt">Elaborazione neurale...</p></div>
+      <img id="main" alt="Immagine Black GPT">
+    </div>
+    <div id="status"></div>
+    <div class="btnrow">
+      <a class="btn ghost" id="dl" download="BlackGPT.jpg" style="text-align:center;text-decoration:none">⬇ Scarica HD</a>
+      <button class="btn ghost" id="upBtn" onclick="upscale()" disabled>🔍 Upscale 2x</button>
+      <button class="btn ghost" id="varBtn" onclick="variation()" disabled>🎨 Variazione</button>
     </div>
   </div>
 </div>
 
-<div class="modal-overlay" id="teachModal">
-  <div class="modal">
-    <h3>Insegna un esempio</h3>
-    <div class="hint">Scrivi una domanda e la risposta che Black GPT dovrà dare da ora in poi.</div>
-    <input id="teachQ" placeholder="Domanda">
-    <textarea id="teachA" placeholder="Risposta"></textarea>
-    <div class="actions">
-      <button class="cancel" onclick="closeModal('teachModal')">Annulla</button>
-      <button class="confirm" onclick="confirmTeach()">Salva</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="bulkModal">
-  <div class="modal">
-    <h3>Importa in blocco</h3>
-    <div class="hint">Formato: righe "D: domanda" e "R: risposta", blocchi separati da ---</div>
-    <textarea id="bulkText" placeholder="D: Cos'è l'HTML?
-R: È il linguaggio base per creare pagine web.
----
-D: Quanto fa 2+2?
-R: Fa 4."></textarea>
-    <div class="actions">
-      <button class="cancel" onclick="closeModal('bulkModal')">Annulla</button>
-      <button class="confirm" onclick="confirmBulkImport()">Importa</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="passwordModal">
-  <div class="modal small">
-    <h3>🔒 Area riservata</h3>
-    <div class="hint">Inserisci la password per accedere alle domande senza risposta.</div>
-    <input type="password" id="passwordInput" placeholder="Password" onkeydown="if(event.key==='Enter') checkPendingPassword()">
-    <div class="errorText" id="passwordError">Password errata. Riprova.</div>
-    <div class="actions">
-      <button class="cancel" onclick="closeModal('passwordModal')">Annulla</button>
-      <button class="confirm" onclick="checkPendingPassword()">Entra</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="pendingModal">
-  <div class="modal wide">
-    <h3>Domande senza risposta</h3>
-    <div class="hint">Queste sono le domande a cui Black GPT non ha saputo rispondere. Scrivi la risposta e salvala: da quel momento risponderà automaticamente a tutti.</div>
-    <div id="pendingList"></div>
-    <div class="actions">
-      <button class="cancel" onclick="closeModal('pendingModal')">Chiudi</button>
-    </div>
-  </div>
+<div class="gal">
+  <h2><span>Le tue creazioni</span><span id="cnt">0</span></h2>
+  <div class="ggrid" id="grid"></div>
 </div>
 
 <script>
-/* ========== STORAGE ========== */
-const LS_CHATS = 'black_gpt_chats_v1';
-const LS_ACTIVE = 'black_gpt_active_chat_v1';
-const LS_EXAMPLES = 'black_gpt_examples_v1';
-const LS_PENDING = 'black_gpt_pending_v1';
-const MAX_EXAMPLES = 2000;
-const MAX_PENDING = 300;
-const PANEL_PASSWORD = 'daniel2014';
-const SS_UNLOCK = 'black_gpt_pending_unlocked';
+const $ = id => document.getElementById(id);
+const BOOST = "photorealistic, hyperrealistic, ultra detailed, masterpiece, professional photography, sharp focus";
+let cur = null; // ultima configurazione
+let cooldownUntil = 0;
 
-let chats = {};
-let activeChatId = null;
-let examples = [];
-let pendingQuestions = [];
-
-function safeParseJSON(str, fallback){
-  try {
-    const val = JSON.parse(str);
-    return val === null || val === undefined ? fallback : val;
-  } catch(e){
-    console.warn('Black GPT: dati salvati corrotti, uso valore di default.', e);
-    return fallback;
-  }
-}
-
-function loadFromStorage(){
-  chats = safeParseJSON(localStorage.getItem(LS_CHATS) || '{}', {});
-  if (typeof chats !== 'object' || chats === null || Array.isArray(chats)) chats = {};
-  activeChatId = localStorage.getItem(LS_ACTIVE) || null;
-
-  const rawExamples = safeParseJSON(localStorage.getItem(LS_EXAMPLES) || '[]', []);
-  examples = Array.isArray(rawExamples)
-    ? rawExamples.filter(e => e && typeof e.q === 'string' && typeof e.a === 'string' && e.q.trim() && e.a.trim())
-    : [];
-
-  const rawPending = safeParseJSON(localStorage.getItem(LS_PENDING) || '[]', []);
-  pendingQuestions = Array.isArray(rawPending)
-    ? rawPending.filter(p => p && typeof p.q === 'string' && p.q.trim())
-      .map(p => ({ q: p.q, count: typeof p.count === 'number' ? p.count : 1, lastAsked: p.lastAsked || Date.now() }))
-    : [];
-}
-loadFromStorage();
-
-function saveAll(){
-  try {
-    localStorage.setItem(LS_CHATS, JSON.stringify(chats));
-    localStorage.setItem(LS_ACTIVE, activeChatId || '');
-    localStorage.setItem(LS_EXAMPLES, JSON.stringify(examples));
-    localStorage.setItem(LS_PENDING, JSON.stringify(pendingQuestions));
-  } catch(e){
-    console.error('Black GPT: impossibile salvare i dati.', e);
-  }
-}
-
-function resetExamples(){
-  if (!confirm('Vuoi davvero cancellare tutti gli esempi salvati (pacchetto base incluso)? Le chat e le domande in sospeso non verranno toccate.')) return;
-  examples = [];
-  saveAll();
-  updateDatasetCount();
-  alert('Memoria esempi svuotata.');
-}
-
-/* ========== ACCESSO PROTETTO AL PANNELLO ========== */
-function requestPendingAccess(){
-  if (sessionStorage.getItem(SS_UNLOCK) === 'true'){
-    openPendingModal();
-    return;
-  }
-  document.getElementById('passwordInput').value = '';
-  document.getElementById('passwordError').style.display = 'none';
-  document.getElementById('passwordModal').classList.add('show');
-  setTimeout(() => document.getElementById('passwordInput').focus(), 50);
-}
-function checkPendingPassword(){
-  const val = document.getElementById('passwordInput').value;
-  if (val === PANEL_PASSWORD){
-    sessionStorage.setItem(SS_UNLOCK, 'true');
-    closeModal('passwordModal');
-    openPendingModal();
-  } else {
-    document.getElementById('passwordError').style.display = 'block';
-  }
-}
-
-/* ========== MOTORE DI COMPRENSIONE ========== */
-const STOPWORDS = new Set(['il','lo','la','i','gli','le','un','uno','una','di','a','da','in','con','su','per','tra','fra','e','o','ma','che','non','mi','ti','si','ci','vi','del','dello','della','dei','degli','delle','al','allo','alla','ai','agli','alle','come','cosa','cos','sei','sono','è','ha','hai','ho','essere','questo','questa','quello','quella','mio','tuo','suo']);
-
-const SYNONYMS = {
-  'prezzo':'costo','prezzi':'costo','costa':'costo','costi':'costo','tariffa':'costo','spesa':'costo',
-  'spiega':'spiega','spiegami':'spiega','spiegare':'spiega','dimmi':'spiega','dici':'spiega','descrivi':'spiega',
-  'significa':'significato','vuol':'significato','vuole':'significato',
-  'crea':'crea','creare':'crea','fai':'crea','fare':'crea','genera':'crea','generare':'crea','realizza':'crea','costruisci':'crea',
-  'veloce':'veloce','velocemente':'veloce','rapido':'veloce','rapidamente':'veloce',
-  'grande':'grande','enorme':'grande','vasto':'grande',
-  'piccolo':'piccolo','minuscolo':'piccolo',
-  'buono':'buono','ottimo':'buono','eccellente':'buono',
-  'differenza':'differenza','differenze':'differenza','distingue':'differenza',
-  'funziona':'funziona','funzionamento':'funziona','funzionare':'funziona',
-  'nazione':'paese','stato':'paese','nazioni':'paese',
-  'capitale':'capitale','capoluogo':'capitale',
-  'mangiare':'cibo','cucinare':'cibo','cucina':'cibo','alimento':'cibo','alimenti':'cibo',
-  'salute':'salute','benessere':'salute','malattia':'salute',
-  'storia':'storia','storico':'storia','storica':'storia',
-  'origine':'origine','nasce':'origine','nato':'origine','inizio':'origine'
-};
-
-const SUFFIXES = ['azione','amento','issimo','issima','abile','ibile','mente','zione','tore','trice','ismo','ista',
-  'ando','endo','iamo','ate','ete','ite','uti','ute','uto','uta','ati','ata','ato',
-  'are','ere','ire','ico','ica','ici','iche','oso','osa','ale','ali','ini','ine','elle','ello',
-  'e','i','a','o'];
-function stem(word){
-  if (typeof word !== 'string') return '';
-  for (const suf of SUFFIXES){
-    if (word.length - suf.length >= 3 && word.endsWith(suf)){
-      return word.slice(0, word.length - suf.length);
-    }
-  }
-  return word;
-}
-
-function normalizeText(text){
-  if (typeof text !== 'string') return '';
-  return text.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[^a-z0-9\s]/g,' ')
-    .replace(/\s+/g,' ')
-    .trim();
-}
-
-function tokenize(text){
-  if (typeof text !== 'string') return [];
-  const norm = normalizeText(text);
-  if (!norm) return [];
-  return norm.split(' ')
-    .filter(w => w.length > 0 && !STOPWORDS.has(w))
-    .map(w => SYNONYMS[w] || w)
-    .map(w => stem(w));
-}
-
-function levenshtein(a,b){
-  if (typeof a !== 'string' || typeof b !== 'string') return 99;
-  if (a===b) return 0;
-  const m = a.length, n = b.length;
-  if (m===0) return n;
-  if (n===0) return m;
-  const dp = Array.from({length:m+1}, ()=>new Array(n+1).fill(0));
-  for (let i=0;i<=m;i++) dp[i][0]=i;
-  for (let j=0;j<=n;j++) dp[0][j]=j;
-  for (let i=1;i<=m;i++){
-    for (let j=1;j<=n;j++){
-      const cost = a[i-1]===b[j-1] ? 0 : 1;
-      dp[i][j] = Math.min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+cost);
-    }
-  }
-  return dp[m][n];
-}
-
-function computeIDF(allTokenSets){
-  const df = {};
-  const N = allTokenSets.length || 1;
-  allTokenSets.forEach(tokens => {
-    const uniq = new Set(tokens);
-    uniq.forEach(t => { df[t] = (df[t]||0) + 1; });
+/* ---------- COSTRUZIONE URL ---------- */
+function buildUrl(p, opts){
+  let full = p;
+  if ($('boost').checked && opts.style) full += ", " + opts.style;
+  if ($('boost').checked) full += ", " + BOOST;
+  const q = new URLSearchParams({
+    width: opts.w, height: opts.h, seed: opts.seed, model: opts.model, nologo: true
   });
-  const idf = {};
-  Object.keys(df).forEach(t => { idf[t] = Math.log((N+1)/(df[t]+1)) + 1; });
-  return idf;
+  if ($('enhance').checked) q.set('enhance','true');
+  if (opts.neg) q.set('negative_prompt', opts.neg);
+  if (opts.ref) q.set('image', opts.ref);
+  return "https://image.pollinations.ai/prompt/" + encodeURIComponent(full) + "?" + q.toString();
 }
 
-function tokenMatchWeight(qToken, eTokens, idf){
-  if (eTokens.includes(qToken)) return idf[qToken] || 1;
-  if (qToken.length >= 5){
-    for (const et of eTokens){
-      if (et.length >= 5 && levenshtein(qToken, et) <= 1){
-        return (idf[qToken] || 1) * 0.8;
+function readCfg(){
+  const [w,h] = $('size').value.split('x').map(Number);
+  return {
+    prompt: $('prompt').value.trim(),
+    neg: $('neg').value.trim(),
+    style: $('style').value,
+    model: $('model').value,
+    w, h,
+    ref: localStorage.getItem('bgpt_ref') || '',
+    lock: $('lockseed').checked
+  };
+}
+
+/* ---------- GENERAZIONE CON GESTIONE ATTESA ---------- */
+async function fetchWithWait(url, cb){
+  let attempt = 0;
+  while (attempt < 12){
+    const now = Date.now();
+    if (now < cooldownUntil){
+      const s = Math.ceil((cooldownUntil - now)/1000);
+      setStatus(`⏳ Rispettiamo il limite del server: riprovo tra ${s}s...`);
+      $('cdBadge').textContent = 'Attesa ' + s + 's';
+      await sleep(4000);
+      attempt++; continue;
+    }
+    try {
+      setStatus(cb ? cb(attempt) : 'Generazione in corso...');
+      const r = await fetch(url);
+      if (r.status === 429){
+        cooldownUntil = Date.now() + 45000;
+        attempt++; continue;
       }
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      cooldownUntil = Date.now() + 8000; // pausa educata tra richieste
+      return await r.blob();
+    } catch(e){
+      attempt++;
+      await sleep(3000);
     }
   }
-  return 0;
+  throw new Error('Il server è occupato. Riprova fra un minuto.');
 }
 
-function similarityScore(queryTokens, exampleTokens, idf){
-  if (queryTokens.length===0 || exampleTokens.length===0) return 0;
-  let score = 0;
-  let maxPossible = 0;
-  queryTokens.forEach(qt => {
-    const w = idf[qt] || 1;
-    maxPossible += w;
-    score += tokenMatchWeight(qt, exampleTokens, idf);
-  });
-  if (maxPossible===0) return 0;
-  return score / maxPossible;
-}
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function setStatus(t){ $('status').textContent = t; }
 
-function findBestMatch(userText){
-  if (!Array.isArray(examples) || examples.length===0) return null;
-  const queryTokens = tokenize(userText);
-  if (queryTokens.length===0) return null;
-  const validExamples = examples.filter(ex => ex && typeof ex.q === 'string' && typeof ex.a === 'string');
-  if (validExamples.length===0) return null;
-  const allTokenSets = validExamples.map(ex => tokenize(ex.q));
-  const idf = computeIDF(allTokenSets);
-  let best = null, bestScore = 0;
-  validExamples.forEach((ex, idx) => {
-    const s = similarityScore(queryTokens, allTokenSets[idx], idf);
-    if (s > bestScore){ bestScore = s; best = ex; }
-  });
-  const THRESHOLD = 0.42;
-  if (best && bestScore >= THRESHOLD) return best.a;
-  return null;
-}
+async function run(){
+  const cfg = readCfg();
+  if (!cfg.prompt) return alert('Scrivi prima una descrizione!');
+  $('go').disabled = true;
+  $('ph').style.display='none';
+  $('load').style.display='flex';
+  $('main').style.display='none';
 
-/* ========== CATEGORIE SPECIALIZZATE ========== */
-function tryMath(text){
-  if (typeof text !== 'string') return null;
-  const norm = text.toLowerCase().replace(',', '.');
-  const m = norm.match(/-?\d+(\.\d+)?\s*([+\-*/%x])\s*-?\d+(\.\d+)?/);
-  if (!m) return null;
-  let expr = m[0].replace(/x/g,'*');
-  if (!/^[0-9+\-*/%.\s]+$/.test(expr)) return null;
-  try {
-    const result = Function('"use strict"; return (' + expr + ')')();
-    if (typeof result === 'number' && isFinite(result)){
-      return `Il risultato di ${expr.trim()} è **${result}**.`;
-    }
-  } catch(e){ return null; }
-  return null;
-}
-
-function tryDateTime(text){
-  const t = normalizeText(text);
-  if (!t) return null;
-  const now = new Date();
-  if (/che ora|che ore|orario attuale/.test(t)){
-    return `Sono le **${now.toLocaleTimeString('it-IT')}** (orario del tuo dispositivo).`;
-  }
-  if (/che giorno|data odierna|oggi che giorno|che data/.test(t)){
-    return `Oggi è **${now.toLocaleDateString('it-IT', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}**.`;
-  }
-  if (/che anno|anno corrente|in che anno/.test(t)){
-    return `Siamo nel **${now.getFullYear()}**.`;
-  }
-  return null;
-}
-
-function tryUnitConversion(text){
-  if (typeof text !== 'string') return null;
-  const t = text.toLowerCase().replace(',', '.');
-  let m;
-  try {
-    if ((m = t.match(/(\d+(\.\d+)?)\s*km.*miglia/)) || (t.includes('km') && t.includes('migli'))){
-      const num = parseFloat((t.match(/(\d+(\.\d+)?)/)||[])[0]);
-      if (!isNaN(num)) return `${num} km equivalgono a **${(num*0.621371).toFixed(2)} miglia**.`;
-    }
-    if (t.includes('miglia') && t.includes('km')){
-      const num = parseFloat((t.match(/(\d+(\.\d+)?)/)||[])[0]);
-      if (!isNaN(num)) return `${num} miglia equivalgono a **${(num*1.60934).toFixed(2)} km**.`;
-    }
-    if (t.includes('kg') && (t.includes('libbr') || t.includes('lb'))){
-      const num = parseFloat((t.match(/(\d+(\.\d+)?)/)||[])[0]);
-      if (!isNaN(num)) return `${num} kg equivalgono a **${(num*2.20462).toFixed(2)} libbre**.`;
-    }
-    if ((t.includes('libbr') || t.includes('lb')) && t.includes('kg')){
-      const num = parseFloat((t.match(/(\d+(\.\d+)?)/)||[])[0]);
-      if (!isNaN(num)) return `${num} libbre equivalgono a **${(num*0.453592).toFixed(2)} kg**.`;
-    }
-    if (t.includes('celsius') || t.includes('°c')){
-      const num = parseFloat((t.match(/(-?\d+(\.\d+)?)/)||[])[0]);
-      if (!isNaN(num) && t.includes('fahrenheit')) return `${num}°C equivalgono a **${(num*9/5+32).toFixed(1)}°F**.`;
-    }
-    if (t.includes('fahrenheit') || t.includes('°f')){
-      const num = parseFloat((t.match(/(-?\d+(\.\d+)?)/)||[])[0]);
-      if (!isNaN(num) && t.includes('celsius')) return `${num}°F equivalgono a **${((num-32)*5/9).toFixed(1)}°C**.`;
-    }
-  } catch(e){ return null; }
-  return null;
-}
-
-const capitalsDictionary = {
-  'italia':'Roma','francia':'Parigi','germania':'Berlino','spagna':'Madrid','portogallo':'Lisbona',
-  'inghilterra':'Londra','regno unito':'Londra','stati uniti':'Washington D.C.','usa':'Washington D.C.',
-  'giappone':'Tokyo','cina':'Pechino','russia':'Mosca','canada':'Ottawa','brasile':'Brasilia',
-  'australia':'Canberra','grecia':'Atene','svizzera':'Berna','austria':'Vienna','belgio':'Bruxelles',
-  'olanda':'Amsterdam','paesi bassi':'Amsterdam','egitto':'Il Cairo','india':'Nuova Delhi',
-  'messico':'Città del Messico','argentina':'Buenos Aires'
-};
-function tryCapital(text){
-  const t = normalizeText(text);
-  if (!t || !/capitale|capoluogo/.test(t)) return null;
-  for (const paese in capitalsDictionary){
-    if (t.includes(paese)){
-      const art = (paese === 'stati uniti' || paese === 'usa') ? 'degli' : 'di';
-      return `La capitale ${art} ${paese} è **${capitalsDictionary[paese]}**.`;
+  const n = parseInt($('batch').value);
+  for (let i=0; i<n; i++){
+    const seed = cfg.lock ? (parseInt($('seed').value)||12345) : Math.floor(Math.random()*9999999);
+    const opts = {...cfg, seed};
+    const url = buildUrl(cfg.prompt, opts);
+    try {
+      const blob = await fetchWithWait(url, a => `Generazione ${i+1}/${n} — il motore Flux sta disegnando${'.'.repeat((a%3)+1)}`);
+      const ou = URL.createObjectURL(blob);
+      show(ou, {prompt: cfg.prompt, style: opts.style, model: opts.model, w: opts.w, h: opts.h, seed});
+    } catch(e){
+      setStatus('⚠ ' + e.message);
     }
   }
-  return null;
+  $('load').style.display='none';
+  $('go').disabled = false;
+  $('cdBadge').textContent = 'Pronto';
 }
 
-function tryTextTools(text){
-  if (typeof text !== 'string') return null;
-  const t = normalizeText(text);
-  const quoted = text.match(/"([^"]+)"/) || text.match(/'([^']+)'/);
-  if (/conta.*parol/.test(t)){
-    const target = quoted ? quoted[1] : text.replace(/conta.*parole.*(di|in|nel testo)?/i,'').trim();
-    const words = target.trim().split(/\s+/).filter(Boolean).length;
-    return `Il testo contiene **${words} parole**.`;
-  }
-  if (/conta.*caratter/.test(t)){
-    const target = quoted ? quoted[1] : text.replace(/conta.*caratteri.*(di|in|nel testo)?/i,'').trim();
-    return `Il testo contiene **${target.length} caratteri**.`;
-  }
-  if (/maiuscol/.test(t) && quoted){
-    return `Testo in maiuscolo: **${quoted[1].toUpperCase()}**`;
-  }
-  if (/minuscol/.test(t) && quoted){
-    return `Testo in minuscolo: **${quoted[1].toLowerCase()}**`;
-  }
-  if (/inverti|al contrario/.test(t) && quoted){
-    return `Testo invertito: **${quoted[1].split('').reverse().join('')}**`;
-  }
-  return null;
+function show(url, meta){
+  $('main').src = url; $('main').style.display='block';
+  $('dl').href = url; $('dl').download = `BlackGPT-${meta.seed}.jpg`;
+  $('upBtn').disabled = false; $('varBtn').disabled = false;
+  cur = meta;
+  setStatus('✅ Pronta — nessuna filigrana');
+  addGallery(meta, url);
 }
 
-/* ========== GENERATORE SITI ========== */
-const colorThemes = {
-  scuro:{bg:'#0f1115',fg:'#fff',accent:'#1f6feb'},
-  blu:{bg:'#0b1b33',fg:'#fff',accent:'#2e8bff'},
-  verde:{bg:'#0d1f14',fg:'#fff',accent:'#2ecc71'},
-  rosa:{bg:'#2a0f1e',fg:'#fff',accent:'#ff5fa2'},
-  oro:{bg:'#1a1508',fg:'#fff',accent:'#e0b23a'},
-  rosso:{bg:'#260d0d',fg:'#fff',accent:'#e14343'}
-};
-const siteCategories = {
-  ristorante:{label:'Ristorante', sections:['Menu','Prenota un tavolo','Chi siamo','Contatti'], tagline:'Sapori autentici, serviti con passione.'},
-  beauty:{label:'Centro Estetico', sections:['Trattamenti','Prenota','Chi siamo','Contatti'], tagline:'La tua bellezza, la nostra cura.'},
-  fitness:{label:'Palestra', sections:['Corsi','Abbonamenti','Chi siamo','Contatti'], tagline:'Allenati come un campione.'},
-  portfolio:{label:'Portfolio', sections:['Progetti','Chi sono','Competenze','Contatti'], tagline:'Il mio lavoro racconta chi sono.'},
-  immobiliare:{label:'Agenzia Immobiliare', sections:['Immobili','Servizi','Chi siamo','Contatti'], tagline:'Trova la casa dei tuoi sogni.'},
-  negozio:{label:'Negozio Online', sections:['Prodotti','Offerte','Chi siamo','Contatti'], tagline:'Qualità e stile, a portata di click.'},
-  generico:{label:'Azienda', sections:['Servizi','Chi siamo','Contatti'], tagline:'Soluzioni su misura per te.'}
-};
-function detectCategory(t){
-  if (/ristorant|pizzeri|trattori|cucin|cibo|chef/.test(t)) return 'ristorante';
-  if (/parrucchier|estetic|beauty|spa|salone/.test(t)) return 'beauty';
-  if (/palestr|fitness|personal trainer|gym/.test(t)) return 'fitness';
-  if (/portfolio|freelance|fotografo|designer|sviluppatore/.test(t)) return 'portfolio';
-  if (/immobiliar|agenzia immobiliare|case|appartament/.test(t)) return 'immobiliare';
-  if (/negozio|shop|ecommerce|vendita/.test(t)) return 'negozio';
-  return 'generico';
-}
-function detectColor(t){
-  for (const c in colorThemes) if (t.includes(c)) return c;
-  return 'scuro';
-}
-function extractBrand(text, categoryLabel){
-  const m = text.match(/per\s+([a-zA-Z0-9àèéìòù'\s]{2,30})(?:\.|,|$)/i);
-  if (m) return m[1].trim().split(' ').slice(0,3).join(' ');
-  return categoryLabel;
-}
-function generateSite(userText){
-  const t = normalizeText(userText);
-  const cat = detectCategory(t);
-  const color = detectColor(t);
-  const theme = colorThemes[color];
-  const info = siteCategories[cat];
-  const brand = extractBrand(userText, info.label) || info.label;
-  const navLinks = info.sections.map(s => `<a href="#${s.toLowerCase().replace(/\s+/g,'-')}">${s}</a>`).join('\n      ');
-  const sections = info.sections.map(s => `
-  <section id="${s.toLowerCase().replace(/\s+/g,'-')}">
-    <h2>${s}</h2>
-    <p>Contenuto dedicato a "${s}" per ${brand}. Personalizza questo testo con i tuoi contenuti reali.</p>
-  </section>`).join('\n');
-  const html = `<!DOCTYPE html>
-<html lang="it">
-<head>
-<meta charset="UTF-8">
-<title>${brand}</title>
-<style>
-  * { box-sizing:border-box; margin:0; padding:0; font-family: Arial, sans-serif; }
-  body { background:${theme.bg}; color:${theme.fg}; }
-  header { display:flex; justify-content:space-between; align-items:center; padding:20px 40px; border-bottom:1px solid rgba(255,255,255,0.1); }
-  header h1 { font-size:22px; color:${theme.accent}; }
-  nav a { color:${theme.fg}; text-decoration:none; margin-left:20px; font-size:14px; }
-  .hero { padding:80px 40px; text-align:center; }
-  .hero h2 { font-size:38px; margin-bottom:16px; }
-  .hero p { font-size:18px; opacity:0.8; margin-bottom:24px; }
-  .hero button { background:${theme.accent}; color:#fff; border:none; padding:14px 28px; border-radius:8px; font-size:16px; cursor:pointer; }
-  section { padding:60px 40px; border-top:1px solid rgba(255,255,255,0.08); }
-  section h2 { color:${theme.accent}; margin-bottom:16px; font-size:26px; }
-  footer { text-align:center; padding:30px; opacity:0.6; font-size:13px; }
-</style>
-</head>
-<body>
-  <header>
-    <h1>${brand}</h1>
-    <nav>
-      ${navLinks}
-    </nav>
-  </header>
-  <div class="hero">
-    <h2>${brand}</h2>
-    <p>${info.tagline}</p>
-    <button>Contattaci</button>
-  </div>
-  ${sections}
-  <footer>&copy; ${new Date().getFullYear()} ${brand}. Creato con Black GPT.</footer>
-</body>
-</html>`;
-  return { html, brand };
-}
-function trySiteGeneration(text){
-  const t = normalizeText(text);
-  if (!t) return null;
-  if (/crea|genera|realizza|costruisci|fai/.test(t) && /sito|vetrina|pagina web|landing/.test(t)){
-    return generateSite(text);
-  }
-  return null;
+function upscale(){
+  if(!cur) return;
+  const opts = {prompt: cur.prompt, neg: $('neg').value, style: cur.style, model: cur.model,
+                w: Math.min(cur.w*2, 2048), h: Math.min(cur.h*2, 2048), seed: cur.seed, ref: cur.ref||''};
+  doAction(buildUrl(cur.prompt, opts), 'Upscaling in corso (2x)...', opts);
 }
 
-/* ========== PACCHETTO BASE ========== */
-const builtInDataset = [
-  {q:"Perché il cielo è blu?", a:"Perché la luce del sole, colpendo l'atmosfera, viene diffusa di più nelle lunghezze d'onda corte (blu) rispetto a quelle lunghe (rosso), fenomeno chiamato diffusione di Rayleigh."},
-  {q:"Cos'è la fotosintesi?", a:"È il processo con cui le piante trasformano luce solare, acqua e anidride carbonica in energia chimica (zuccheri), rilasciando ossigeno."},
-  {q:"Quanti pianeti ci sono nel sistema solare?", a:"Ci sono 8 pianeti: Mercurio, Venere, Terra, Marte, Giove, Saturno, Urano e Nettuno."},
-  {q:"Cos'è la gravità?", a:"È la forza che attrae tra loro i corpi dotati di massa; sulla Terra è ciò che ci tiene ancorati al suolo."},
-  {q:"Quanto è distante la luna dalla terra?", a:"In media circa 384.400 km."},
-  {q:"Cos'è il DNA?", a:"È la molecola che contiene le informazioni genetiche necessarie allo sviluppo e funzionamento di un organismo."},
-  {q:"Cos'è un atomo?", a:"È la più piccola unità della materia che conserva le proprietà chimiche di un elemento, composta da protoni, neutroni ed elettroni."},
-  {q:"Cos'è l'energia cinetica?", a:"È l'energia posseduta da un corpo in movimento, proporzionale alla sua massa e al quadrato della sua velocità."},
-  {q:"Chi ha scoperto la gravità?", a:"Isaac Newton formulò la legge di gravitazione universale nel XVII secolo."},
-  {q:"Cos'è un buco nero?", a:"È una regione dello spazio con un campo gravitazionale così intenso che nulla, nemmeno la luce, può sfuggirgli."},
-  {q:"Cos'è l'HTML?", a:"È il linguaggio standard usato per creare la struttura delle pagine web."},
-  {q:"Cos'è il CSS?", a:"È il linguaggio usato per definire lo stile grafico (colori, layout, font) di una pagina HTML."},
-  {q:"Cos'è JavaScript?", a:"È un linguaggio di programmazione usato per rendere le pagine web interattive e dinamiche."},
-  {q:"Differenza tra HTML e JavaScript?", a:"L'HTML definisce la struttura dei contenuti di una pagina, mentre JavaScript ne gestisce il comportamento e l'interattività."},
-  {q:"Cos'è un algoritmo?", a:"È una sequenza finita di istruzioni ben definite per risolvere un problema o eseguire un compito."},
-  {q:"Cos'è l'intelligenza artificiale?", a:"È un ramo dell'informatica che sviluppa sistemi capaci di svolgere compiti che richiedono normalmente intelligenza umana, come riconoscere immagini o linguaggio."},
-  {q:"Cos'è il cloud computing?", a:"È l'erogazione di risorse informatiche (server, archiviazione, software) tramite internet invece che su computer locali."},
-  {q:"Cos'è un indirizzo IP?", a:"È un numero univoco assegnato a ogni dispositivo connesso a una rete, usato per identificarlo e farlo comunicare con altri dispositivi."},
-  {q:"Cos'è un database?", a:"È un insieme organizzato di dati, strutturato in modo da poter essere facilmente consultato, gestito e aggiornato."},
-  {q:"Cos'è il wifi?", a:"È una tecnologia che permette di collegare dispositivi a internet tramite onde radio, senza bisogno di cavi."},
-  {q:"Chi ha scoperto l'America?", a:"Cristoforo Colombo vi giunse nel 1492, anche se le terre erano già abitate da popolazioni indigene."},
-  {q:"Quando è finita la Seconda Guerra Mondiale?", a:"Nel 1945, con la resa del Giappone il 2 settembre dopo la resa della Germania il 8 maggio."},
-  {q:"Chi era Giulio Cesare?", a:"Fu un generale e politico romano, protagonista della fine della Repubblica Romana e dell'ascesa dell'Impero."},
-  {q:"Cos'è stato il Rinascimento?", a:"Un periodo storico-culturale, tra il XIV e il XVI secolo, caratterizzato da una rinascita delle arti, scienze e filosofia classica in Italia ed Europa."},
-  {q:"Quando è caduto l'impero romano?", a:"L'Impero Romano d'Occidente cadde nel 476 d.C., mentre quello d'Oriente (bizantino) sopravvisse fino al 1453."},
-  {q:"Chi ha scritto la Divina Commedia?", a:"Dante Alighieri, tra il 1304 e il 1321 circa."},
-  {q:"Cos'è stata la Rivoluzione Francese?", a:"Un periodo di sconvolgimenti politici e sociali in Francia tra il 1789 e il 1799, che portò alla fine della monarchia assoluta."},
-  {q:"Chi era Leonardo da Vinci?", a:"Un genio rinascimentale italiano: pittore, inventore, scienziato e ingegnere, autore di opere come la Gioconda."},
-  {q:"Quando è nata la Repubblica Italiana?", a:"Il 2 giugno 1946, dopo il referendum istituzionale che sostituì la monarchia."},
-  {q:"Chi era Napoleone Bonaparte?", a:"Un generale e imperatore francese che conquistò gran parte d'Europa a cavallo tra il XVIII e il XIX secolo."},
-  {q:"Qual è la capitale della Francia?", a:"Parigi."},
-  {q:"Qual è il fiume più lungo del mondo?", a:"Il Nilo, in Africa, con circa 6.650 km (secondo alcune misurazioni il Rio delle Amazzoni è più lungo)."},
-  {q:"Qual è la montagna più alta del mondo?", a:"L'Everest, in Himalaya, con 8.849 metri di altezza."},
-  {q:"Quanti continenti ci sono?", a:"Sette: Africa, Antartide, Asia, Europa, America del Nord, America del Sud e Oceania."},
-  {q:"Qual è il paese più grande del mondo?", a:"La Russia, con una superficie di oltre 17 milioni di km²."},
-  {q:"Qual è il deserto più grande del mondo?", a:"Il deserto del Sahara è il più grande deserto caldo, ma l'Antartide è il deserto più grande in assoluto."},
-  {q:"Quante regioni ha l'Italia?", a:"L'Italia è divisa in 20 regioni."},
-  {q:"Qual è la regione più grande d'Italia?", a:"La Sicilia è la regione più estesa d'Italia."},
-  {q:"Qual è il lago più grande d'Italia?", a:"Il Lago di Garda."},
-  {q:"Qual è la città più popolosa d'Italia?", a:"Roma, con circa 2,8 milioni di abitanti."},
-  {q:"Come si fa la pasta alla carbonara?", a:"Si prepara con uova, guanciale, pecorino romano e pepe nero, senza panna, mantecando a fuoco spento per non far rapprendere le uova."},
-  {q:"Qual è la differenza tra burro e olio?", a:"Il burro è un grasso animale solido a temperatura ambiente, l'olio è un grasso vegetale liquido; hanno sapori e usi culinari diversi."},
-  {q:"Come conservare il pane fresco più a lungo?", a:"Avvolgerlo in un canovaccio di cotone e conservarlo in un sacchetto di carta, oppure congelarlo a fette."},
-  {q:"Quanta acqua bisogna bere al giorno?", a:"In genere si consigliano circa 1,5-2 litri al giorno, variabile in base ad attività fisica, clima ed età."},
-  {q:"Cos'è una dieta bilanciata?", a:"Un'alimentazione che fornisce tutti i nutrienti necessari (carboidrati, proteine, grassi, vitamine e minerali) nelle giuste proporzioni."},
-  {q:"Quante ore bisogna dormire?", a:"Gli adulti dovrebbero dormire in media tra le 7 e le 9 ore a notte."},
-  {q:"Cos'è lo stress?", a:"È una risposta fisica e mentale a situazioni percepite come impegnative o minacciose, che se prolungata può avere effetti negativi sulla salute."},
-  {q:"Come rafforzare il sistema immunitario?", a:"Alimentazione equilibrata, attività fisica regolare, sonno sufficiente e riduzione dello stress sono i principali fattori utili."},
-  {q:"Cos'è il colesterolo?", a:"È una sostanza grassa presente nel sangue, necessaria per l'organismo ma dannosa in eccesso, soprattutto quello LDL."},
-  {q:"Qual è la differenza tra raffreddore e influenza?", a:"Il raffreddore ha sintomi più lievi e localizzati (naso, gola), l'influenza è più intensa, con febbre alta e dolori diffusi."},
-  {q:"Quando si usa il congiuntivo in italiano?", a:"Si usa per esprimere dubbio, desiderio, opinione o possibilità, spesso dopo espressioni come 'penso che' o 'è possibile che'."},
-  {q:"Qual è la differenza tra 'un po'' e 'un pò'?", a:"La forma corretta è 'un po'' con l'apostrofo; 'un pò' con l'accento è un errore comune."},
-  {q:"Come si usano gli accenti in italiano?", a:"L'accento grafico si usa su alcune parole tronche (città, perché) e per distinguere parole omografe (è/e, dà/da)."},
-  {q:"Qual è la differenza tra 'c'è' e 'ce'?", a:"'C'è' significa 'esiste/è presente' (c'è qualcuno), mentre 'ce' è usato prima di 'lo/la/li/le/ne' (ce lo dici)."},
-  {q:"Come si forma il plurale delle parole che finiscono in -co?", a:"Dipende: molte diventano -chi (fuoco→fuochi), altre -ci (amico→amici), la regola ha eccezioni da memorizzare."},
-  {q:"Come risparmiare energia in casa?", a:"Usare elettrodomestici efficienti, spegnere le luci inutilizzate, isolare bene le finestre e preferire lampadine LED."},
-  {q:"Come organizzare meglio il proprio tempo?", a:"Usare liste di priorità, tecniche come il time blocking o il metodo Pomodoro, ed evitare le distrazioni durante i compiti importanti."},
-  {q:"Come fare un buon curriculum?", a:"Essere sintetici, evidenziare esperienze e competenze rilevanti, usare un formato chiaro e adattarlo all'offerta di lavoro specifica."},
-  {q:"Quali documenti servono per rinnovare la carta d'identità?", a:"Di solito serve la carta scaduta o in scadenza, una foto tessera recente e il codice fiscale; si può fare anche online su alcuni comuni."},
-  {q:"Come si fa una buona valigia per un viaggio?", a:"Fare una lista degli oggetti essenziali, arrotolare i vestiti per risparmiare spazio, e dividere liquidi e oggetti fragili in modo sicuro."},
-  {q:"Chi ha dipinto la Gioconda?", a:"Leonardo da Vinci, tra il 1503 e il 1519 circa."},
-  {q:"Qual è lo sport più praticato al mondo?", a:"Il calcio è considerato lo sport più popolare e praticato a livello globale."},
-  {q:"Quante corde ha una chitarra classica?", a:"Sei corde."},
-  {q:"Chi ha composto le Quattro Stagioni?", a:"Antonio Vivaldi, compositore veneziano del periodo barocco."},
-  {q:"Qual è il quadro più famoso al mondo?", a:"Molti considerano la Gioconda di Leonardo da Vinci il dipinto più famoso al mondo."},
-  {q:"Cos'è un sonetto?", a:"È una forma poetica di 14 versi, tipicamente divisa in due quartine e due terzine, molto usata nella tradizione italiana (es. Petrarca)."},
-  {q:"Chi è l'autore de I Promessi Sposi?", a:"Alessandro Manzoni, pubblicato definitivamente nel 1840-42."},
-  {q:"Quanti giocatori ci sono in una squadra di calcio?", a:"Undici giocatori per squadra in campo contemporaneamente."},
-  {q:"Cos'è l'Olimpiade?", a:"È la più importante manifestazione sportiva internazionale, che si tiene ogni quattro anni riunendo atleti di tutto il mondo."},
-  {q:"Chi sei?", a:"Sono Black GPT 2, un assistente offline che funziona interamente nel tuo browser, senza bisogno di internet. Non sono un modello neurale addestrato: rispondo tramite un sistema di regole, riconoscimento del linguaggio e una memoria di esempi che posso imparare da te."}
+function variation(){
+  if(!cur) return;
+  const seed = Math.floor(Math.random()*9999999);
+  const opts = {prompt: cur.prompt, neg: $('neg').value, style: cur.style, model: cur.model,
+                w: cur.w, h: cur.h, seed, ref: cur.ref||''};
+  doAction(buildUrl(cur.prompt, opts), 'Nuova variazione...', opts);
+}
+
+async function doAction(url, msg, opts){
+  $('load').style.display='flex'; setStatus(msg);
+  try{
+    const blob = await fetchWithWait(url);
+    show(URL.createObjectURL(blob), {prompt: opts.prompt, style: opts.style, model: opts.model, w: opts.w, h: opts.h, seed: opts.seed});
+  }catch(e){ setStatus('⚠ '+e.message); }
+  $('load').style.display='none';
+}
+
+/* ---------- IMMAGINE DI RIFERIMENTO ---------- */
+$('refFile').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ localStorage.setItem('bgpt_ref', r.result); setStatus('🖼️ Reference caricata: verrà usata nella prossima generazione'); };
+  r.readAsDataURL(f);
+});
+
+/* ---------- IDEE CASUALI ---------- */
+const IDEAS = [
+ "Un leone anziano seduto su una sedia di velluto rosso in un teatro abbandonato",
+ "Un barista robot che prepara caffè in un locale anni '50, luce neon",
+ "Una ballerina di balletto sotto la neve, motion blur, Parigi di notte",
+ "Un pescatore con la barba bianca che ripara una rete al tramonto",
+ "Una biblioteca infinita con scale a chiocciola, luce dorata dalle finestre",
+ "Un lupo artico che cammina su un iceberg, cieli aurora boreale",
+ "Una chef stellata che impasta in una cucina professionale, vapore e luce calda",
+ "Un samurai nel Giappone feudale sotto la pioggia, kimono rosso"
 ];
-
-function loadBuiltInDataset(){
-  let added = 0;
-  builtInDataset.forEach(item => {
-    const exists = examples.some(ex => ex && typeof ex.q === 'string' && normalizeText(ex.q) === normalizeText(item.q));
-    if (!exists && examples.length < MAX_EXAMPLES){
-      examples.push({q:item.q, a:item.a});
-      added++;
-    }
-  });
-  saveAll();
-  updateDatasetCount();
-  alert(`Pacchetto base caricato: ${added} nuovi esempi aggiunti (totale in memoria: ${examples.length}).`);
-}
-function updateDatasetCount(){
-  const el = document.getElementById('dsCount');
-  if (el) el.textContent = `(${builtInDataset.length})`;
+function dice(){ $('prompt').value = IDEAS[Math.floor(Math.random()*IDEAS.length)]; }
+function copyPrompt(){
+  let p = $('prompt').value;
+  if ($('boost').checked) p += ", " + ($('style').value ? $('style').value + ", " : "") + BOOST;
+  navigator.clipboard.writeText(p); setStatus('📋 Prompt completo copiato!');
 }
 
-/* ========== DOMANDE SENZA RISPOSTA ========== */
-function recordPending(text){
-  if (typeof text !== 'string' || !text.trim()) return;
-  const norm = normalizeText(text);
-  const existing = pendingQuestions.find(p => normalizeText(p.q) === norm);
-  if (existing){
-    existing.count = (existing.count || 1) + 1;
-    existing.lastAsked = Date.now();
-  } else {
-    if (pendingQuestions.length >= MAX_PENDING){
-      pendingQuestions.shift();
-    }
-    pendingQuestions.push({ q: text.trim(), count: 1, lastAsked: Date.now() });
-  }
-  saveAll();
-  updatePendingBadge();
+/* ---------- GALLERIA PERSISTENTE ---------- */
+const KEY='bgpt_gallery';
+function loadGallery(){ try{ return JSON.parse(localStorage.getItem(KEY))||[] }catch(e){ return [] } }
+function saveGallery(g){ localStorage.setItem(KEY, JSON.stringify(g.slice(0,40))); }
+function addGallery(meta, url){
+  const g = loadGallery();
+  g.unshift({...meta, url, ts: Date.now()});
+  saveGallery(g); renderGallery();
 }
-
-function updatePendingBadge(){
-  const el = document.getElementById('pendingCount');
-  if (el) el.textContent = pendingQuestions.length ? `(${pendingQuestions.length})` : '';
-}
-
-function openPendingModal(){
-  renderPendingList();
-  document.getElementById('pendingModal').classList.add('show');
-}
-
-function renderPendingList(){
-  const container = document.getElementById('pendingList');
-  container.innerHTML = '';
-  if (pendingQuestions.length === 0){
-    container.innerHTML = '<div class="emptyPending">Nessuna domanda in sospeso al momento. 🎉</div>';
-    return;
-  }
-  const sorted = [...pendingQuestions].sort((a,b) => (b.count||1) - (a.count||1));
-  sorted.forEach((item) => {
-    const realIndex = pendingQuestions.indexOf(item);
-    const div = document.createElement('div');
-    div.className = 'pendingItem';
-    const date = new Date(item.lastAsked || Date.now()).toLocaleString('it-IT');
-    div.innerHTML = `
-      <div class="qtext">${item.q.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-      <div class="meta">Chiesta ${item.count || 1} volta/e · ultima volta: ${date}</div>
-      <textarea placeholder="Scrivi qui la risposta da insegnare..." id="pendingAnswer_${realIndex}"></textarea>
-      <div class="row">
-        <button class="dismiss" onclick="dismissPending(${realIndex})">Ignora</button>
-        <button class="save" onclick="answerPending(${realIndex})">Salva risposta</button>
-      </div>
-    `;
-    container.appendChild(div);
+function renderGallery(){
+  const g = loadGallery();
+  $('cnt').textContent = g.length;
+  $('grid').innerHTML = '';
+  g.forEach(m=>{
+    const img = document.createElement('img');
+    img.src = m.url; img.title = m.prompt; img.loading='lazy';
+    img.onclick = ()=>{ show(m.url, m); window.scrollTo({top:0,behavior:'smooth'}); };
+    $('grid').appendChild(img);
   });
 }
-
-function answerPending(index){
-  const item = pendingQuestions[index];
-  if (!item) return;
-  const textarea = document.getElementById('pendingAnswer_' + index);
-  const answer = textarea ? textarea.value.trim() : '';
-  if (!answer){ alert('Scrivi una risposta prima di salvare.'); return; }
-  if (examples.length >= MAX_EXAMPLES){ alert('Limite massimo di esempi raggiunto.'); return; }
-  examples.push({ q: item.q, a: answer });
-  pendingQuestions.splice(index, 1);
-  saveAll();
-  updatePendingBadge();
-  renderPendingList();
-}
-
-function dismissPending(index){
-  if (!pendingQuestions[index]) return;
-  pendingQuestions.splice(index, 1);
-  saveAll();
-  updatePendingBadge();
-  renderPendingList();
-}
-
-/* ========== CHAT MANAGEMENT ========== */
-function createNewChat(){
-  const id = 'chat_' + Date.now();
-  chats[id] = { id, title: 'Nuova chat', messages: [] };
-  activeChatId = id;
-  saveAll();
-  renderChatList();
-  renderMessages();
-}
-function deleteChat(id, ev){
-  ev.stopPropagation();
-  delete chats[id];
-  if (activeChatId === id){
-    const ids = Object.keys(chats);
-    activeChatId = ids.length ? ids[0] : null;
-  }
-  saveAll();
-  renderChatList();
-  renderMessages();
-}
-function switchChat(id){
-  activeChatId = id;
-  saveAll();
-  renderChatList();
-  renderMessages();
-}
-function renderChatList(){
-  const list = document.getElementById('chatlist');
-  list.innerHTML = '';
-  Object.values(chats).sort((a,b)=> b.id.localeCompare(a.id)).forEach(chat => {
-    const div = document.createElement('div');
-    div.className = 'chatitem' + (chat.id === activeChatId ? ' active' : '');
-    div.onclick = () => switchChat(chat.id);
-    div.innerHTML = `<span>${chat.title}</span><span class="del" onclick="deleteChat('${chat.id}', event)">✕</span>`;
-    list.appendChild(div);
-  });
-}
-
-function renderMessages(){
-  const box = document.getElementById('chatbox');
-  box.innerHTML = '';
-  const chat = chats[activeChatId];
-  if (!chat || !Array.isArray(chat.messages) || chat.messages.length === 0){
-    box.innerHTML = `
-    <div class="welcome">
-      <h1>Black GPT</h1>
-      <p>Il tuo assistente offline. Posso creare siti vetrina, fare calcoli, dirti data e ora, convertire unità, dirti capitali, lavorare sul testo e rispondere a domande di cultura generale (se ho il pacchetto base caricato o esempi che mi hai insegnato).</p>
-      <div class="notice">⚠️ Trasparenza: Black GPT 2 non è un modello neurale addestrato. È un sistema a regole e riconoscimento del linguaggio con una memoria locale (salvata nel tuo browser). Le domande a cui non so rispondere vengono salvate in un'area riservata, dove puoi insegnarmi la risposta giusta.</div>
-      <div class="suggestions">
-        <span onclick="quickFill('Crea un sito vetrina per una pizzeria chiamata Bella Napoli')">Crea un sito per una pizzeria</span>
-        <span onclick="quickFill('Quanto fa 234 * 12?')">Quanto fa 234 * 12?</span>
-        <span onclick="quickFill('Perché il cielo è blu?')">Perché il cielo è blu?</span>
-        <span onclick="quickFillFotosintesi()">Cos'è la fotosintesi?</span>
-      </div>
-    </div>`;
-    return;
-  }
-  chat.messages.forEach(m => {
-    const div = document.createElement('div');
-    div.className = 'msg ' + m.role;
-    if (m.site){
-      div.innerHTML = renderInlineMarkdown(m.text) + `
-      <div class="sitecard">
-        <iframe sandbox="allow-same-origin" srcdoc="${escapeHtml(m.site.html)}"></iframe>
-        <div class="bar">
-          <span>${m.site.brand}.html</span>
-          <button onclick='downloadSite(${JSON.stringify(m.site.html)})'>Scarica HTML</button>
-        </div>
-      </div>`;
-    } else {
-      div.innerHTML = renderInlineMarkdown(m.text);
-    }
-    box.appendChild(div);
-  });
-  box.scrollTop = box.scrollHeight;
-}
-function escapeHtml(str){
-  if (typeof str !== 'string') return '';
-  return str.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-function renderInlineMarkdown(text){
-  if (typeof text !== 'string') text = String(text || '');
-  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return safe.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-}
-function downloadSite(html){
-  const blob = new Blob([html], {type:'text/html'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'sito.html';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-function quickFill(text){
-  document.getElementById('userInput').value = text;
-  sendMessage();
-}
-function quickFillFotosintesi(){
-  quickFill("Cos'è la fotosintesi?");
-}
-
-/* ========== INVIO MESSAGGI ========== */
-function handleKey(ev){
-  if (ev.key === 'Enter' && !ev.shiftKey){
-    ev.preventDefault();
-    sendMessage();
-  }
-}
-function sendMessage(){
-  const input = document.getElementById('userInput');
-  const text = input.value.trim();
-  if (!text) return;
-  if (!activeChatId || !chats[activeChatId]) createNewChat();
-  const chat = chats[activeChatId];
-  if (!Array.isArray(chat.messages)) chat.messages = [];
-  if (chat.messages.length === 0){
-    chat.title = text.slice(0, 30) + (text.length > 30 ? '...' : '');
-  }
-  chat.messages.push({role:'user', text});
-  input.value = '';
-  renderMessages();
-
-  let replyText = null;
-  let siteData = null;
-  let foundAnswer = false;
-
-  try {
-    const siteResult = trySiteGeneration(text);
-    if (siteResult){
-      siteData = siteResult;
-      replyText = `Ecco il sito vetrina generato per **${siteResult.brand}**. Puoi vederne l'anteprima qui sotto e scaricarlo come file HTML pronto all'uso.`;
-      foundAnswer = true;
-    } else {
-      replyText = tryMath(text) || tryDateTime(text) || tryUnitConversion(text) || tryCapital(text) || tryTextTools(text) || findBestMatch(text);
-      foundAnswer = !!replyText;
-    }
-  } catch(err){
-    console.error('Black GPT: errore durante la generazione della risposta.', err);
-    replyText = null;
-    foundAnswer = false;
-  }
-
-  if (!foundAnswer){
-    recordPending(text);
-    replyText = "Non ho ancora una risposta precisa per questa domanda, ma l'ho salvata in archivio così potrà essere insegnata — da quel momento risponderò automaticamente.";
-  }
-
-  chat.messages.push({role:'bot', text: replyText, site: siteData});
-  saveAll();
-  renderChatList();
-  renderMessages();
-}
-
-/* ========== MODALI ========== */
-function openTeachModal(){
-  document.getElementById('teachQ').value = '';
-  document.getElementById('teachA').value = '';
-  document.getElementById('teachModal').classList.add('show');
-}
-function closeModal(id){
-  document.getElementById(id).classList.remove('show');
-}
-function confirmTeach(){
-  const q = document.getElementById('teachQ').value.trim();
-  const a = document.getElementById('teachA').value.trim();
-  if (!q || !a) { alert('Compila sia la domanda che la risposta.'); return; }
-  if (examples.length >= MAX_EXAMPLES){ alert('Limite massimo di esempi raggiunto.'); return; }
-  examples.push({q, a});
-  saveAll();
-  closeModal('teachModal');
-  alert('Esempio salvato! Ora Black GPT lo conosce.');
-}
-function openBulkModal(){
-  document.getElementById('bulkText').value = '';
-  document.getElementById('bulkModal').classList.add('show');
-}
-function parseBulkText(text){
-  if (typeof text !== 'string') return [];
-  const blocks = text.split(/^---$/m).map(b => b.trim()).filter(Boolean);
-  const parsed = [];
-  blocks.forEach(block => {
-    const qMatch = block.match(/D:\s*(.+)/i);
-    const aMatch = block.match(/R:\s*([\s\S]+)/i);
-    if (qMatch && aMatch){
-      parsed.push({ q: qMatch[1].trim(), a: aMatch[1].trim() });
-    }
-  });
-  return parsed;
-}
-function confirmBulkImport(){
-  const text = document.getElementById('bulkText').value;
-  const parsed = parseBulkText(text);
-  if (parsed.length === 0){ alert('Nessun blocco valido trovato. Controlla il formato.'); return; }
-  let added = 0;
-  parsed.forEach(item => {
-    if (examples.length >= MAX_EXAMPLES) return;
-    const exists = examples.some(ex => ex && typeof ex.q === 'string' && normalizeText(ex.q) === normalizeText(item.q));
-    if (!exists){ examples.push(item); added++; }
-  });
-  saveAll();
-  closeModal('bulkModal');
-  alert(`Importazione completata: ${added} nuovi esempi aggiunti.`);
-}
-
-/* ========== INIT ========== */
-function init(){
-  if (Object.keys(chats).length === 0){
-    createNewChat();
-  } else if (!activeChatId || !chats[activeChatId]){
-    activeChatId = Object.keys(chats)[0];
-  }
-  updateDatasetCount();
-  updatePendingBadge();
-  renderChatList();
-  renderMessages();
-}
-init();
+renderGallery();
 </script>
 </body>
 </html>
