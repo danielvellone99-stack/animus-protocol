@@ -490,8 +490,8 @@
         const FALLBACK_LOGO_URL = "https://image.pollinations.ai/prompt/A%20futuristic%20skull%20logo%20with%20letters%20DG%20and%20text%20DARK%20GPT,%20neon%20red%20and%20black,%20cyberpunk,%20high%20quality?width=400&height=400&seed=1714395696&nologo=true";
 
         let currentMode = 'image';
-        let historyData = JSON.parse(localStorage.getItem('astra1_history_v10')) || [];
-        let currentSessionId = null;
+        let historyData = JSON.parse(localStorage.getItem('astra1_history_v12')) || [];
+        let currentSessionId = localStorage.getItem('astra1_active_id_v12') || null;
         let isCooldown = false;
         let cooldownTimer = null;
 
@@ -528,22 +528,30 @@
         function init() {
             applyLogos();
             renderSidebarHistory();
-            if (historyData.length > 0) {
+            if (currentSessionId && historyData.some(s => s.id === currentSessionId)) {
+                selectSession(currentSessionId);
+            } else if (historyData.length > 0) {
                 selectSession(historyData[0].id);
             }
         }
 
         function saveHistory() {
-            localStorage.setItem('astra1_history_v10', JSON.stringify(historyData));
+            localStorage.setItem('astra1_history_v12', JSON.stringify(historyData));
+            if (currentSessionId) {
+                localStorage.setItem('astra1_active_id_v12', currentSessionId);
+            } else {
+                localStorage.removeItem('astra1_active_id_v12');
+            }
         }
 
         function startNewSession() {
             if (isCooldown) return;
             currentSessionId = null;
+            saveHistory();
             renderSidebarHistory();
             const welcomeText = currentMode === 'image' 
                 ? "Generatore di immagini neurale integrato. Scrivi una descrizione per iniziare." 
-                : "Assistente IA veloce (4s) con memoria attiva delle ultime risposte!";
+                : "Assistente IA attivo con cooldown protetto a 30 secondi (limite server gratuito).";
             
             document.getElementById('contentArea').innerHTML = `
                 <div class="welcome-screen" id="welcomeScreen">
@@ -556,6 +564,7 @@
 
         function selectSession(id) {
             currentSessionId = id;
+            saveHistory();
             renderSidebarHistory();
             const item = historyData.find(g => g.id === id);
             if (item) {
@@ -662,8 +671,8 @@
             const statusBox = document.getElementById('statusBox');
             sendBtn.disabled = true;
 
-            // Cooldown ultra-veloce a 4 secondi
-            let timeLeft = currentMode === 'image' ? 45 : 4;
+            // Cooldown di 30 secondi per rispettare il limite anti-spam del server gratuito
+            let timeLeft = currentMode === 'image' ? 45 : 30;
             statusBox.style.color = "#ffaa00";
             statusBox.textContent = `⏳ Cooldown: ${timeLeft}s`;
 
@@ -749,6 +758,7 @@
                     };
 
                     historyData.unshift(newItem);
+                    currentSessionId = newItem.id;
                     saveHistory();
                     selectSession(newItem.id);
                     startCooldown();
@@ -762,6 +772,7 @@
                         imageContent: imageUrl
                     };
                     historyData.unshift(newItem);
+                    currentSessionId = newItem.id;
                     saveHistory();
                     selectSession(newItem.id);
                     startCooldown();
@@ -798,32 +809,34 @@
 
             currentSession.messages.push({ role: 'user', text: promptText });
             renderChatMessages(currentSession.messages);
+            saveHistory();
 
             const area = document.getElementById('contentArea');
             const streamContainer = area.querySelector('.chat-stream');
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'loading-box';
             loadingDiv.id = 'tempLoading';
-            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:#ff6666;">Dark GPT sta leggendo il contesto e rispondendo...</div>`;
+            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:#ff6666;">Dark GPT sta elaborando la risposta...</div>`;
             streamContainer.appendChild(loadingDiv);
             area.scrollTop = area.scrollHeight;
 
-            // Prende gli ultimi 4 messaggi della chat per mantenere la memoria senza appesantire la richiesta
             const recentMessages = currentSession.messages.slice(-4);
-            let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'Utente' : 'Dark GPT'}: ${m.text}`).join('\n');
+            let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'Utente' : 'Dark GPT'}: ${m.text}`).join(' | ');
 
             const lower = promptText.toLowerCase();
             const isCodeReq = lower.includes('codice') || lower.includes('sito') || lower.includes('html') || lower.includes('crea') || lower.includes('genera') || lower.includes('pagina') || lower.includes('css');
 
-            let apiPrompt = promptText;
+            let rawApiPrompt = promptText;
             if (isCodeReq) {
-                apiPrompt = `Contesto recente:\n${contextTranscript}\n\nGenera un codice HTML/CSS completo e funzionante basato su questa richiesta: "${promptText}". Restituisci il codice dentro un blocco di codice markdown.`;
+                rawApiPrompt = `Crea un codice HTML/CSS completo per: ${promptText}. Includilo in un blocco markdown.`;
             } else {
-                apiPrompt = `Continuando questa conversazione:\n${contextTranscript}\n\nRispondi alla domanda dell'utente in modo naturale e coerente.`;
+                rawApiPrompt = `Contesto: ${contextTranscript}. Rispondi alla domanda dell'utente in modo naturale.`;
             }
 
+            const cleanApiPrompt = rawApiPrompt.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+
             try {
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(apiPrompt)}`);
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(cleanApiPrompt)}`);
                 const answerText = await response.text();
 
                 const tempLoad = document.getElementById('tempLoading');
@@ -840,7 +853,7 @@
                 const tempLoad = document.getElementById('tempLoading');
                 if (tempLoad) tempLoad.remove();
                 
-                currentSession.messages.push({ role: 'bot', text: "❌ Errore di connessione. Riprova." });
+                currentSession.messages.push({ role: 'bot', text: "❌ Errore di connessione o server occupato. Riprova tra poco." });
                 renderChatMessages(currentSession.messages);
                 isCooldown = false;
                 document.getElementById('sendBtn').disabled = false;
