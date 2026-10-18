@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dark GPT Astra 1 - AI & Image Generator</title>
-    <!-- Libreria per formattare il codice e il testo Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -251,7 +250,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
         }
 
-        /* Stili chat continua e blocchi codice */
         .chat-stream {
             width: 100%;
             max-width: 850px;
@@ -296,7 +294,6 @@
             text-transform: uppercase;
         }
 
-        /* Styling per i blocchi di codice generati */
         .code-block-wrapper {
             position: relative;
             margin: 10px 0;
@@ -449,7 +446,7 @@
             </button>
             <div class="mode-selector">
                 <button class="mode-btn active" id="modeImageBtn" onclick="setMode('image')">🎨 Immagini</button>
-                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">💬 Chat IA</button>
+                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">💬 Chat & Memoria</button>
             </div>
             <div class="status-box" id="statusBox">
                 ⚡ Astra 1 Engine: Pronto
@@ -493,7 +490,7 @@
         const FALLBACK_LOGO_URL = "https://image.pollinations.ai/prompt/A%20futuristic%20skull%20logo%20with%20letters%20DG%20and%20text%20DARK%20GPT,%20neon%20red%20and%20black,%20cyberpunk,%20high%20quality?width=400&height=400&seed=1714395696&nologo=true";
 
         let currentMode = 'image';
-        let historyData = JSON.parse(localStorage.getItem('astra1_history_v3')) || [];
+        let historyData = JSON.parse(localStorage.getItem('astra1_history_v10')) || [];
         let currentSessionId = null;
         let isCooldown = false;
         let cooldownTimer = null;
@@ -522,8 +519,8 @@
                 headerTitle.textContent = "DARK GPT ASTRA 1 - IMAGE GENERATOR";
                 inputField.placeholder = "Descrivi l'immagine da creare...";
             } else {
-                headerTitle.textContent = "DARK GPT ASTRA 1 - AI CHAT & CODE";
-                inputField.placeholder = "Chiedi qualcosa o richiedi il codice HTML/Python...";
+                headerTitle.textContent = "DARK GPT ASTRA 1 - AI CHAT & MEMORY";
+                inputField.placeholder = "Fai una domanda o chiedi del codice...";
             }
             startNewSession();
         }
@@ -537,7 +534,7 @@
         }
 
         function saveHistory() {
-            localStorage.setItem('astra1_history_v3', JSON.stringify(historyData));
+            localStorage.setItem('astra1_history_v10', JSON.stringify(historyData));
         }
 
         function startNewSession() {
@@ -546,7 +543,7 @@
             renderSidebarHistory();
             const welcomeText = currentMode === 'image' 
                 ? "Generatore di immagini neurale integrato. Scrivi una descrizione per iniziare." 
-                : "Assistente IA attivo. Genera risposte e codice formattato con tasto copia integrato.";
+                : "Assistente IA veloce (4s) con memoria attiva delle ultime risposte!";
             
             document.getElementById('contentArea').innerHTML = `
                 <div class="welcome-screen" id="welcomeScreen">
@@ -580,21 +577,18 @@
         }
 
         function formatMarkdownAndCode(text) {
-            // Usa la libreria marked per convertire il codice in elementi stilizzati
             let formatted = marked.parse(text);
-            
-            // Sostituisce i blocchi <pre><code> con il contenitore personalizzato di Dark GPT con pulsante Copia
             const div = document.createElement('div');
             div.innerHTML = formatted;
             
             const codeBlocks = div.querySelectorAll('pre');
-            codeBlocks.forEach((pre, index) => {
+            codeBlocks.forEach((pre) => {
                 const codeText = pre.innerText;
                 const wrapper = document.createElement('div');
                 wrapper.className = 'code-block-wrapper';
                 wrapper.innerHTML = `
                     <div class="code-header">
-                        <span>CODICE GENERATO</span>
+                        <span>BLOCCO CODICE</span>
                         <button class="copy-btn" onclick="copyCode(this)">Copia Codice</button>
                     </div>
                     <pre><code>${escapeHtml(codeText)}</code></pre>
@@ -646,8 +640,8 @@
             currentMode = mode;
             document.getElementById('modeImageBtn').className = `mode-btn ${mode === 'image' ? 'active' : ''}`;
             document.getElementById('modeChatBtn').className = `mode-btn ${mode === 'chat' ? 'active' : ''}`;
-            document.getElementById('headerTitle').textContent = mode === 'image' ? "DARK GPT ASTRA 1 - IMAGE GENERATOR" : "DARK GPT ASTRA 1 - AI CHAT & CODE";
-            document.getElementById('userInput').placeholder = mode === 'image' ? "Descrivi l'immagine da creare..." : "Chiedi qualcosa o richiedi il codice HTML/Python...";
+            document.getElementById('headerTitle').textContent = mode === 'image' ? "DARK GPT ASTRA 1 - IMAGE GENERATOR" : "DARK GPT ASTRA 1 - AI CHAT & MEMORY";
+            document.getElementById('userInput').placeholder = mode === 'image' ? "Descrivi l'immagine da creare..." : "Fai una domanda o chiedi del codice...";
         }
 
         function renderSidebarHistory() {
@@ -668,7 +662,8 @@
             const statusBox = document.getElementById('statusBox');
             sendBtn.disabled = true;
 
-            let timeLeft = currentMode === 'image' ? 45 : 5;
+            // Cooldown ultra-veloce a 4 secondi
+            let timeLeft = currentMode === 'image' ? 45 : 4;
             statusBox.style.color = "#ffaa00";
             statusBox.textContent = `⏳ Cooldown: ${timeLeft}s`;
 
@@ -809,12 +804,26 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'loading-box';
             loadingDiv.id = 'tempLoading';
-            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:#ff6666;">Dark GPT sta scrivendo la risposta/codice...</div>`;
+            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:#ff6666;">Dark GPT sta leggendo il contesto e rispondendo...</div>`;
             streamContainer.appendChild(loadingDiv);
             area.scrollTop = area.scrollHeight;
 
+            // Prende gli ultimi 4 messaggi della chat per mantenere la memoria senza appesantire la richiesta
+            const recentMessages = currentSession.messages.slice(-4);
+            let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'Utente' : 'Dark GPT'}: ${m.text}`).join('\n');
+
+            const lower = promptText.toLowerCase();
+            const isCodeReq = lower.includes('codice') || lower.includes('sito') || lower.includes('html') || lower.includes('crea') || lower.includes('genera') || lower.includes('pagina') || lower.includes('css');
+
+            let apiPrompt = promptText;
+            if (isCodeReq) {
+                apiPrompt = `Contesto recente:\n${contextTranscript}\n\nGenera un codice HTML/CSS completo e funzionante basato su questa richiesta: "${promptText}". Restituisci il codice dentro un blocco di codice markdown.`;
+            } else {
+                apiPrompt = `Continuando questa conversazione:\n${contextTranscript}\n\nRispondi alla domanda dell'utente in modo naturale e coerente.`;
+            }
+
             try {
-                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(promptText)}`);
+                const response = await fetch(`https://text.pollinations.ai/${encodeURIComponent(apiPrompt)}`);
                 const answerText = await response.text();
 
                 const tempLoad = document.getElementById('tempLoading');
