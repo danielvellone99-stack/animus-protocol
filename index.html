@@ -703,7 +703,6 @@
     <!-- Lockscreen Accesso con Password o Chiave -->
     <div id="passwordGate">
         <div class="gate-box">
-            <!-- Clicca 5 volte QUI sul logo se ti trovi nella schermata di login! -->
             <img id="gateLogo" src="" alt="Dark GPT Logo" class="gate-logo" onclick="handleLogoSecretClick()" draggable="false" onerror="handleLogoError(this)">
             <div class="gate-title">DARK GPT ASTRA 1</div>
             <div class="gate-subtitle">🔒 Inserisci la Password o la tua Chiave di Accesso:</div>
@@ -715,7 +714,7 @@
         </div>
     </div>
 
-    <!-- Modale Login Admin (Richiesto dopo 5 click) -->
+    <!-- Modale Login Admin (Richiesto dopo 5 click sul logo) -->
     <div id="adminLoginModal" class="admin-modal">
         <div class="admin-content" style="max-width: 380px; text-align: center;">
             <div class="admin-header">
@@ -793,7 +792,6 @@
     <div class="main-container">
         <div class="chat-header">
             <div class="header-left">
-                <!-- Clicca 5 volte QUI sul logo teschio in alto a sinistra nella chat! -->
                 <img id="headerLogo" src="" alt="Logo" onclick="handleLogoSecretClick()" draggable="false" onerror="handleLogoError(this)" title="Admin Secret">
                 <span id="headerTitle">DARK GPT ASTRA 1 - IMAGE GENERATOR</span>
             </div>
@@ -843,7 +841,7 @@
 
         let activeTimerInterval = null;
 
-        // Gestione Click Segreti (5 click su qualsiasi Logo)
+        // Gestione Click Segreti (5 click sul logo)
         let logoClickCount = 0;
         let lastLogoClickTime = 0;
 
@@ -893,18 +891,18 @@
             document.getElementById('adminDashboardModal').style.display = 'none';
         }
 
-        // Generatore di chiavi
+        // Generatore di chiavi (salvato permanentemente in localStorage)
         function generateNewKey() {
             let hours = parseInt(document.getElementById('keyDuration').value);
             let deviceMode = document.getElementById('keyDeviceMode').value;
             
             let randomCode = 'ASTRA-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-            let expiresAt = Date.now() + (hours * 3600 * 1000);
 
             let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
             keys.push({
                 key: randomCode,
-                expiresAt: expiresAt,
+                durationHours: hours,
+                expiresAt: null, // Il timer parte solo alla prima attivazione
                 deviceMode: deviceMode,
                 boundDeviceId: null
             });
@@ -924,16 +922,19 @@
             }
 
             keys.forEach((k, index) => {
-                let timeLeft = Math.max(0, Math.floor((k.expiresAt - Date.now()) / (1000 * 60)));
-                let timeStr = timeLeft > 60 ? Math.floor(timeLeft / 60) + " ore" : timeLeft + " min";
-                if (k.expiresAt < Date.now()) timeStr = "SCADUTA";
+                let timeStr = "Pronta all'uso";
+                if (k.expiresAt) {
+                    let timeLeft = Math.max(0, Math.floor((k.expiresAt - Date.now()) / (1000 * 60)));
+                    timeStr = timeLeft > 60 ? Math.floor(timeLeft / 60) + " ore rimanenti" : timeLeft + " min rimanenti";
+                    if (k.expiresAt < Date.now()) timeStr = "SCADUTA";
+                }
 
                 let div = document.createElement('div');
                 div.className = 'key-item';
                 div.innerHTML = `
                     <div>
                         <strong style="color:var(--accent);">${k.key}</strong><br>
-                        <span style="font-size:10px; color:var(--text-secondary);">Scadenza: ${timeStr} | Modo: ${k.deviceMode}</span>
+                        <span style="font-size:10px; color:var(--text-secondary);">Stato: ${timeStr} | Modo: ${k.deviceMode}</span>
                     </div>
                     <div style="display:flex; gap:5px;">
                         <button class="copy-btn" onclick="navigator.clipboard.writeText('${k.key}')">Copia</button>
@@ -993,7 +994,7 @@
             activeTimerInterval = setInterval(updateTimer, 1000);
         }
 
-        // Verifica Password o Chiave d'accesso principale
+        // Verifica Password o Chiave d'accesso principale con gestione dispositivi
         function checkGateKey(event) {
             if (event.key === 'Enter') verifyPassword();
         }
@@ -1017,28 +1018,40 @@
 
             if (foundKey) {
                 let now = Date.now();
-                if (now > foundKey.expiresAt) {
-                    error.textContent = "❌ Questa chiave è scaduta!";
-                    error.style.display = 'block';
-                    return;
-                }
 
-                // Generatore ID Dispositivo univoco
+                // Generatore ID Dispositivo univoco e permanente per questo browser/dispositivo
                 let deviceId = localStorage.getItem('dark_gpt_device_id');
                 if (!deviceId) {
                     deviceId = 'dev_' + Math.random().toString(36).substring(2, 9);
                     localStorage.setItem('dark_gpt_device_id', deviceId);
                 }
 
+                // Controllo modalità dispositivo singolo
                 if (foundKey.deviceMode === 'single') {
                     if (!foundKey.boundDeviceId) {
+                        // Prima attivazione: la leghiamo a questo dispositivo e facciamo partire il timer
                         foundKey.boundDeviceId = deviceId;
+                        foundKey.expiresAt = now + (foundKey.durationHours * 3600 * 1000);
                         localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
                     } else if (foundKey.boundDeviceId !== deviceId) {
+                        // Bloccata se usata da un altro dispositivo
                         error.textContent = "❌ Chiave già attivata su un altro dispositivo!";
                         error.style.display = 'block';
                         return;
                     }
+                } else {
+                    // Modalità illimitata
+                    if (!foundKey.expiresAt) {
+                        foundKey.expiresAt = now + (foundKey.durationHours * 3600 * 1000);
+                        localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
+                    }
+                }
+
+                // Verifica se la chiave è scaduta
+                if (now > foundKey.expiresAt) {
+                    error.textContent = "❌ Questa chiave è scaduta!";
+                    error.style.display = 'block';
+                    return;
                 }
 
                 sessionStorage.setItem('dark_gpt_authenticated', 'true');
@@ -1189,7 +1202,7 @@
                     <div class="welcome-screen" id="welcomeScreen">
                         <img id="mainLogo" src="${PRIMARY_LOGO_URL}" alt="Dark GPT Logo" class="welcome-logo" onerror="handleLogoError(this)">
                         <h1>DARK GPT ASTRA 1 <span style="font-size:14px; color:var(--accent);">WEB MASTER PRO</span></h1>
-                        <p>Generatore di siti web completi, responsive e privi di bug. Scegli un progetto rapido:</p>
+                        <p>Assistente IA generale. Chiedi di creare siti web o app solo quando ne hai bisogno:</p>
                         <div class="quick-prompts">
                             <button class="quick-btn" onclick="sendQuickPrompt('Crea un sito web per una Pizzeria con tema Dark elegante, animazioni CSS, menu interattivo, carrello in JS e layout responsive')">🍕 Sito Pizzeria Pro</button>
                             <button class="quick-btn" onclick="sendQuickPrompt('Crea una Landing Page Cyberpunk tecnologica con gradiente rosso-nero, pulsanti al neon ed effetti hover avanzati')">🚀 Landing Page Cyberpunk</button>
@@ -1424,7 +1437,7 @@
             area.innerHTML = `
                 <div class="loading-box">
                     <div class="loading-spinner"></div>
-                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizando l'immagine...</div>
+                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizzando l'immagine...</div>
                     <div style="font-size: 12px; color: var(--text-secondary);">Elaborazione in corso, attendi...</div>
                 </div>
             `;
@@ -1530,20 +1543,17 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'loading-box';
             loadingDiv.id = 'tempLoading';
-            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:var(--accent);">Dark GPT Web Master sta programmando il progetto...</div>`;
+            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:var(--accent);">Dark GPT sta elaborando la risposta...</div>`;
             streamContainer.appendChild(loadingDiv);
             area.scrollTop = area.scrollHeight;
 
             const recentMessages = currentSession.messages.slice(-4);
             let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'User' : 'DarkGPT'}: ${m.text}`).join(' | ');
 
-            let systemPrompt = "Sei Dark GPT Astra 1 Ultimate Web Master, uno Sviluppatore Frontend Senior e Designer UI/UX. ";
-            systemPrompt += "QUANDO CREI SITI WEB: genera SEMPRE un file HTML5 UNICO e COMPLETO contenente CSS3 integrato e JavaScript integrato. ";
-            systemPrompt += "REGOLE TASSATIVE DI SVILUPPO WEB: ";
-            systemPrompt += "1. Racchiudi l'intero codice in un unico blocco ```html ... ```. ";
-            systemPrompt += "2. Design moderno, pulito, responsive (perfetto sia per smartphone che per PC), con gradienti scuri, ombre morbide ed effetti hover curati. ";
-            systemPrompt += "3. Codice completo al 100%: includi header, sezioni interattive, form/funzioni JS lavoranti e footer. Nessuna parte lasciata incompleta o troncata. ";
-            systemPrompt += "4. Zero bug nei font e nelle interazioni: usa CSS nativo fluido e JS pulito. ";
+            // SISTEMA INTELLIGENTE: Risponde normalmente, genera siti web SOLO se espressamente richiesto
+            let systemPrompt = "Sei Dark GPT Astra 1, un assistente IA avanzato, intelligente e versatile. ";
+            systemPrompt += "Rispondi normalmente alle domande generali dell'utente in modo chiaro, utile e dettagliato. ";
+            systemPrompt += "GENERA UN SITO WEB (in un unico blocco di codice ```html ... ``` completo di HTML5, CSS3 e JavaScript) SOLTANTO SE l'utente lo richiede esplicitamente (es. chiedendo di creare un sito, un'app, una landing page o un gioco). ";
             systemPrompt += `Contesto recente: ${contextTranscript}. Richiesta dell'utente: "${promptText}".`;
 
             const cleanApiPrompt = systemPrompt.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
