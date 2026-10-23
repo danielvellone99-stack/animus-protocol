@@ -32,6 +32,161 @@
             overflow: hidden;
         }
 
+        /* Schermata di Login / Lockscreen Password */
+        #passwordGate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, #200303 0%, #050101 100%);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .gate-box {
+            background: rgba(15, 5, 5, 0.95);
+            border: 2px solid var(--accent);
+            border-radius: 16px;
+            padding: 35px 25px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 34, 34, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .gate-logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+            object-fit: cover;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .gate-title {
+            color: var(--text-main);
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        .gate-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .gate-input-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gate-input {
+            width: 100%;
+            background: #120404;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 15px;
+            text-align: center;
+            outline: none;
+            letter-spacing: 2px;
+            transition: border-color 0.2s;
+        }
+
+        .gate-input:focus {
+            border-color: var(--accent);
+        }
+
+        .gate-btn {
+            width: 100%;
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .gate-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .gate-error {
+            color: #ff4444;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Admin Panel Modals */
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.88);
+            z-index: 100000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .admin-content {
+            background: var(--bg-sidebar);
+            border: 2px solid var(--accent);
+            width: 100%; max-width: 600px;
+            border-radius: 12px; padding: 25px;
+            display: flex; flex-direction: column; gap: 15px;
+            box-shadow: 0 0 35px var(--accent);
+            max-height: 85vh; overflow-y: auto;
+        }
+
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border); padding-bottom: 10px;
+            color: var(--accent); font-weight: bold; font-size: 18px;
+        }
+
+        .admin-form-group {
+            display: flex; flex-direction: column; gap: 6px; text-align: left;
+            font-size: 13px; color: var(--text-secondary);
+        }
+
+        .admin-select, .admin-input {
+            background: #120404; border: 1px solid var(--border);
+            color: var(--text-main); padding: 10px; border-radius: 6px; outline: none;
+        }
+
+        .keys-list {
+            margin-top: 10px; display: flex; flex-direction: column; gap: 8px;
+            max-height: 200px; overflow-y: auto; border: 1px solid var(--border); padding: 8px; border-radius: 6px;
+            background: #040101;
+        }
+
+        .key-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #120404; padding: 8px 10px; border-radius: 6px; font-size: 12px;
+            border: 1px solid var(--border);
+        }
+
         sidebar {
             width: 280px;
             background-color: var(--bg-sidebar);
@@ -190,12 +345,36 @@
             gap: 10px;
         }
 
+        .key-timer-badge {
+            background: rgba(255, 34, 34, 0.15);
+            border: 1px solid var(--accent);
+            color: var(--text-main);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         .chat-header img {
             width: 34px;
             height: 34px;
             border-radius: 50%;
             border: 1px solid var(--accent);
             object-fit: cover;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+
+        .chat-header img:hover {
+            transform: scale(1.15);
+        }
+
+        #headerTitle {
+            user-select: none;
         }
 
         .telegram-btn, .action-btn {
@@ -521,6 +700,74 @@
 </head>
 <body>
 
+    <!-- Lockscreen Accesso con Password o Chiave -->
+    <div id="passwordGate">
+        <div class="gate-box">
+            <!-- Clicca 5 volte QUI sul logo se ti trovi nella schermata di login! -->
+            <img id="gateLogo" src="" alt="Dark GPT Logo" class="gate-logo" onclick="handleLogoSecretClick()" draggable="false" onerror="handleLogoError(this)">
+            <div class="gate-title">DARK GPT ASTRA 1</div>
+            <div class="gate-subtitle">🔒 Inserisci la Password o la tua Chiave di Accesso:</div>
+            <div class="gate-input-wrapper">
+                <input type="password" id="gatePassword" class="gate-input" placeholder="INSERISCI..." onkeydown="checkGateKey(event)">
+                <button class="gate-btn" onclick="verifyPassword()">SBLOCCA ACCESSO</button>
+            </div>
+            <div class="gate-error" id="gateError">❌ Password o Chiave non valida/scaduta!</div>
+        </div>
+    </div>
+
+    <!-- Modale Login Admin (Richiesto dopo 5 click) -->
+    <div id="adminLoginModal" class="admin-modal">
+        <div class="admin-content" style="max-width: 380px; text-align: center;">
+            <div class="admin-header">
+                <span>🔐 Pannello Admin</span>
+                <button class="modal-close" onclick="closeAdminLogin()">✖</button>
+            </div>
+            <p style="font-size: 13px; color: var(--text-secondary);">Inserisci la password amministratore:</p>
+            <input type="password" id="adminPasswordInput" class="admin-input" placeholder="Password Admin..." onkeydown="checkAdminLoginKey(event)">
+            <button class="gate-btn" onclick="verifyAdminPassword()">ACCEDI ADMIN</button>
+            <div id="adminLoginError" class="gate-error">❌ Password Admin errata!</div>
+        </div>
+    </div>
+
+    <!-- Pannello Dashboard Admin (Generatore Chiavi) -->
+    <div id="adminDashboardModal" class="admin-modal">
+        <div class="admin-content">
+            <div class="admin-header">
+                <span>⚡ Admin Dashboard - Generatore Chiavi</span>
+                <button class="modal-close" onclick="closeAdminDashboard()">✖ Chiudi</button>
+            </div>
+            
+            <div class="admin-form-group">
+                <label>⏱️ Durata della Chiave:</label>
+                <select id="keyDuration" class="admin-select">
+                    <option value="1">1 Ora</option>
+                    <option value="5">5 Ore</option>
+                    <option value="10">10 Ore</option>
+                    <option value="24">1 Giorno</option>
+                    <option value="168">7 Giorni</option>
+                    <option value="720">30 Giorni</option>
+                </select>
+            </div>
+
+            <div class="admin-form-group">
+                <label>📱 Tipo di Dispositivo:</label>
+                <select id="keyDeviceMode" class="admin-select">
+                    <option value="single">Unico Dispositivo (Blocco su 1 telefono/PC)</option>
+                    <option value="unlimited">Dispositivi Illimitati</option>
+                </select>
+            </div>
+
+            <button class="gate-btn" onclick="generateNewKey()">✨ Genera Nuova Chiave</button>
+
+            <div class="admin-form-group" style="margin-top: 10px;">
+                <label>📋 Chiavi Attive Generate:</label>
+                <div class="keys-list" id="adminKeysList">
+                    <!-- Lista chiavi generate -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <sidebar>
         <div class="sidebar-header">
             <button class="btn" onclick="startNewSession()">
@@ -546,10 +793,14 @@
     <div class="main-container">
         <div class="chat-header">
             <div class="header-left">
-                <img id="headerLogo" src="" alt="Logo" onerror="handleLogoError(this)">
+                <!-- Clicca 5 volte QUI sul logo teschio in alto a sinistra nella chat! -->
+                <img id="headerLogo" src="" alt="Logo" onclick="handleLogoSecretClick()" draggable="false" onerror="handleLogoError(this)" title="Admin Secret">
                 <span id="headerTitle">DARK GPT ASTRA 1 - IMAGE GENERATOR</span>
             </div>
             <div class="header-actions">
+                <div class="key-timer-badge" id="keyTimerBadge">
+                    ⏳ Scadenza: --:--:--
+                </div>
                 <button class="action-btn" onclick="exportCurrentChat()" id="exportBtn" style="display:none;">📥 Esporta Chat</button>
                 <a href="https://t.me/httpshaeshaws" target="_blank" class="telegram-btn">
                     <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.03-1.99 1.27-5.62 3.73-.53.36-1.01.54-1.44.53-.47-.01-1.38-.26-2.06-.48-.83-.27-1.49-.42-1.43-.88.03-.25.38-.51 1.08-.78 4.23-1.84 7.05-3.05 8.45-3.64 4.02-1.69 4.86-1.98 5.4-1.99.12 0 .38.03.55.17.14.12.18.28.2.45-.02.07-.02.14-.04.2z"/></svg>
@@ -561,8 +812,8 @@
         <div class="content-area" id="contentArea">
             <div class="welcome-screen" id="welcomeScreen">
                 <img id="mainLogo" src="" alt="Dark GPT Logo" class="welcome-logo" onerror="handleLogoError(this)">
-                <h1 id="welcomeTitle">DARK GPT ASTRA 1</h1>
-                <p id="welcomeDesc">Generatore di immagini neurale integrato. Scrivi una descrizione per iniziare.</p>
+                <h1>DARK GPT ASTRA 1</h1>
+                <p>Generatore di immagini neurale integrato. Scrivi una descrizione per iniziare.</p>
             </div>
         </div>
 
@@ -587,6 +838,237 @@
     </div>
 
     <script>
+        const SITE_PASSWORD = "ASTRA2026"; // Password Master
+        const ADMIN_PASSWORD = "daniel2014"; // Password Admin
+
+        let activeTimerInterval = null;
+
+        // Gestione Click Segreti (5 click su qualsiasi Logo)
+        let logoClickCount = 0;
+        let lastLogoClickTime = 0;
+
+        function handleLogoSecretClick() {
+            let now = Date.now();
+            if (now - lastLogoClickTime > 2000) {
+                logoClickCount = 1;
+            } else {
+                logoClickCount++;
+            }
+            lastLogoClickTime = now;
+
+            if (logoClickCount >= 5) {
+                logoClickCount = 0;
+                document.getElementById('adminLoginModal').style.display = 'flex';
+                document.getElementById('adminPasswordInput').value = '';
+                document.getElementById('adminPasswordInput').focus();
+            }
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginModal').style.display = 'none';
+        }
+
+        function checkAdminLoginKey(event) {
+            if (event.key === 'Enter') verifyAdminPassword();
+        }
+
+        function verifyAdminPassword() {
+            let pass = document.getElementById('adminPasswordInput').value.trim();
+            let err = document.getElementById('adminLoginError');
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('adminLoginModal').style.display = 'none';
+                err.style.display = 'none';
+                openAdminDashboard();
+            } else {
+                err.style.display = 'block';
+            }
+        }
+
+        function openAdminDashboard() {
+            document.getElementById('adminDashboardModal').style.display = 'flex';
+            renderAdminKeys();
+        }
+
+        function closeAdminDashboard() {
+            document.getElementById('adminDashboardModal').style.display = 'none';
+        }
+
+        // Generatore di chiavi
+        function generateNewKey() {
+            let hours = parseInt(document.getElementById('keyDuration').value);
+            let deviceMode = document.getElementById('keyDeviceMode').value;
+            
+            let randomCode = 'ASTRA-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+            let expiresAt = Date.now() + (hours * 3600 * 1000);
+
+            let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
+            keys.push({
+                key: randomCode,
+                expiresAt: expiresAt,
+                deviceMode: deviceMode,
+                boundDeviceId: null
+            });
+
+            localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
+            renderAdminKeys();
+        }
+
+        function renderAdminKeys() {
+            let listEl = document.getElementById('adminKeysList');
+            let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
+            listEl.innerHTML = '';
+
+            if (keys.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:10px;">Nessuna chiave generata.</div>';
+                return;
+            }
+
+            keys.forEach((k, index) => {
+                let timeLeft = Math.max(0, Math.floor((k.expiresAt - Date.now()) / (1000 * 60)));
+                let timeStr = timeLeft > 60 ? Math.floor(timeLeft / 60) + " ore" : timeLeft + " min";
+                if (k.expiresAt < Date.now()) timeStr = "SCADUTA";
+
+                let div = document.createElement('div');
+                div.className = 'key-item';
+                div.innerHTML = `
+                    <div>
+                        <strong style="color:var(--accent);">${k.key}</strong><br>
+                        <span style="font-size:10px; color:var(--text-secondary);">Scadenza: ${timeStr} | Modo: ${k.deviceMode}</span>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="copy-btn" onclick="navigator.clipboard.writeText('${k.key}')">Copia</button>
+                        <button class="copy-btn" style="background:rgba(255,0,0,0.2);" onclick="deleteKey(${index})">Elimina</button>
+                    </div>
+                `;
+                listEl.appendChild(div);
+            });
+        }
+
+        function deleteKey(index) {
+            let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
+            keys.splice(index, 1);
+            localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
+            renderAdminKeys();
+        }
+
+        // Timer e Controllo Scadenza Live
+        function startLiveKeyTimer(expiresAt) {
+            if (activeTimerInterval) clearInterval(activeTimerInterval);
+            const badge = document.getElementById('keyTimerBadge');
+
+            if (expiresAt === 'unlimited') {
+                badge.innerHTML = "♾️ Accesso Illimitato";
+                return;
+            }
+
+            function updateTimer() {
+                let now = Date.now();
+                let remaining = expiresAt - now;
+
+                if (remaining <= 0) {
+                    clearInterval(activeTimerInterval);
+                    badge.innerHTML = "❌ CHIAVE SCADUTA";
+                    sessionStorage.removeItem('dark_gpt_authenticated');
+                    sessionStorage.removeItem('dark_gpt_active_key_expiry');
+                    alert("⏰ La tua chiave d'accesso è scaduta! Inserisci una nuova chiave per continuare.");
+                    document.getElementById('passwordGate').style.display = 'flex';
+                    document.getElementById('gatePassword').value = '';
+                    document.getElementById('gateError').textContent = '❌ Chiave scaduta!';
+                    document.getElementById('gateError').style.display = 'block';
+                    return;
+                }
+
+                let hrs = Math.floor(remaining / (1000 * 60 * 60));
+                let mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                let secs = Math.floor((remaining % (1000 * 60)) / 1000);
+
+                let formattedHrs = String(hrs).padStart(2, '0');
+                let formattedMins = String(mins).padStart(2, '0');
+                let formattedSecs = String(secs).padStart(2, '0');
+
+                badge.innerHTML = `⏳ Scadenza Chiave: ${formattedHrs}:${formattedMins}:${formattedSecs}`;
+            }
+
+            updateTimer();
+            activeTimerInterval = setInterval(updateTimer, 1000);
+        }
+
+        // Verifica Password o Chiave d'accesso principale
+        function checkGateKey(event) {
+            if (event.key === 'Enter') verifyPassword();
+        }
+
+        function verifyPassword() {
+            const input = document.getElementById('gatePassword').value.trim();
+            const error = document.getElementById('gateError');
+            
+            // 1. Controllo Master Password
+            if (input === SITE_PASSWORD) {
+                sessionStorage.setItem('dark_gpt_authenticated', 'true');
+                sessionStorage.setItem('dark_gpt_active_key_expiry', 'unlimited');
+                document.getElementById('passwordGate').style.display = 'none';
+                startLiveKeyTimer('unlimited');
+                return;
+            }
+
+            // 2. Controllo Chiavi Generate
+            let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
+            let foundKey = keys.find(k => k.key === input);
+
+            if (foundKey) {
+                let now = Date.now();
+                if (now > foundKey.expiresAt) {
+                    error.textContent = "❌ Questa chiave è scaduta!";
+                    error.style.display = 'block';
+                    return;
+                }
+
+                // Generatore ID Dispositivo univoco
+                let deviceId = localStorage.getItem('dark_gpt_device_id');
+                if (!deviceId) {
+                    deviceId = 'dev_' + Math.random().toString(36).substring(2, 9);
+                    localStorage.setItem('dark_gpt_device_id', deviceId);
+                }
+
+                if (foundKey.deviceMode === 'single') {
+                    if (!foundKey.boundDeviceId) {
+                        foundKey.boundDeviceId = deviceId;
+                        localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
+                    } else if (foundKey.boundDeviceId !== deviceId) {
+                        error.textContent = "❌ Chiave già attivata su un altro dispositivo!";
+                        error.style.display = 'block';
+                        return;
+                    }
+                }
+
+                sessionStorage.setItem('dark_gpt_authenticated', 'true');
+                sessionStorage.setItem('dark_gpt_active_key_expiry', foundKey.expiresAt.toString());
+                document.getElementById('passwordGate').style.display = 'none';
+                startLiveKeyTimer(foundKey.expiresAt);
+            } else {
+                error.style.display = 'block';
+                error.textContent = "❌ Password o chiave non valida!";
+                document.getElementById('gatePassword').value = '';
+            }
+        }
+
+        function initGate() {
+            if (sessionStorage.getItem('dark_gpt_authenticated') === 'true') {
+                let expiry = sessionStorage.getItem('dark_gpt_active_key_expiry');
+                if (expiry === 'unlimited') {
+                    document.getElementById('passwordGate').style.display = 'none';
+                    startLiveKeyTimer('unlimited');
+                } else if (expiry && parseInt(expiry) > Date.now()) {
+                    document.getElementById('passwordGate').style.display = 'none';
+                    startLiveKeyTimer(parseInt(expiry));
+                } else {
+                    sessionStorage.removeItem('dark_gpt_authenticated');
+                    sessionStorage.removeItem('dark_gpt_active_key_expiry');
+                    document.getElementById('passwordGate').style.display = 'flex';
+                }
+            }
+        }
+
         const PRIMARY_LOGO_URL = "https://drive.google.com/uc?export=view&id=1YnFQ5hf2ffb6wPyiGIEpIt8kAuh9u9LF";
         const FALLBACK_LOGO_URL = "https://image.pollinations.ai/prompt/A%20futuristic%20skull%20logo%20with%20letters%20DG%20and%20text%20DARK%20GPT,%20neon%20red%20and%20black,%20cyberpunk,%20high%20quality?width=400&height=400&seed=1714395696&nologo=true";
 
@@ -635,8 +1117,10 @@
         function applyLogos() {
             const headerLogo = document.getElementById('headerLogo');
             const mainLogo = document.getElementById('mainLogo');
+            const gateLogo = document.getElementById('gateLogo');
             if (headerLogo) headerLogo.src = PRIMARY_LOGO_URL;
             if (mainLogo) mainLogo.src = PRIMARY_LOGO_URL;
+            if (gateLogo) gateLogo.src = PRIMARY_LOGO_URL;
         }
 
         function handleLogoError(imgEl) {
@@ -665,6 +1149,7 @@
         }
 
         function init() {
+            initGate();
             initTheme();
             applyLogos();
             renderSidebarHistory();
@@ -708,7 +1193,7 @@
                         <div class="quick-prompts">
                             <button class="quick-btn" onclick="sendQuickPrompt('Crea un sito web per una Pizzeria con tema Dark elegante, animazioni CSS, menu interattivo, carrello in JS e layout responsive')">🍕 Sito Pizzeria Pro</button>
                             <button class="quick-btn" onclick="sendQuickPrompt('Crea una Landing Page Cyberpunk tecnologica con gradiente rosso-nero, pulsanti al neon ed effetti hover avanzati')">🚀 Landing Page Cyberpunk</button>
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea una Web App Portfolio Personale con Glassmorphism, modalit dark, animazioni fluide e galleria progetti')">💼 Portfolio Glassmorphism</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un Portfolio Personale con Glassmorphism, modalità dark, animazioni fluide e galleria progetti')">💼 Portfolio Glassmorphism</button>
                             <button class="quick-btn" onclick="sendQuickPrompt('Crea un gioco Arcade 2D in HTML5 Canvas con grafica neon, punteggio, controlli sia da PC che touch per Mobile')">🎮 Gioco Arcade Neon</button>
                         </div>
                     </div>
@@ -939,7 +1424,7 @@
             area.innerHTML = `
                 <div class="loading-box">
                     <div class="loading-spinner"></div>
-                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizzando l'immagine...</div>
+                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizando l'immagine...</div>
                     <div style="font-size: 12px; color: var(--text-secondary);">Elaborazione in corso, attendi...</div>
                 </div>
             `;
@@ -1052,7 +1537,6 @@
             const recentMessages = currentSession.messages.slice(-4);
             let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'User' : 'DarkGPT'}: ${m.text}`).join(' | ');
 
-            // REGOLA RIGIDA SENIOR WEB DEVELOPER
             let systemPrompt = "Sei Dark GPT Astra 1 Ultimate Web Master, uno Sviluppatore Frontend Senior e Designer UI/UX. ";
             systemPrompt += "QUANDO CREI SITI WEB: genera SEMPRE un file HTML5 UNICO e COMPLETO contenente CSS3 integrato e JavaScript integrato. ";
             systemPrompt += "REGOLE TASSATIVE DI SVILUPPO WEB: ";
