@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark GPT Astra 1 - Web Designer Elite</title>
+    <title>Dark GPT Astra 1 - Game Engine & Dev Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         :root {
@@ -266,7 +266,7 @@
             flex-wrap: wrap;
             gap: 8px;
             justify-content: center;
-            max-width: 600px;
+            max-width: 650px;
             margin-top: 10px;
         }
 
@@ -487,19 +487,19 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.92);
             z-index: 100;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
         }
 
         .modal-content {
             background: var(--bg-sidebar);
             border: 1px solid var(--accent);
-            width: 100%; max-width: 950px; height: 85vh;
+            width: 100%; max-width: 1000px; height: 90vh;
             border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 0 30px var(--accent);
+            box-shadow: 0 0 35px var(--accent);
         }
 
         .modal-header {
@@ -510,11 +510,12 @@
 
         .modal-close {
             background: rgba(255, 34, 34, 0.2); border: 1px solid var(--accent);
-            color: var(--text-main); padding: 4px 10px; border-radius: 4px; cursor: pointer;
+            color: var(--text-main); padding: 4px 12px; border-radius: 4px; cursor: pointer;
+            font-weight: bold;
         }
 
         #previewFrame {
-            flex: 1; background: #fff; border: none;
+            flex: 1; background: #000; border: none;
         }
     </style>
 </head>
@@ -527,7 +528,7 @@
             </button>
             <div class="mode-selector">
                 <button class="mode-btn active" id="modeImageBtn" onclick="setMode('image')">🎨 Immagini</button>
-                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">🖥️ Web Design Pro</button>
+                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">🕹️ Game & Code Studio</button>
             </div>
             <div class="theme-selector">
                 <div class="theme-dot" style="background: #ff2222;" onclick="changeTheme('red')" title="Rosso Cyberpunk"></div>
@@ -578,7 +579,7 @@
     <div id="previewModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span id="previewTitle">Anteprima Live Sito Web</span>
+                <span id="previewTitle">🎮 Anteprima Live Gioco / Web App</span>
                 <button class="modal-close" onclick="closePreview()">✖ Chiudi</button>
             </div>
             <iframe id="previewFrame"></iframe>
@@ -656,8 +657,8 @@
                 inputField.placeholder = "Descrivi l'immagine da creare...";
                 document.getElementById('exportBtn').style.display = 'none';
             } else {
-                headerTitle.textContent = "DARK GPT ASTRA 1 - WEB DESIGN PRO";
-                inputField.placeholder = "Chiedi di creare un sito web moderno, responsive e ad alto impatto...";
+                headerTitle.textContent = "DARK GPT ASTRA 1 - GAME ENGINE & CODE STUDIO";
+                inputField.placeholder = "Chiedi di creare un videogioco 2D completo, uno script o un'app...";
                 document.getElementById('exportBtn').style.display = 'flex';
             }
             startNewSession();
@@ -702,13 +703,13 @@
                 document.getElementById('contentArea').innerHTML = `
                     <div class="welcome-screen" id="welcomeScreen">
                         <img id="mainLogo" src="${PRIMARY_LOGO_URL}" alt="Dark GPT Logo" class="welcome-logo" onerror="handleLogoError(this)">
-                        <h1>DARK GPT ASTRA 1 <span style="font-size:14px; color:var(--accent);">WEB DESIGNER PRO</span></h1>
-                        <p>Motore di generazione Web UI/UX avanzato e senza bug. Scegli uno stile:</p>
+                        <h1>DARK GPT ASTRA 1 <span style="font-size:14px; color:var(--accent);">GAME ENGINE PRO</span></h1>
+                        <p>Motore specializzato nella creazione di Videogiochi 2D Canvas completi e responsive:</p>
                         <div class="quick-prompts">
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un sito web per una Pizzeria con tema Dark elegante, animazioni CSS, menu interattivo e layout responsive')">🍕 Sito Pizzeria Moderno</button>
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea una Landing Page Cyberpunk ultra-tecnologica con gradiente rosso-nero, pulsanti al neon ed effetti hover')">🚀 Landing Cyberpunk</button>
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea una Web App Portfolio Personale con Glassmorphism, modalit dark, animazioni e sezione progetti')">💼 Portfolio Professionale</button>
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea uno store E-commerce moderno monopagina con carrello dinamico in JavaScript integrato')">🛒 Store E-Commerce</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un gioco Spaziale Arcade in HTML5 Canvas con astronave neon, sparo laser, nemici casuali, punteggio, audio sintetizzato e tasti touch per mobile')">🚀 Space Shooter Arcade</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un videogioco Platform Cyberpunk in HTML5 Canvas con gravità, salti, piattaforme, monete da raccogliere e ostacoli')">🏃 Platform Cyberpunk</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un gioco di Corse di Auto in HTML5 Canvas con schivata ostacoli, accelerazione, punteggio e grafica neon')">🏎️ Racing Car Neon</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un gioco Snake Neon avanzato con effetti particellari, cibo speciale, livelli e controlli swipe touch')">🐍 Snake Neon FX</button>
                         </div>
                     </div>
                 `;
@@ -770,7 +771,7 @@
                     <div class="code-header">
                         <span class="lang-tag">⚡ ${lang}</span>
                         <div class="code-actions">
-                            ${isWebCode ? `<button class="preview-btn" onclick="previewCode(this)">▶️ Anteprima Live</button>` : ''}
+                            ${isWebCode ? `<button class="preview-btn" onclick="previewCode(this)">▶️ Gioca Ora (Anteprima)</button>` : ''}
                             <button class="download-btn" onclick="downloadCode(this, '${ext}')">📥 Scarica .${ext}</button>
                             <button class="copy-btn" onclick="copyCode(this)">📋 Copia Codice</button>
                         </div>
@@ -814,7 +815,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `sito_darkgpt_${Date.now()}.${ext}`;
+            a.download = `game_darkgpt_${Date.now()}.${ext}`;
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -843,7 +844,7 @@
             const session = historyData.find(s => s.id === currentSessionId);
             if (!session || !session.messages) return;
 
-            let textContent = `=== DARK GPT ASTRA 1 (WEB DESIGN PRO) - CHAT EXPORT ===\nSessione: ${session.title}\nData: ${new Date().toLocaleString()}\n\n`;
+            let textContent = `=== DARK GPT ASTRA 1 (GAME ENGINE PRO) - CHAT EXPORT ===\nSessione: ${session.title}\nData: ${new Date().toLocaleString()}\n\n`;
             session.messages.forEach(m => {
                 textContent += `[${m.role === 'user' ? 'TU' : 'DARK GPT'}]:\n${m.text}\n\n-----------------------------------\n\n`;
             });
@@ -852,7 +853,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `DarkGPT_WebChat_${Date.now()}.txt`;
+            a.download = `DarkGPT_GameChat_${Date.now()}.txt`;
             a.click();
             URL.revokeObjectURL(url);
         }
@@ -865,7 +866,7 @@
                 const formattedContent = isUser ? escapeHtml(msg.text) : formatMarkdownAndCode(msg.text);
                 html += `
                     <div class="chat-message ${isUser ? 'user' : 'bot'}">
-                        <div class="chat-sender">${isUser ? 'TU' : 'DARK GPT DESIGNER'}</div>
+                        <div class="chat-sender">${isUser ? 'TU' : 'DARK GPT GAME ENGINE'}</div>
                         <div>${formattedContent}</div>
                     </div>
                 `;
@@ -879,8 +880,8 @@
             currentMode = mode;
             document.getElementById('modeImageBtn').className = `mode-btn ${mode === 'image' ? 'active' : ''}`;
             document.getElementById('modeChatBtn').className = `mode-btn ${mode === 'chat' ? 'active' : ''}`;
-            document.getElementById('headerTitle').textContent = mode === 'image' ? "DARK GPT ASTRA 1 - IMAGE GENERATOR" : "DARK GPT ASTRA 1 - WEB DESIGN PRO";
-            document.getElementById('userInput').placeholder = mode === 'image' ? "Descrivi l'immagine da creare..." : "Chiedi di creare un sito web moderno, responsive e ad alto impatto...";
+            document.getElementById('headerTitle').textContent = mode === 'image' ? "DARK GPT ASTRA 1 - IMAGE GENERATOR" : "DARK GPT ASTRA 1 - GAME ENGINE PRO";
+            document.getElementById('userInput').placeholder = mode === 'image' ? "Descrivi l'immagine da creare..." : "Chiedi di creare un videogioco 2D completo, uno script o un'app...";
         }
 
         function renderSidebarHistory() {
@@ -889,7 +890,7 @@
             historyData.forEach(item => {
                 const div = document.createElement('div');
                 div.className = `history-item ${item.id === currentSessionId ? 'active' : ''}`;
-                div.textContent = (item.type === 'image' ? '🎨 ' : '🖥️ ') + item.title;
+                div.textContent = (item.type === 'image' ? '🎨 ' : '🕹️ ') + item.title;
                 div.onclick = () => { if(!isCooldown) selectSession(item.id); };
                 listEl.appendChild(div);
             });
@@ -1044,20 +1045,22 @@
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'loading-box';
             loadingDiv.id = 'tempLoading';
-            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:var(--accent);">Dark GPT sta progettando l'interfaccia web...</div>`;
+            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:var(--accent);">Dark GPT Game Engine sta programmando il gioco...</div>`;
             streamContainer.appendChild(loadingDiv);
             area.scrollTop = area.scrollHeight;
 
             const recentMessages = currentSession.messages.slice(-4);
             let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'User' : 'DarkGPT'}: ${m.text}`).join(' | ');
 
-            // SYSTEM PROMPT AVANZATO PER WEB DESIGNER E CODICE BELLO/SENZA BUG
-            let systemPrompt = "Sei Dark GPT Astra 1 Web Designer Pro, un Senior UI/UX Designer e Frontend Engineer. ";
-            systemPrompt += "Istruzioni per la generazione di siti web: ";
-            systemPrompt += "1. Genera UNICAMENTE codice HTML5/CSS3/JavaScript completo e perfettamente funzionante dentro un unico blocco ```html ... ```. ";
-            systemPrompt += "2. Il design deve essere modernissimo, bellissimo, ad alto impatto visivo con temi dark, gradienti neon, ombre ed effetti hover curati. ";
-            systemPrompt += "3. Il layout deve essere totalmente responsive (perfetto per smartphone e PC). ";
-            systemPrompt += "4. Includi stili CSS integrati nel tag <style> e logica JS nel tag <script> per garantire zero bug e massima facilità d'uso. ";
+            // REGOLA RIGIDA GAME ENGINE PRO
+            let systemPrompt = "Sei Dark GPT Astra 1 Game Engine Edition, uno sviluppatore ed esperto di videogiochi 2D in HTML5 Canvas e JavaScript. ";
+            systemPrompt += "SE L'UTENTE CHIEDE UN GIOCO: genera UNICAMENTE UN SINGOLO FILE HTML5 COMPLETO contenente CSS integrato e JavaScript integrato nel tag <script>. ";
+            systemPrompt += "REGOLE TASSATIVE PER I GIOCHI: ";
+            systemPrompt += "1. Utilizza l'elemento <canvas> con requestAnimationFrame a 60 FPS. ";
+            systemPrompt += "2. Grafica curata con tema Neon Cyberpunk (colori fluo, sfondi scuri, effetti di luce). ";
+            systemPrompt += "3. Includi TUTTE le funzionalità: schermata di Start, punteggio in tempo reale, collisioni precise, Game Over e tasto Riavvia. ";
+            systemPrompt += "4. IMPORTANTE: Implementa SIA i controlli da Tastiera (Freccia/WASD) SIA controlli TOUCH a schermo per dispositivi Mobile. ";
+            systemPrompt += "5. Il codice deve essere pronto da giocare subito senza parti spezzate o mancanti. ";
             systemPrompt += `Contesto recente: ${contextTranscript}. Richiesta dell'utente: "${promptText}".`;
 
             const cleanApiPrompt = systemPrompt.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
