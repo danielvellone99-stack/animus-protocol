@@ -26,7 +26,7 @@
         body {
             display: flex;
             height: 100vh;
-            background: linear-gradient(135deg, #050000 0%, #1f0202 50%, #050000 100%);
+            background: linear-gradient(135deg, var(--bg-main) 0%, #1f0202 50%, var(--bg-main) 100%);
             color: var(--text-main);
             overflow: hidden;
         }
@@ -92,13 +92,34 @@
             color: var(--text-main);
         }
 
+        /* Selettore Temi Colore */
+        .theme-selector {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            padding: 5px 0;
+        }
+
+        .theme-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--border);
+            transition: transform 0.2s;
+        }
+
+        .theme-dot:hover {
+            transform: scale(1.15);
+        }
+
         .status-box {
             background: #000000;
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 8px;
             font-size: 11px;
-            color: #ff6666;
+            color: var(--accent);
             text-align: center;
             font-weight: bold;
         }
@@ -153,7 +174,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #ff6666;
+            color: var(--accent);
             letter-spacing: 0.5px;
         }
 
@@ -161,6 +182,12 @@
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .chat-header img {
@@ -171,22 +198,23 @@
             object-fit: cover;
         }
 
-        .telegram-btn {
+        .telegram-btn, .action-btn {
             display: flex;
             align-items: center;
             gap: 6px;
             background-color: rgba(255, 34, 34, 0.15);
             border: 1px solid var(--accent);
             color: var(--text-main);
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 6px;
             text-decoration: none;
             font-size: 13px;
             font-weight: 500;
+            cursor: pointer;
             transition: background 0.2s, transform 0.2s;
         }
 
-        .telegram-btn:hover {
+        .telegram-btn:hover, .action-btn:hover {
             background-color: rgba(255, 34, 34, 0.3);
             transform: scale(1.03);
         }
@@ -223,14 +251,40 @@
             height: 130px;
             border-radius: 50%;
             border: 2px solid var(--accent);
-            box-shadow: 0 0 25px rgba(255, 34, 34, 0.4);
+            box-shadow: 0 0 25px var(--accent);
             object-fit: cover;
         }
 
         .welcome-screen h1 {
             color: var(--text-main);
             font-size: 28px;
-            text-shadow: 0 0 10px rgba(255, 34, 34, 0.3);
+            text-shadow: 0 0 10px var(--accent);
+        }
+
+        /* Pulsanti di Prompt Rapido */
+        .quick-prompts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            max-width: 500px;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255, 34, 34, 0.2);
+            border-color: var(--accent);
         }
 
         .result-box {
@@ -290,7 +344,7 @@
         .chat-sender {
             font-size: 11px;
             font-weight: bold;
-            color: #ff6666;
+            color: var(--accent);
             text-transform: uppercase;
         }
 
@@ -314,7 +368,12 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .copy-btn {
+        .code-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .copy-btn, .preview-btn {
             background: rgba(255, 34, 34, 0.2);
             border: 1px solid var(--accent);
             color: var(--text-main);
@@ -325,8 +384,9 @@
             transition: all 0.2s;
         }
 
-        .copy-btn:hover {
+        .copy-btn:hover, .preview-btn:hover {
             background: var(--accent);
+            color: #000;
         }
 
         pre {
@@ -435,6 +495,41 @@
             height: 16px;
             fill: currentColor;
         }
+
+        /* Finestra Modale per Anteprima Live */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-sidebar);
+            border: 1px solid var(--accent);
+            width: 100%; max-width: 900px; height: 80vh;
+            border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 0 30px var(--accent);
+        }
+
+        .modal-header {
+            padding: 12px 20px; background: #000;
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--text-main); font-weight: bold; border-bottom: 1px solid var(--border);
+        }
+
+        .modal-close {
+            background: rgba(255, 34, 34, 0.2); border: 1px solid var(--accent);
+            color: var(--text-main); padding: 4px 10px; border-radius: 4px; cursor: pointer;
+        }
+
+        #previewFrame {
+            flex: 1; background: #fff; border: none;
+        }
     </style>
 </head>
 <body>
@@ -446,7 +541,14 @@
             </button>
             <div class="mode-selector">
                 <button class="mode-btn active" id="modeImageBtn" onclick="setMode('image')">🎨 Immagini</button>
-                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">💬 Chat & Memoria</button>
+                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">💬 Chat & Studio</button>
+            </div>
+            <!-- Selettore Temi Colore -->
+            <div class="theme-selector">
+                <div class="theme-dot" style="background: #ff2222;" onclick="changeTheme('red')" title="Rosso Cyberpunk"></div>
+                <div class="theme-dot" style="background: #00ff66;" onclick="changeTheme('green')" title="Verde Matrix"></div>
+                <div class="theme-dot" style="background: #00ccff;" onclick="changeTheme('blue')" title="Blu Elettrico"></div>
+                <div class="theme-dot" style="background: #cc00ff;" onclick="changeTheme('purple')" title="Viola Violento"></div>
             </div>
             <div class="status-box" id="statusBox">
                 ⚡ Astra 1 Engine: Pronto
@@ -461,10 +563,13 @@
                 <img id="headerLogo" src="" alt="Logo" onerror="handleLogoError(this)">
                 <span id="headerTitle">DARK GPT ASTRA 1 - IMAGE GENERATOR</span>
             </div>
-            <a href="https://t.me/httpshaeshaws" target="_blank" class="telegram-btn">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.03-1.99 1.27-5.62 3.73-.53.36-1.01.54-1.44.53-.47-.01-1.38-.26-2.06-.48-.83-.27-1.49-.42-1.43-.88.03-.25.38-.51 1.08-.78 4.23-1.84 7.05-3.05 8.45-3.64 4.02-1.69 4.86-1.98 5.4-1.99.12 0 .38.03.55.17.14.12.18.28.2.45-.02.07-.02.14-.04.2z"/></svg>
-                Unisciti
-            </a>
+            <div class="header-actions">
+                <button class="action-btn" onclick="exportCurrentChat()" id="exportBtn" style="display:none;">📥 Esporta</button>
+                <a href="https://t.me/httpshaeshaws" target="_blank" class="telegram-btn">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.03-1.99 1.27-5.62 3.73-.53.36-1.01.54-1.44.53-.47-.01-1.38-.26-2.06-.48-.83-.27-1.49-.42-1.43-.88.03-.25.38-.51 1.08-.78 4.23-1.84 7.05-3.05 8.45-3.64 4.02-1.69 4.86-1.98 5.4-1.99.12 0 .38.03.55.17.14.12.18.28.2.45-.02.07-.02.14-.04.2z"/></svg>
+                    Unisciti
+                </a>
+            </div>
         </div>
         
         <div class="content-area" id="contentArea">
@@ -485,15 +590,65 @@
         </div>
     </div>
 
+    <!-- Modale per Anteprima Live del Codice -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="previewTitle">Anteprima Live HTML</span>
+                <button class="modal-close" onclick="closePreview()">✖ Chiudi</button>
+            </div>
+            <iframe id="previewFrame"></iframe>
+        </div>
+    </div>
+
     <script>
         const PRIMARY_LOGO_URL = "https://drive.google.com/uc?export=view&id=1YnFQ5hf2ffb6wPyiGIEpIt8kAuh9u9LF";
         const FALLBACK_LOGO_URL = "https://image.pollinations.ai/prompt/A%20futuristic%20skull%20logo%20with%20letters%20DG%20and%20text%20DARK%20GPT,%20neon%20red%20and%20black,%20cyberpunk,%20high%20quality?width=400&height=400&seed=1714395696&nologo=true";
 
         let currentMode = 'image';
-        let historyData = JSON.parse(localStorage.getItem('astra1_history_v12')) || [];
-        let currentSessionId = localStorage.getItem('astra1_active_id_v12') || null;
+        
+        // Sistema di recupero e migrazione chat per non perderle mai nei futuri aggiornamenti
+        function loadAllHistory() {
+            let data = localStorage.getItem('dark_gpt_astra_chats_v1');
+            if (!data) {
+                // Recupera automaticamente dai vecchi sistemi se presenti
+                for (let i = 1; i <= 20; i++) {
+                    let old = localStorage.getItem(`astra1_history_v${i}`);
+                    if (old) {
+                        data = old;
+                        localStorage.setItem('dark_gpt_astra_chats_v1', data);
+                        break;
+                    }
+                }
+            }
+            return data ? JSON.parse(data) : [];
+        }
+
+        let historyData = loadAllHistory();
+        let currentSessionId = localStorage.getItem('dark_gpt_astra_active_id_v1') || null;
         let isCooldown = false;
         let cooldownTimer = null;
+
+        // Gestione Temi
+        const themes = {
+            red: { accent: '#ff2222', bgMain: '#070202', bgSidebar: '#0f0505' },
+            green: { accent: '#00ff66', bgMain: '#020704', bgSidebar: '#050f08' },
+            blue: { accent: '#00ccff', bgMain: '#020507', bgSidebar: '#050a0f' },
+            purple: { accent: '#cc00ff', bgMain: '#070207', bgSidebar: '#0f050f' }
+        };
+
+        function changeTheme(themeName) {
+            const t = themes[themeName] || themes.red;
+            document.documentElement.style.setProperty('--accent', t.accent);
+            document.documentElement.style.setProperty('--bg-main', t.bgMain);
+            document.documentElement.style.setProperty('--bg-sidebar', t.bgSidebar);
+            localStorage.setItem('dark_gpt_theme', themeName);
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('dark_gpt_theme') || 'red';
+            changeTheme(savedTheme);
+        }
 
         function applyLogos() {
             const headerLogo = document.getElementById('headerLogo');
@@ -518,14 +673,17 @@
             if (mode === 'image') {
                 headerTitle.textContent = "DARK GPT ASTRA 1 - IMAGE GENERATOR";
                 inputField.placeholder = "Descrivi l'immagine da creare...";
+                document.getElementById('exportBtn').style.display = 'none';
             } else {
-                headerTitle.textContent = "DARK GPT ASTRA 1 - AI CHAT & MEMORY";
+                headerTitle.textContent = "DARK GPT ASTRA 1 - AI CHAT & STUDIO";
                 inputField.placeholder = "Fai una domanda o chiedi del codice...";
+                document.getElementById('exportBtn').style.display = 'flex';
             }
             startNewSession();
         }
 
         function init() {
+            initTheme();
             applyLogos();
             renderSidebarHistory();
             if (currentSessionId && historyData.some(s => s.id === currentSessionId)) {
@@ -536,11 +694,11 @@
         }
 
         function saveHistory() {
-            localStorage.setItem('astra1_history_v12', JSON.stringify(historyData));
+            localStorage.setItem('dark_gpt_astra_chats_v1', JSON.stringify(historyData));
             if (currentSessionId) {
-                localStorage.setItem('astra1_active_id_v12', currentSessionId);
+                localStorage.setItem('dark_gpt_astra_active_id_v1', currentSessionId);
             } else {
-                localStorage.removeItem('astra1_active_id_v12');
+                localStorage.removeItem('dark_gpt_astra_active_id_v1');
             }
         }
 
@@ -549,17 +707,36 @@
             currentSessionId = null;
             saveHistory();
             renderSidebarHistory();
-            const welcomeText = currentMode === 'image' 
-                ? "Generatore di immagini neurale integrato. Scrivi una descrizione per iniziare." 
-                : "Assistente IA attivo con cooldown protetto a 30 secondi (limite server gratuito).";
-            
-            document.getElementById('contentArea').innerHTML = `
-                <div class="welcome-screen" id="welcomeScreen">
-                    <img id="mainLogo" src="${PRIMARY_LOGO_URL}" alt="Dark GPT Logo" class="welcome-logo" onerror="handleLogoError(this)">
-                    <h1>DARK GPT ASTRA 1</h1>
-                    <p>${welcomeText}</p>
-                </div>
-            `;
+            document.getElementById('exportBtn').style.display = 'none';
+
+            if (currentMode === 'image') {
+                document.getElementById('contentArea').innerHTML = `
+                    <div class="welcome-screen" id="welcomeScreen">
+                        <img id="mainLogo" src="${PRIMARY_LOGO_URL}" alt="Dark GPT Logo" class="welcome-logo" onerror="handleLogoError(this)">
+                        <h1>DARK GPT ASTRA 1</h1>
+                        <p>Generatore di immagini neurale integrato. Scrivi una descrizione per iniziare.</p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('contentArea').innerHTML = `
+                    <div class="welcome-screen" id="welcomeScreen">
+                        <img id="mainLogo" src="${PRIMARY_LOGO_URL}" alt="Dark GPT Logo" class="welcome-logo" onerror="handleLogoError(this)">
+                        <h1>DARK GPT ASTRA 1</h1>
+                        <p>Assistente IA attivo. Scegli un prompt rapido o scrivi la tua richiesta:</p>
+                        <div class="quick-prompts">
+                            <button class="quick-btn" onclick="sendQuickPrompt('Genera un codice html per un sito web moderno')">🌐 Crea Sito Web</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Scrivi uno script in Python avanzato')">🐍 Script Python</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Spiegami come funziona intelligenza artificiale')">💡 Cos'è l'IA</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Dammi idee per progetti di programmazione')">🚀 Idee Progetti</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function sendQuickPrompt(text) {
+            document.getElementById('userInput').value = text;
+            handleSend();
         }
 
         function selectSession(id) {
@@ -573,6 +750,7 @@
                 const area = document.getElementById('contentArea');
                 
                 if (item.type === 'image') {
+                    document.getElementById('exportBtn').style.display = 'none';
                     area.innerHTML = `
                         <div class="result-box">
                             <div class="prompt-title">"${item.title}"</div>
@@ -580,6 +758,7 @@
                         </div>
                     `;
                 } else {
+                    document.getElementById('exportBtn').style.display = 'flex';
                     renderChatMessages(item.messages);
                 }
             }
@@ -598,7 +777,10 @@
                 wrapper.innerHTML = `
                     <div class="code-header">
                         <span>BLOCCO CODICE</span>
-                        <button class="copy-btn" onclick="copyCode(this)">Copia Codice</button>
+                        <div class="code-actions">
+                            <button class="preview-btn" onclick="previewCode(this)">▶️ Anteprima</button>
+                            <button class="copy-btn" onclick="copyCode(this)">Copia</button>
+                        </div>
                     </div>
                     <pre><code>${escapeHtml(codeText)}</code></pre>
                 `;
@@ -617,14 +799,48 @@
             const codeText = wrapper.querySelector('code').innerText;
             navigator.clipboard.writeText(codeText).then(() => {
                 btn.textContent = "Copiato!";
-                btn.style.background = "#22ff22";
-                btn.style.color = "#000";
-                setTimeout(() => {
-                    btn.textContent = "Copia Codice";
-                    btn.style.background = "rgba(255, 34, 34, 0.2)";
-                    btn.style.color = "var(--text-main)";
-                }, 2000);
+                setTimeout(() => btn.textContent = "Copia", 2000);
             });
+        }
+
+        // Funzione Anteprima Live del Codice
+        function previewCode(btn) {
+            const wrapper = btn.closest('.code-block-wrapper');
+            const codeText = wrapper.querySelector('code').innerText;
+            const modal = document.getElementById('previewModal');
+            const frame = document.getElementById('previewFrame');
+            
+            modal.style.display = 'flex';
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open();
+            doc.write(codeText);
+            doc.close();
+        }
+
+        function closePreview() {
+            document.getElementById('previewModal').style.display = 'none';
+            const frame = document.getElementById('previewFrame');
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open(); doc.write(''); doc.close();
+        }
+
+        // Esportazione Chat in file di testo
+        function exportCurrentChat() {
+            const session = historyData.find(s => s.id === currentSessionId);
+            if (!session || !session.messages) return;
+
+            let textContent = `=== DARK GPT ASTRA 1 - CHAT EXPORT ===\nSessione: ${session.title}\nData: ${new Date().toLocaleString()}\n\n`;
+            session.messages.forEach(m => {
+                textContent += `[${m.role === 'user' ? 'TU' : 'DARK GPT'}]:\n${m.text}\n\n-----------------------------------\n\n`;
+            });
+
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `DarkGPT_Chat_${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
         }
 
         function renderChatMessages(messages) {
@@ -632,7 +848,7 @@
             let html = `<div class="chat-stream">`;
             messages.forEach(msg => {
                 const isUser = msg.role === 'user';
-                const formattedContent = isUser ? msg.text : formatMarkdownAndCode(msg.text);
+                const formattedContent = isUser ? escapeHtml(msg.text) : formatMarkdownAndCode(msg.text);
                 html += `
                     <div class="chat-message ${isUser ? 'user' : 'bot'}">
                         <div class="chat-sender">${isUser ? 'TU' : 'DARK GPT'}</div>
@@ -649,7 +865,7 @@
             currentMode = mode;
             document.getElementById('modeImageBtn').className = `mode-btn ${mode === 'image' ? 'active' : ''}`;
             document.getElementById('modeChatBtn').className = `mode-btn ${mode === 'chat' ? 'active' : ''}`;
-            document.getElementById('headerTitle').textContent = mode === 'image' ? "DARK GPT ASTRA 1 - IMAGE GENERATOR" : "DARK GPT ASTRA 1 - AI CHAT & MEMORY";
+            document.getElementById('headerTitle').textContent = mode === 'image' ? "DARK GPT ASTRA 1 - IMAGE GENERATOR" : "DARK GPT ASTRA 1 - AI CHAT & STUDIO";
             document.getElementById('userInput').placeholder = mode === 'image' ? "Descrivi l'immagine da creare..." : "Fai una domanda o chiedi del codice...";
         }
 
@@ -671,9 +887,7 @@
             const statusBox = document.getElementById('statusBox');
             sendBtn.disabled = true;
 
-            // Cooldown di 30 secondi per rispettare il limite anti-spam del server gratuito
             let timeLeft = currentMode === 'image' ? 45 : 30;
-            statusBox.style.color = "#ffaa00";
             statusBox.textContent = `⏳ Cooldown: ${timeLeft}s`;
 
             cooldownTimer = setInterval(() => {
@@ -684,7 +898,6 @@
                     clearInterval(cooldownTimer);
                     isCooldown = false;
                     sendBtn.disabled = false;
-                    statusBox.style.color = "#ff6666";
                     statusBox.textContent = `⚡ Astra 1 Engine: Pronto`;
                 }
             }, 1000);
@@ -711,7 +924,7 @@
             area.innerHTML = `
                 <div class="loading-box">
                     <div class="loading-spinner"></div>
-                    <div class="prompt-title" style="color: #ff6666;">Astra 1 sta sintetizzando l'immagine...</div>
+                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizzando l'immagine...</div>
                     <div style="font-size: 12px; color: var(--text-secondary);">Elaborazione in corso, attendi...</div>
                 </div>
             `;
@@ -742,7 +955,7 @@
                     ctx.fillRect(wmX, wmY, wmWidth, wmHeight);
 
                     ctx.font = "bold 20px sans-serif";
-                    ctx.fillStyle = "#ff2222";
+                    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
                     ctx.shadowColor = "#000000";
                     ctx.shadowBlur = 4;
                     ctx.textAlign = "center";
@@ -810,13 +1023,14 @@
             currentSession.messages.push({ role: 'user', text: promptText });
             renderChatMessages(currentSession.messages);
             saveHistory();
+            document.getElementById('exportBtn').style.display = 'flex';
 
             const area = document.getElementById('contentArea');
             const streamContainer = area.querySelector('.chat-stream');
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'loading-box';
             loadingDiv.id = 'tempLoading';
-            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:#ff6666;">Dark GPT sta elaborando la risposta...</div>`;
+            loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:var(--accent);">Dark GPT sta elaborando la risposta...</div>`;
             streamContainer.appendChild(loadingDiv);
             area.scrollTop = area.scrollHeight;
 
