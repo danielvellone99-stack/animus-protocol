@@ -700,7 +700,7 @@
 </head>
 <body>
 
-    <!-- Lockscreen Accesso con Password o Chiave -->
+    <!-- Schermata di Login / Lockscreen Password -->
     <div id="passwordGate">
         <div class="gate-box">
             <img id="gateLogo" src="" alt="Dark GPT Logo" class="gate-logo" onclick="handleLogoSecretClick()" draggable="false" onerror="handleLogoError(this)">
@@ -739,12 +739,13 @@
             <div class="admin-form-group">
                 <label>⏱️ Durata della Chiave:</label>
                 <select id="keyDuration" class="admin-select">
-                    <option value="1">1 Ora</option>
-                    <option value="5">5 Ore</option>
-                    <option value="10">10 Ore</option>
-                    <option value="24">1 Giorno</option>
-                    <option value="168">7 Giorni</option>
-                    <option value="720">30 Giorni</option>
+                    <option value="30">⏱️ 30 Secondi (Test)</option>
+                    <option value="3600">1 Ora</option>
+                    <option value="18000">5 Ore</option>
+                    <option value="36000">10 Ore</option>
+                    <option value="86400">1 Giorno</option>
+                    <option value="604800">7 Giorni</option>
+                    <option value="2592000">30 Giorni</option>
                 </select>
             </div>
 
@@ -752,7 +753,7 @@
                 <label>📱 Tipo di Dispositivo:</label>
                 <select id="keyDeviceMode" class="admin-select">
                     <option value="single">Unico Dispositivo (Blocco su 1 telefono/PC)</option>
-                    <option value="unlimited">Dispositivi Illimitati</option>
+                    <option value="unlimited">Dispositivi Illimitati (Funziona ovunque)</option>
                 </select>
             </div>
 
@@ -891,20 +892,20 @@
             document.getElementById('adminDashboardModal').style.display = 'none';
         }
 
-        // Generatore di chiavi (salvato permanentemente in localStorage)
+        // Generatore di chiavi con codifica integrata (Funziona su tutti i dispositivi)
         function generateNewKey() {
-            let hours = parseInt(document.getElementById('keyDuration').value);
-            let deviceMode = document.getElementById('keyDeviceMode').value;
+            let durationSec = parseInt(document.getElementById('keyDuration').value);
+            let deviceMode = document.getElementById('keyDeviceMode').value; // 'single' o 'unlimited'
             
-            let randomCode = 'ASTRA-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+            let modeCode = deviceMode === 'single' ? 'S' : 'U';
+            let randomCode = `ASTRA-${modeCode}-${durationSec}-` + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
             let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
             keys.push({
                 key: randomCode,
-                durationHours: hours,
-                expiresAt: null, // Il timer parte solo alla prima attivazione
+                durationSec: durationSec,
                 deviceMode: deviceMode,
-                boundDeviceId: null
+                createdAt: Date.now()
             });
 
             localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
@@ -914,6 +915,7 @@
         function renderAdminKeys() {
             let listEl = document.getElementById('adminKeysList');
             let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
+            let activations = JSON.parse(localStorage.getItem('dark_gpt_activations') || '{}');
             listEl.innerHTML = '';
 
             if (keys.length === 0) {
@@ -922,11 +924,17 @@
             }
 
             keys.forEach((k, index) => {
+                let activation = activations[k.key];
                 let timeStr = "Pronta all'uso";
-                if (k.expiresAt) {
-                    let timeLeft = Math.max(0, Math.floor((k.expiresAt - Date.now()) / (1000 * 60)));
-                    timeStr = timeLeft > 60 ? Math.floor(timeLeft / 60) + " ore rimanenti" : timeLeft + " min rimanenti";
-                    if (k.expiresAt < Date.now()) timeStr = "SCADUTA";
+                if (activation) {
+                    let timeSecLeft = Math.max(0, Math.floor((activation.expiresAt - Date.now()) / 1000));
+                    let timeLeft = Math.floor(timeSecLeft / 60);
+                    if (timeSecLeft < 60) {
+                        timeStr = timeSecLeft + " sec rimanenti";
+                    } else {
+                        timeStr = timeLeft > 60 ? Math.floor(timeLeft / 60) + " ore rimanenti" : timeLeft + " min rimanenti";
+                    }
+                    if (activation.expiresAt < Date.now()) timeStr = "SCADUTA";
                 }
 
                 let div = document.createElement('div');
@@ -979,9 +987,10 @@
                     return;
                 }
 
-                let hrs = Math.floor(remaining / (1000 * 60 * 60));
-                let mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                let secs = Math.floor((remaining % (1000 * 60)) / 1000);
+                let totalSecs = Math.floor(remaining / 1000);
+                let hrs = Math.floor(totalSecs / 3600);
+                let mins = Math.floor((totalSecs % 3600) / 60);
+                let secs = totalSecs % 60;
 
                 let formattedHrs = String(hrs).padStart(2, '0');
                 let formattedMins = String(mins).padStart(2, '0');
@@ -994,7 +1003,7 @@
             activeTimerInterval = setInterval(updateTimer, 1000);
         }
 
-        // Verifica Password o Chiave d'accesso principale con gestione dispositivi
+        // Verifica Password o Chiave d'accesso (Supporta chiavi universali e test 30s)
         function checkGateKey(event) {
             if (event.key === 'Enter') verifyPassword();
         }
@@ -1012,52 +1021,59 @@
                 return;
             }
 
-            // 2. Controllo Chiavi Generate
-            let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
-            let foundKey = keys.find(k => k.key === input);
-
-            if (foundKey) {
+            // 2. Controllo formato chiave generata (es. ASTRA-U-30-XXXX-XXXX oppure ASTRA-S-3600-XXXX-XXXX)
+            const parts = input.split('-');
+            if (parts.length >= 5 && parts[0] === 'ASTRA' && (parts[1] === 'U' || parts[1] === 'S')) {
+                let mode = parts[1]; // 'U' = Illimitati, 'S' = Single Device
+                let durationSec = parseInt(parts[2]);
                 let now = Date.now();
 
-                // Generatore ID Dispositivo univoco e permanente per questo browser/dispositivo
                 let deviceId = localStorage.getItem('dark_gpt_device_id');
                 if (!deviceId) {
                     deviceId = 'dev_' + Math.random().toString(36).substring(2, 9);
                     localStorage.setItem('dark_gpt_device_id', deviceId);
                 }
 
-                // Controllo modalità dispositivo singolo
-                if (foundKey.deviceMode === 'single') {
-                    if (!foundKey.boundDeviceId) {
-                        // Prima attivazione: la leghiamo a questo dispositivo e facciamo partire il timer
-                        foundKey.boundDeviceId = deviceId;
-                        foundKey.expiresAt = now + (foundKey.durationHours * 3600 * 1000);
-                        localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
-                    } else if (foundKey.boundDeviceId !== deviceId) {
-                        // Bloccata se usata da un altro dispositivo
+                let activations = JSON.parse(localStorage.getItem('dark_gpt_activations') || '{}');
+                let activation = activations[input];
+
+                if (mode === 'U') {
+                    // Modalità Illimitata: Funziona su tutti i dispositivi, il timer parte alla prima attivazione
+                    if (!activation) {
+                        activation = {
+                            expiresAt: now + (durationSec * 1000),
+                            boundDeviceId: null
+                        };
+                        activations[input] = activation;
+                        localStorage.setItem('dark_gpt_activations', JSON.stringify(activations));
+                    }
+                } else if (mode === 'S') {
+                    // Modalità Dispositivo Singolo
+                    if (!activation) {
+                        activation = {
+                            expiresAt: now + (durationSec * 1000),
+                            boundDeviceId: deviceId
+                        };
+                        activations[input] = activation;
+                        localStorage.setItem('dark_gpt_activations', JSON.stringify(activations));
+                    } else if (activation.boundDeviceId !== deviceId) {
                         error.textContent = "❌ Chiave già attivata su un altro dispositivo!";
                         error.style.display = 'block';
                         return;
                     }
-                } else {
-                    // Modalità illimitata
-                    if (!foundKey.expiresAt) {
-                        foundKey.expiresAt = now + (foundKey.durationHours * 3600 * 1000);
-                        localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
-                    }
                 }
 
-                // Verifica se la chiave è scaduta
-                if (now > foundKey.expiresAt) {
+                if (now > activation.expiresAt) {
                     error.textContent = "❌ Questa chiave è scaduta!";
                     error.style.display = 'block';
                     return;
                 }
 
                 sessionStorage.setItem('dark_gpt_authenticated', 'true');
-                sessionStorage.setItem('dark_gpt_active_key_expiry', foundKey.expiresAt.toString());
+                sessionStorage.setItem('dark_gpt_active_key_expiry', activation.expiresAt.toString());
                 document.getElementById('passwordGate').style.display = 'none';
-                startLiveKeyTimer(foundKey.expiresAt);
+                startLiveKeyTimer(activation.expiresAt);
+                return;
             } else {
                 error.style.display = 'block';
                 error.textContent = "❌ Password o chiave non valida!";
@@ -1437,7 +1453,7 @@
             area.innerHTML = `
                 <div class="loading-box">
                     <div class="loading-spinner"></div>
-                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizzando l'immagine...</div>
+                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizando l'immagine...</div>
                     <div style="font-size: 12px; color: var(--text-secondary);">Elaborazione in corso, attendi...</div>
                 </div>
             `;
@@ -1550,7 +1566,6 @@
             const recentMessages = currentSession.messages.slice(-4);
             let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'User' : 'DarkGPT'}: ${m.text}`).join(' | ');
 
-            // SISTEMA INTELLIGENTE: Risponde normalmente, genera siti web SOLO se espressamente richiesto
             let systemPrompt = "Sei Dark GPT Astra 1, un assistente IA avanzato, intelligente e versatile. ";
             systemPrompt += "Rispondi normalmente alle domande generali dell'utente in modo chiaro, utile e dettagliato. ";
             systemPrompt += "GENERA UN SITO WEB (in un unico blocco di codice ```html ... ``` completo di HTML5, CSS3 e JavaScript) SOLTANTO SE l'utente lo richiede esplicitamente (es. chiedendo di creare un sito, un'app, una landing page o un gioco). ";
