@@ -32,131 +32,78 @@
             overflow: hidden;
         }
 
+        @keyframes rgbGlow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes pulseAlert {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.5; transform: scale(1.05); }
+        }
+
         /* Schermata di Login / Lockscreen Password */
         #passwordGate {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background: radial-gradient(circle, #200303 0%, #050101 100%);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            z-index: 9999; display: flex; justify-content: center; align-items: center; padding: 20px;
         }
 
         .gate-box {
             background: rgba(15, 5, 5, 0.95);
             border: 2px solid var(--accent);
-            border-radius: 16px;
-            padding: 35px 25px;
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
+            border-radius: 16px; padding: 35px 25px;
+            max-width: 420px; width: 100%; text-align: center;
             box-shadow: 0 0 40px rgba(255, 34, 34, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 18px;
+            display: flex; flex-direction: column; align-items: center; gap: 18px;
         }
 
         .gate-logo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 20px var(--accent);
-            object-fit: cover;
-            cursor: pointer;
-            user-select: none;
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 2px solid var(--accent); box-shadow: 0 0 20px var(--accent);
+            object-fit: cover; cursor: pointer; user-select: none;
         }
 
         .gate-title {
-            color: var(--text-main);
-            font-size: 22px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px var(--accent);
+            color: var(--text-main); font-size: 22px; font-weight: bold;
+            letter-spacing: 1px; text-shadow: 0 0 10px var(--accent);
         }
 
-        .gate-subtitle {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
-        }
+        .gate-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 5px; }
 
-        .gate-input-wrapper {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .gate-input-wrapper { width: 100%; display: flex; flex-direction: column; gap: 10px; }
 
         .gate-input {
-            width: 100%;
-            background: #120404;
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 15px;
-            text-align: center;
-            outline: none;
-            letter-spacing: 2px;
+            width: 100%; background: #120404; border: 1px solid var(--border);
+            color: var(--text-main); padding: 12px 15px; border-radius: 8px;
+            font-size: 15px; text-align: center; outline: none; letter-spacing: 2px;
             transition: border-color 0.2s;
         }
 
-        .gate-input:focus {
-            border-color: var(--accent);
-        }
+        .gate-input:focus { border-color: var(--accent); }
 
         .gate-btn {
-            width: 100%;
-            background: var(--accent);
-            color: #000;
-            font-weight: bold;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 15px;
-            transition: transform 0.2s, opacity 0.2s;
+            width: 100%; background: var(--accent); color: #000;
+            font-weight: bold; border: none; padding: 12px; border-radius: 8px;
+            cursor: pointer; font-size: 15px; transition: transform 0.2s, opacity 0.2s;
         }
 
-        .gate-btn:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-
-        .gate-error {
-            color: #ff4444;
-            font-size: 12px;
-            font-weight: bold;
-            display: none;
-        }
+        .gate-btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .gate-error { color: #ff4444; font-size: 12px; font-weight: bold; display: none; }
 
         /* Admin Panel Modals */
         .admin-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.88);
-            z-index: 100000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.88); z-index: 100000;
+            justify-content: center; align-items: center; padding: 20px;
         }
 
         .admin-content {
-            background: var(--bg-sidebar);
-            border: 2px solid var(--accent);
-            width: 100%; max-width: 600px;
-            border-radius: 12px; padding: 25px;
+            background: var(--bg-sidebar); border: 2px solid var(--accent);
+            width: 100%; max-width: 600px; border-radius: 12px; padding: 25px;
             display: flex; flex-direction: column; gap: 15px;
-            box-shadow: 0 0 35px var(--accent);
-            max-height: 85vh; overflow-y: auto;
+            box-shadow: 0 0 35px var(--accent); max-height: 85vh; overflow-y: auto;
         }
 
         .admin-header {
@@ -165,15 +112,8 @@
             color: var(--accent); font-weight: bold; font-size: 18px;
         }
 
-        .admin-form-group {
-            display: flex; flex-direction: column; gap: 6px; text-align: left;
-            font-size: 13px; color: var(--text-secondary);
-        }
-
-        .admin-select, .admin-input {
-            background: #120404; border: 1px solid var(--border);
-            color: var(--text-main); padding: 10px; border-radius: 6px; outline: none;
-        }
+        .admin-form-group { display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: 13px; color: var(--text-secondary); }
+        .admin-select, .admin-input { background: #120404; border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 6px; outline: none; }
 
         .keys-list {
             margin-top: 10px; display: flex; flex-direction: column; gap: 8px;
@@ -183,527 +123,181 @@
 
         .key-item {
             display: flex; justify-content: space-between; align-items: center;
-            background: #120404; padding: 8px 10px; border-radius: 6px; font-size: 12px;
-            border: 1px solid var(--border);
+            background: #120404; padding: 8px 10px; border-radius: 6px; font-size: 12px; border: 1px solid var(--border);
         }
 
         sidebar {
-            width: 280px;
-            background-color: var(--bg-sidebar);
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid var(--border);
-            z-index: 10;
+            width: 280px; background-color: var(--bg-sidebar);
+            display: flex; flex-direction: column; border-right: 1px solid var(--border); z-index: 10;
         }
 
-        .sidebar-header {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .sidebar-header { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
 
         .btn {
-            width: 100%;
-            background-color: rgba(255, 34, 34, 0.1);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 14px;
-            transition: background 0.2s;
+            width: 100%; background-color: rgba(255, 34, 34, 0.1);
+            border: 1px solid var(--border); color: var(--text-main);
+            padding: 10px 15px; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-size: 14px; transition: background 0.2s;
         }
 
-        .btn:hover:not(:disabled) {
-            background-color: rgba(255, 34, 34, 0.25);
-            border-color: var(--accent);
-        }
+        .btn:hover:not(:disabled) { background-color: rgba(255, 34, 34, 0.25); border-color: var(--accent); }
 
-        .mode-selector {
-            display: flex;
-            gap: 5px;
-        }
-
+        .mode-selector { display: flex; gap: 4px; }
         .mode-btn {
-            flex: 1;
-            background: #000;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            transition: all 0.2s;
+            flex: 1; background: #000; border: 1px solid var(--border);
+            color: var(--text-secondary); padding: 7px 4px; border-radius: 6px;
+            cursor: pointer; font-size: 11px; font-weight: bold; transition: all 0.2s; text-align: center;
         }
+        .mode-btn.active { background: rgba(255, 34, 34, 0.2); border-color: var(--accent); color: var(--text-main); }
 
-        .mode-btn.active {
-            background: rgba(255, 34, 34, 0.2);
-            border-color: var(--accent);
-            color: var(--text-main);
-        }
+        .theme-selector { display: flex; justify-content: space-between; gap: 4px; padding: 5px 0; }
+        .theme-dot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid var(--border); transition: transform 0.2s; }
+        .theme-dot:hover { transform: scale(1.15); }
 
-        .theme-selector {
-            display: flex;
-            justify-content: space-between;
-            gap: 5px;
-            padding: 5px 0;
+        .music-box {
+            background: #000; border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 6px; font-size: 11px;
         }
-
-        .theme-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid var(--border);
-            transition: transform 0.2s;
+        .music-controls { display: flex; gap: 5px; }
+        .music-btn {
+            flex: 1; background: rgba(255, 34, 34, 0.15); border: 1px solid var(--border);
+            color: var(--text-main); padding: 5px; border-radius: 4px; cursor: pointer;
+            font-size: 10px; font-weight: bold; transition: background 0.2s;
         }
-
-        .theme-dot:hover {
-            transform: scale(1.15);
-        }
+        .music-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
         .status-box {
-            background: #000000;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 8px;
-            font-size: 11px;
-            color: var(--accent);
-            text-align: center;
-            font-weight: bold;
+            background: #000000; border: 1px solid var(--border); border-radius: 8px;
+            padding: 8px; font-size: 11px; color: var(--accent); text-align: center; font-weight: bold;
         }
 
-        .history-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
+        .history-list { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
         .history-item {
-            padding: 10px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: var(--text-secondary);
+            padding: 10px 12px; border-radius: 6px; cursor: pointer; font-size: 13px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary);
             transition: background 0.2s, color 0.2s;
         }
+        .history-item:hover { background-color: rgba(255, 34, 34, 0.1); color: var(--text-main); }
+        .history-item.active { background-color: rgba(255, 34, 34, 0.2); color: var(--text-main); border-left: 3px solid var(--accent); }
 
-        .history-item:hover {
-            background-color: rgba(255, 34, 34, 0.1);
-            color: var(--text-main);
-        }
-
-        .history-item.active {
-            background-color: rgba(255, 34, 34, 0.2);
-            color: var(--text-main);
-            border-left: 3px solid var(--accent);
-        }
-
-        .main-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            position: relative;
-            background-color: var(--bg-main);
-        }
+        .main-container { flex: 1; display: flex; flex-direction: column; height: 100vh; position: relative; background-color: var(--bg-main); }
 
         .chat-header {
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--border);
-            font-size: 16px;
-            font-weight: 600;
-            background-color: var(--bg-sidebar);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--accent);
-            letter-spacing: 0.5px;
+            padding: 12px 20px; border-bottom: 1px solid var(--border);
+            font-size: 16px; font-weight: 600; background-color: var(--bg-sidebar);
+            display: flex; justify-content: space-between; align-items: center;
+            color: var(--accent); letter-spacing: 0.5px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-actions { display: flex; align-items: center; gap: 10px; }
 
         .key-timer-badge {
-            background: rgba(255, 34, 34, 0.15);
-            border: 1px solid var(--accent);
-            color: var(--text-main);
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            background: rgba(255, 34, 34, 0.15); border: 1px solid var(--accent);
+            color: var(--text-main); padding: 5px 10px; border-radius: 6px;
+            font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 5px;
         }
 
         .chat-header img {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            border: 1px solid var(--accent);
-            object-fit: cover;
-            cursor: pointer;
-            user-select: none;
-            transition: transform 0.2s;
+            width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--accent);
+            object-fit: cover; cursor: pointer; user-select: none; transition: transform 0.2s;
         }
-
-        .chat-header img:hover {
-            transform: scale(1.15);
-        }
-
-        #headerTitle {
-            user-select: none;
-        }
+        .chat-header img:hover { transform: scale(1.15); }
 
         .telegram-btn, .action-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background-color: rgba(255, 34, 34, 0.15);
-            border: 1px solid var(--accent);
-            color: var(--text-main);
-            padding: 6px 12px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
+            display: flex; align-items: center; gap: 6px; background-color: rgba(255, 34, 34, 0.15);
+            border: 1px solid var(--accent); color: var(--text-main); padding: 6px 12px;
+            border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: background 0.2s, transform 0.2s;
         }
-
-        .telegram-btn:hover, .action-btn:hover {
-            background-color: rgba(255, 34, 34, 0.3);
-            transform: scale(1.03);
-        }
-
-        .telegram-btn svg {
-            width: 16px;
-            height: 16px;
-            fill: var(--accent);
-        }
+        .telegram-btn:hover, .action-btn:hover { background-color: rgba(255, 34, 34, 0.3); transform: scale(1.03); }
+        .telegram-btn svg { width: 16px; height: 16px; fill: var(--accent); }
 
         .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 20px;
+            flex: 1; overflow-y: auto; padding: 30px; display: flex;
+            flex-direction: column; align-items: center; justify-content: flex-start; gap: 20px;
         }
 
-        .welcome-screen {
-            text-align: center;
-            color: var(--text-secondary);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin: auto;
+        .welcome-screen { text-align: center; color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; gap: 15px; margin: auto; }
+        .welcome-logo { width: 130px; height: 130px; border-radius: 50%; border: 2px solid var(--accent); box-shadow: 0 0 25px var(--accent); object-fit: cover; }
+        .welcome-screen h1 { color: var(--text-main); font-size: 28px; text-shadow: 0 0 10px var(--accent); }
+
+        /* Controlli Avanzati Immagini */
+        .image-controls-panel {
+            width: 100%; max-width: 900px; background: var(--bg-sidebar);
+            border: 1px solid var(--border); border-radius: 10px; padding: 12px 15px;
+            display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px;
         }
 
-        .welcome-logo {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
-            box-shadow: 0 0 25px var(--accent);
-            object-fit: cover;
+        .img-control-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .img-control-group { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px; }
+        .img-control-group label { font-size: 11px; color: var(--accent); font-weight: bold; }
+        
+        .img-select, .img-input-text {
+            background: #050505; border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 10px; border-radius: 6px; font-size: 12px; outline: none;
         }
 
-        .welcome-screen h1 {
-            color: var(--text-main);
-            font-size: 28px;
-            text-shadow: 0 0 10px var(--accent);
+        .style-presets-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+        .style-tag {
+            background: rgba(255, 34, 34, 0.1); border: 1px solid var(--border);
+            color: var(--text-main); padding: 4px 10px; border-radius: 12px;
+            font-size: 11px; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .style-tag:hover, .style-tag.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+
+        .upload-face-box {
+            display: flex; align-items: center; gap: 10px; background: #000;
+            border: 1px dashed var(--accent); padding: 8px 12px; border-radius: 6px; font-size: 12px;
         }
 
-        .quick-prompts {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            max-width: 650px;
-            margin-top: 10px;
-        }
+        .chat-stream { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 15px; }
+        .chat-message { display: flex; flex-direction: column; gap: 6px; padding: 14px 18px; border-radius: 10px; font-size: 14px; line-height: 1.5; }
+        .chat-message.user { align-self: flex-end; background-color: rgba(255, 34, 34, 0.15); border: 1px solid var(--accent); color: var(--text-main); max-width: 80%; white-space: pre-wrap; }
+        .chat-message.bot { align-self: flex-start; background-color: var(--bg-sidebar); border: 1px solid var(--border); color: var(--text-main); max-width: 95%; box-shadow: 0 4px 12px rgba(0,0,0,0.4); width: 100%; }
+        .chat-sender { font-size: 11px; font-weight: bold; color: var(--accent); text-transform: uppercase; }
 
-        .quick-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .quick-btn:hover {
-            background: rgba(255, 34, 34, 0.2);
-            border-color: var(--accent);
-        }
-
-        .chat-stream {
-            width: 100%;
-            max-width: 900px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .chat-message {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            padding: 14px 18px;
-            border-radius: 10px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .chat-message.user {
-            align-self: flex-end;
-            background-color: rgba(255, 34, 34, 0.15);
-            border: 1px solid var(--accent);
-            color: var(--text-main);
-            max-width: 80%;
-            white-space: pre-wrap;
-        }
-
-        .chat-message.bot {
-            align-self: flex-start;
-            background-color: var(--bg-sidebar);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            max-width: 95%;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            width: 100%;
-        }
-
-        .chat-sender {
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--accent);
-            text-transform: uppercase;
-        }
-
-        .code-block-wrapper {
-            position: relative;
-            margin: 12px 0;
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-        }
-
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #110404;
-            padding: 8px 14px;
-            font-size: 12px;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border);
-            font-weight: bold;
-        }
-
-        .lang-tag {
-            color: var(--accent);
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-        }
-
-        .code-actions {
-            display: flex;
-            gap: 6px;
-        }
+        .code-block-wrapper { position: relative; margin: 12px 0; background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        .code-header { display: flex; justify-content: space-between; align-items: center; background: #110404; padding: 8px 14px; font-size: 12px; color: var(--text-secondary); border-bottom: 1px solid var(--border); font-weight: bold; }
+        .lang-tag { color: var(--accent); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+        .code-actions { display: flex; gap: 6px; }
 
         .copy-btn, .preview-btn, .download-btn, .edit-btn {
-            background: rgba(255, 34, 34, 0.15);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-            transition: all 0.2s;
-            font-weight: bold;
+            background: rgba(255, 34, 34, 0.15); border: 1px solid var(--border);
+            color: var(--text-main); padding: 4px 10px; border-radius: 4px;
+            cursor: pointer; font-size: 11px; transition: all 0.2s; font-weight: bold;
         }
+        .copy-btn:hover, .preview-btn:hover, .download-btn:hover, .edit-btn:hover { background: var(--accent); color: #000; border-color: var(--accent); }
 
-        .copy-btn:hover, .preview-btn:hover, .download-btn:hover, .edit-btn:hover {
-            background: var(--accent);
-            color: #000;
-            border-color: var(--accent);
-        }
+        pre { padding: 14px; overflow-x: auto; color: #ffaaaa; font-family: "Consolas", "Fira Code", "Courier New", monospace; font-size: 13px; line-height: 1.5; }
+        code { font-family: "Consolas", "Fira Code", "Courier New", monospace; }
 
-        pre {
-            padding: 14px;
-            overflow-x: auto;
-            color: #ffaaaa;
-            font-family: "Consolas", "Fira Code", "Courier New", monospace;
-            font-size: 13px;
-            line-height: 1.5;
-        }
+        .loading-box { display: flex; flex-direction: column; align-items: center; gap: 15px; padding: 20px; background: var(--bg-sidebar); border: 1px solid var(--border); border-radius: 12px; align-self: center; }
+        .loading-spinner { border: 4px solid rgba(255, 34, 34, 0.2); border-top: 4px solid var(--accent); border-radius: 50%; width: 35px; height: 35px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        code {
-            font-family: "Consolas", "Fira Code", "Courier New", monospace;
-        }
+        .input-container { padding: 20px; background: var(--bg-main); display: flex; justify-content: center; }
+        .input-box { max-width: 900px; width: 100%; background-color: var(--bg-input); border-radius: 12px; display: flex; align-items: flex-end; padding: 10px 15px; border: 1px solid var(--border); gap: 8px; }
 
-        .loading-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: var(--bg-sidebar);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            align-self: center;
-        }
-
-        .loading-spinner {
-            border: 4px solid rgba(255, 34, 34, 0.2);
-            border-top: 4px solid var(--accent);
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .input-container {
-            padding: 20px;
-            background: var(--bg-main);
-            display: flex;
-            justify-content: center;
-        }
-
-        .input-box {
-            max-width: 900px;
-            width: 100%;
-            background-color: var(--bg-input);
-            border-radius: 12px;
-            display: flex;
-            align-items: flex-end;
-            padding: 10px 15px;
-            border: 1px solid var(--border);
-            gap: 8px;
-        }
-
-        textarea {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            font-size: 15px;
-            resize: none;
-            max-height: 150px;
-            outline: none;
-            padding: 5px 0;
-            line-height: 1.4;
-        }
+        textarea { flex: 1; background: transparent; border: none; color: var(--text-main); font-size: 15px; resize: none; max-height: 150px; outline: none; padding: 5px 0; line-height: 1.4; }
 
         .mic-btn, .send-btn {
-            background-color: rgba(255, 34, 34, 0.15);
-            color: var(--accent);
-            border: 1px solid var(--border);
-            width: 34px;
-            height: 34px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
+            background-color: rgba(255, 34, 34, 0.15); color: var(--accent);
+            border: 1px solid var(--border); width: 34px; height: 34px;
+            border-radius: 6px; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;
         }
+        .send-btn { background-color: var(--accent); color: #000; border: none; }
+        .mic-btn:hover, .send-btn:hover:not(:disabled) { opacity: 0.9; border-color: var(--accent); background-color: rgba(255, 34, 34, 0.3); }
+        .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .mic-btn svg, .send-btn svg { width: 16px; height: 16px; fill: currentColor; }
 
-        .send-btn {
-            background-color: var(--accent);
-            color: #000;
-            border: none;
-        }
-
-        .mic-btn:hover, .send-btn:hover:not(:disabled) {
-            opacity: 0.9;
-            border-color: var(--accent);
-            background-color: rgba(255, 34, 34, 0.3);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .mic-btn svg, .send-btn svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-        }
-
-        .modal-content {
-            background: var(--bg-sidebar);
-            border: 1px solid var(--accent);
-            width: 100%; max-width: 1000px; height: 90vh;
-            border-radius: 12px; display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 0 35px var(--accent);
-        }
-
-        .modal-header {
-            padding: 12px 20px; background: #000;
-            display: flex; justify-content: space-between; align-items: center;
-            color: var(--text-main); font-weight: bold; border-bottom: 1px solid var(--border);
-        }
-
-        .modal-close {
-            background: rgba(255, 34, 34, 0.2); border: 1px solid var(--accent);
-            color: var(--text-main); padding: 4px 12px; border-radius: 4px; cursor: pointer;
-            font-weight: bold;
-        }
-
-        #previewFrame {
-            flex: 1; background: #000; border: none;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 100; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: var(--bg-sidebar); border: 1px solid var(--accent); width: 100%; max-width: 1000px; height: 90vh; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 0 35px var(--accent); }
+        .modal-header { padding: 12px 20px; background: #000; display: flex; justify-content: space-between; align-items: center; color: var(--text-main); font-weight: bold; border-bottom: 1px solid var(--border); }
+        .modal-close { background: rgba(255, 34, 34, 0.2); border: 1px solid var(--accent); color: var(--text-main); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        #previewFrame { flex: 1; background: #000; border: none; }
     </style>
 </head>
 <body>
@@ -722,7 +316,7 @@
         </div>
     </div>
 
-    <!-- Modale Login Admin (Richiesto dopo 5 click sul logo) -->
+    <!-- Modale Login Admin -->
     <div id="adminLoginModal" class="admin-modal">
         <div class="admin-content" style="max-width: 380px; text-align: center;">
             <div class="admin-header">
@@ -736,7 +330,7 @@
         </div>
     </div>
 
-    <!-- Pannello Dashboard Admin (Generatore Chiavi) -->
+    <!-- Pannello Dashboard Admin -->
     <div id="adminDashboardModal" class="admin-modal">
         <div class="admin-content">
             <div class="admin-header">
@@ -781,16 +375,32 @@
             </button>
             <div class="mode-selector">
                 <button class="mode-btn active" id="modeImageBtn" onclick="setMode('image')">🎨 Immagini</button>
-                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">💻 Web Master Studio</button>
+                <button class="mode-btn" id="modeChatBtn" onclick="setMode('chat')">💻 Web Master</button>
+                <button class="mode-btn" id="modeGalleryBtn" onclick="setMode('gallery')">🖼️ Galleria</button>
             </div>
             <div class="theme-selector">
                 <div class="theme-dot" style="background: #ff2222;" onclick="changeTheme('red')" title="Rosso Cyberpunk"></div>
                 <div class="theme-dot" style="background: #00ff66;" onclick="changeTheme('green')" title="Verde Matrix"></div>
                 <div class="theme-dot" style="background: #00ccff;" onclick="changeTheme('blue')" title="Blu Elettrico"></div>
                 <div class="theme-dot" style="background: #cc00ff;" onclick="changeTheme('purple')" title="Viola Violento"></div>
+                <div class="theme-dot theme-rgb" onclick="changeTheme('rgb')" title="RGB Gaming Dinamico"></div>
+                <div class="theme-dot" style="background: #000000; border: 1px solid #444;" onclick="changeTheme('oled')" title="OLED Total Black"></div>
             </div>
+
+            <div class="music-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; color: var(--accent); font-weight: bold;">
+                    <span>🎵 Musica Rilassante</span>
+                    <button class="music-btn" id="musicToggleBtn" onclick="toggleAmbientMusic()" style="width: auto; padding: 2px 6px;">OFF</button>
+                </div>
+                <div class="music-controls">
+                    <button class="music-btn active" id="trackAmbient" onclick="setTrackType('ambient')">Cyber</button>
+                    <button class="music-btn" id="trackChill" onclick="setTrackType('chill')">Chill</button>
+                    <button class="music-btn" id="trackWaves" onclick="setTrackType('waves')">Waves</button>
+                </div>
+            </div>
+
             <button class="btn" onclick="toggleSound()" id="soundToggleBtn" style="font-size: 11px;">
-                🔊 Audio Cyberpunk: ATTIVO
+                🔊 Effetti UI: ATTIVO
             </button>
             <div class="status-box" id="statusBox">
                 ⚡ Astra 1 Engine: Pronto
@@ -825,7 +435,54 @@
             </div>
         </div>
 
-        <div class="input-container">
+        <!-- Pannello Controlli Avanzati Immagini -->
+        <div class="image-controls-panel" id="imgControlsPanel">
+            <div class="img-control-row">
+                <div class="img-control-group">
+                    <label>📐 Formato Foto:</label>
+                    <select id="imgRatioSelect" class="img-select">
+                        <option value="1:1">Quadrato (1:1 - Avatar)</option>
+                        <option value="9:16">Verticale (9:16 - Story/Mobile)</option>
+                        <option value="16:9">Orizzontale (16:9 - Desktop)</option>
+                    </select>
+                </div>
+                <div class="img-control-group">
+                    <label>🏛️ Luoghi Reali Famosi:</label>
+                    <select id="imgLocationSelect" class="img-select" onchange="applyLocationToPrompt()">
+                        <option value="">Nessuno (Libero)</option>
+                        <option value="in front of Colosseum Rome night neon lights">Colosseo di Roma (Notte Neon)</option>
+                        <option value="at Eiffel Tower Paris sunset cinematic">Torre Eiffel Parigi (Tramonto)</option>
+                        <option value="at Times Square New York cyberpunk rain">Times Square New York (Cyberpunk)</option>
+                        <option value="in Shibuya Crossing Tokyo neon lights">Shibuya Crossing Tokyo (Giappone)</option>
+                        <option value="at Pyramids of Giza Egypt dramatic sky">Piramidi di Giza (Egitto)</option>
+                    </select>
+                </div>
+                <div class="img-control-group">
+                    <label>✍️ Testo Filigrana:</label>
+                    <input type="text" id="wmTextInput" class="img-input-text" value="DARK GPT" placeholder="Testo watermark...">
+                </div>
+            </div>
+
+            <!-- Stili Rapid Presets -->
+            <div style="font-size:11px; color:var(--accent); font-weight:bold;">🎨 Stile Artistico:</div>
+            <div class="style-presets-bar">
+                <div class="style-tag active" onclick="setStylePreset(this, '')">Nessuno</div>
+                <div class="style-tag" onclick="setStylePreset(this, 'cyberpunk style, glowing neon, futuristic dark')">Cyberpunk</div>
+                <div class="style-tag" onclick="setStylePreset(this, 'photorealistic 8k, ultra detailed, DSLR photo')">Fotorealistico</div>
+                <div class="style-tag" onclick="setStylePreset(this, 'anime art style, vibrant colors, studio ghibli')">Anime / Manga</div>
+                <div class="style-tag" onclick="setStylePreset(this, '3D render, unreal engine 5, octane render')">3D Render</div>
+                <div class="style-tag" onclick="setStylePreset(this, 'dark fantasy artwork, glowing magic runes')">Dark Fantasy</div>
+            </div>
+
+            <!-- Box Upload Persona Reale -->
+            <div class="upload-face-box">
+                <span style="color:var(--accent); font-weight:bold;">👤 Inserisci Persona Reale:</span>
+                <input type="file" id="faceUploadInput" accept="image/*" style="font-size:11px; color:var(--text-main);" onchange="handleFaceUpload(event)">
+                <span id="faceStatusText" style="font-size:11px; color:var(--text-secondary);">Nessuna foto caricata</span>
+            </div>
+        </div>
+
+        <div class="input-container" id="inputContainerWrapper">
             <div class="input-box">
                 <button class="mic-btn" id="micBtn" onclick="toggleSpeechRecognition()" title="Dettatura Vocale">
                     <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
@@ -838,7 +495,7 @@
         </div>
     </div>
 
-    <!-- Modale Anteprima Live -->
+    <!-- Modali Anteprima ed Editor -->
     <div id="previewModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -849,7 +506,6 @@
         </div>
     </div>
 
-    <!-- Modale Editor Codice In Tempo Reale -->
     <div id="codeEditModal" class="modal">
         <div class="modal-content" style="max-width: 900px; height: 90vh;">
             <div class="modal-header">
@@ -869,16 +525,47 @@
 
         let activeTimerInterval = null;
         let soundEnabled = localStorage.getItem('dark_gpt_sound') !== 'false';
+        let selectedStylePrompt = '';
+        let uploadedFaceImage = null;
 
-        // Sintesi Audio Cyberpunk (Web Audio API)
+        function setStylePreset(el, stylePrompt) {
+            playSound('click');
+            document.querySelectorAll('.style-tag').forEach(tag => tag.classList.remove('active'));
+            el.classList.add('active');
+            selectedStylePrompt = stylePrompt;
+        }
+
+        function applyLocationToPrompt() {
+            playSound('click');
+            const loc = document.getElementById('imgLocationSelect').value;
+            const input = document.getElementById('userInput');
+            if (loc && !input.value.includes(loc)) {
+                input.value += (input.value ? ' ' : '') + loc;
+            }
+        }
+
+        function handleFaceUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedFaceImage = new Image();
+                    uploadedFaceImage.src = e.target.result;
+                    document.getElementById('faceStatusText').textContent = "✅ Foto Personale Pronta!";
+                    document.getElementById('faceStatusText').style.color = "var(--accent)";
+                    playSound('success');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
         function playSound(type) {
             if (!soundEnabled) return;
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
-                osc.connect(gain);
-                gain.connect(ctx.destination);
+                osc.connect(gain); gain.connect(ctx.destination);
                 
                 if (type === 'click') {
                     osc.type = 'sine';
@@ -886,16 +573,14 @@
                     osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.05);
                     gain.gain.setValueAtTime(0.04, ctx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.05);
+                    osc.start(); osc.stop(ctx.currentTime + 0.05);
                 } else if (type === 'success') {
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(440, ctx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
                     gain.gain.setValueAtTime(0.06, ctx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.15);
+                    osc.start(); osc.stop(ctx.currentTime + 0.15);
                 }
             } catch(e) {}
         }
@@ -903,72 +588,97 @@
         function toggleSound() {
             soundEnabled = !soundEnabled;
             localStorage.setItem('dark_gpt_sound', soundEnabled);
-            const btn = document.getElementById('soundToggleBtn');
-            btn.textContent = soundEnabled ? "🔊 Audio Cyberpunk: ATTIVO" : "🔇 Audio Cyberpunk: DISATTIVO";
+            document.getElementById('soundToggleBtn').textContent = soundEnabled ? "🔊 Effetti UI: ATTIVO" : "🔇 Effetti UI: DISATTIVO";
             playSound('click');
         }
 
-        // Dettatura Vocale (Speech-to-Text)
+        let ambientMusicPlaying = false;
+        let ambientInterval = null;
+        let currentTrackType = 'ambient';
+
+        function toggleAmbientMusic() {
+            ambientMusicPlaying = !ambientMusicPlaying;
+            const btn = document.getElementById('musicToggleBtn');
+            if (ambientMusicPlaying) {
+                btn.textContent = "ON"; btn.classList.add('active');
+                startGenerativeMusic(); playSound('success');
+            } else {
+                btn.textContent = "OFF"; btn.classList.remove('active');
+                stopGenerativeMusic(); playSound('click');
+            }
+        }
+
+        function setTrackType(type) {
+            playSound('click');
+            currentTrackType = type;
+            ['ambient', 'chill', 'waves'].forEach(t => {
+                document.getElementById('track' + t.charAt(0).toUpperCase() + t.slice(1)).className = `music-btn ${t === type ? 'active' : ''}`;
+            });
+            if (ambientMusicPlaying) { stopGenerativeMusic(); startGenerativeMusic(); }
+        }
+
+        function startGenerativeMusic() {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            window._ambientAudioCtx = audioCtx;
+            const chords = { ambient: [220, 261.63, 329.63, 392], chill: [174.61, 220, 261.63, 349.23], waves: [130.81, 196, 246.94, 293.66] };
+
+            function playChord() {
+                if (!ambientMusicPlaying) return;
+                const notes = chords[currentTrackType] || chords.ambient;
+                notes.forEach((freq, idx) => {
+                    try {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+                        osc.frequency.setValueAtTime(freq + (Math.random() * 2 - 1), audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+                        gain.gain.linearRampToValueAtTime(0.015, audioCtx.currentTime + 3);
+                        gain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 8);
+                        osc.connect(gain); gain.connect(audioCtx.destination);
+                        osc.start(); osc.stop(audioCtx.currentTime + 8);
+                    } catch(e){}
+                });
+            }
+            playChord();
+            ambientInterval = setInterval(playChord, 7500);
+        }
+
+        function stopGenerativeMusic() {
+            if (ambientInterval) clearInterval(ambientInterval);
+            if (window._ambientAudioCtx) { try { window._ambientAudioCtx.close(); } catch(e){} }
+        }
+
         let recognition = null;
         let isRecording = false;
 
         function toggleSpeechRecognition() {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                alert("La dettatura vocale non è supportata da questo browser.");
-                return;
-            }
-            if (isRecording) {
-                if (recognition) recognition.stop();
-                return;
-            }
+            if (!SpeechRecognition) { alert("La dettatura vocale non è supportata."); return; }
+            if (isRecording) { if (recognition) recognition.stop(); return; }
+            
             recognition = new SpeechRecognition();
             recognition.lang = 'it-IT';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            recognition.onstart = () => {
-                isRecording = true;
-                document.getElementById('micBtn').style.color = 'var(--accent)';
-                document.getElementById('micBtn').style.borderColor = 'var(--accent)';
-                playSound('click');
-            };
-
+            recognition.onstart = () => { isRecording = true; document.getElementById('micBtn').style.borderColor = 'var(--accent)'; playSound('click'); };
             recognition.onresult = (event) => {
                 const speechText = event.results[0][0].transcript;
                 const input = document.getElementById('userInput');
                 input.value += (input.value ? ' ' : '') + speechText;
-                autoResize(input);
-                playSound('success');
+                autoResize(input); playSound('success');
             };
-
             recognition.onerror = () => { stopMic(); };
             recognition.onend = () => { stopMic(); };
-
             recognition.start();
         }
 
-        function stopMic() {
-            isRecording = false;
-            const micBtn = document.getElementById('micBtn');
-            if (micBtn) {
-                micBtn.style.color = '';
-                micBtn.style.borderColor = '';
-            }
-        }
+        function stopMic() { isRecording = false; const micBtn = document.getElementById('micBtn'); if (micBtn) micBtn.style.borderColor = ''; }
 
-        // Gestione Click Segreti (5 click sul logo)
         let logoClickCount = 0;
         let lastLogoClickTime = 0;
 
         function handleLogoSecretClick() {
             playSound('click');
             let now = Date.now();
-            if (now - lastLogoClickTime > 2000) {
-                logoClickCount = 1;
-            } else {
-                logoClickCount++;
-            }
+            if (now - lastLogoClickTime > 2000) logoClickCount = 1; else logoClickCount++;
             lastLogoClickTime = now;
 
             if (logoClickCount >= 5) {
@@ -980,14 +690,8 @@
             }
         }
 
-        function closeAdminLogin() {
-            playSound('click');
-            document.getElementById('adminLoginModal').style.display = 'none';
-        }
-
-        function checkAdminLoginKey(event) {
-            if (event.key === 'Enter') verifyAdminPassword();
-        }
+        function closeAdminLogin() { playSound('click'); document.getElementById('adminLoginModal').style.display = 'none'; }
+        function checkAdminLoginKey(event) { if (event.key === 'Enter') verifyAdminPassword(); }
 
         function verifyAdminPassword() {
             let pass = document.getElementById('adminPasswordInput').value.trim();
@@ -997,39 +701,21 @@
                 document.getElementById('adminLoginModal').style.display = 'none';
                 err.style.display = 'none';
                 openAdminDashboard();
-            } else {
-                playSound('click');
-                err.style.display = 'block';
-            }
+            } else { playSound('click'); err.style.display = 'block'; }
         }
 
-        function openAdminDashboard() {
-            document.getElementById('adminDashboardModal').style.display = 'flex';
-            renderAdminKeys();
-        }
+        function openAdminDashboard() { document.getElementById('adminDashboardModal').style.display = 'flex'; renderAdminKeys(); }
+        function closeAdminDashboard() { playSound('click'); document.getElementById('adminDashboardModal').style.display = 'none'; }
 
-        function closeAdminDashboard() {
-            playSound('click');
-            document.getElementById('adminDashboardModal').style.display = 'none';
-        }
-
-        // Generatore di chiavi
         function generateNewKey() {
             playSound('success');
             let durationSec = parseInt(document.getElementById('keyDuration').value);
             let deviceMode = document.getElementById('keyDeviceMode').value;
-            
             let modeCode = deviceMode === 'single' ? 'S' : 'U';
             let randomCode = `ASTRA-${modeCode}-${durationSec}-` + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
 
             let keys = JSON.parse(localStorage.getItem('dark_gpt_keys') || '[]');
-            keys.push({
-                key: randomCode,
-                durationSec: durationSec,
-                deviceMode: deviceMode,
-                createdAt: Date.now()
-            });
-
+            keys.push({ key: randomCode, durationSec: durationSec, deviceMode: deviceMode, createdAt: Date.now() });
             localStorage.setItem('dark_gpt_keys', JSON.stringify(keys));
             renderAdminKeys();
         }
@@ -1051,11 +737,8 @@
                 if (activation) {
                     let timeSecLeft = Math.max(0, Math.floor((activation.expiresAt - Date.now()) / 1000));
                     let timeLeft = Math.floor(timeSecLeft / 60);
-                    if (timeSecLeft < 60) {
-                        timeStr = timeSecLeft + " sec rimanenti";
-                    } else {
-                        timeStr = timeLeft > 60 ? Math.floor(timeLeft / 60) + " ore rimanenti" : timeLeft + " min rimanenti";
-                    }
+                    if (timeSecLeft < 60) timeStr = timeSecLeft + " sec rimanenti";
+                    else timeStr = timeLeft > 60 ? Math.floor(timeLeft / 60) + " ore rimanenti" : timeLeft + " min rimanenti";
                     if (activation.expiresAt < Date.now()) timeStr = "SCADUTA";
                 }
 
@@ -1082,19 +765,24 @@
             renderAdminKeys();
         }
 
-        // Timer e Controllo Scadenza Live
         function startLiveKeyTimer(expiresAt) {
             if (activeTimerInterval) clearInterval(activeTimerInterval);
             const badge = document.getElementById('keyTimerBadge');
 
             if (expiresAt === 'unlimited') {
-                badge.innerHTML = "♾️ Accesso Illimitato";
-                return;
+                badge.innerHTML = "♾️ Accesso Illimitato"; badge.style.animation = ""; return;
             }
 
             function updateTimer() {
                 let now = Date.now();
                 let remaining = expiresAt - now;
+
+                if (remaining <= 300000) {
+                    badge.style.animation = "pulseAlert 1s infinite alternate";
+                    badge.style.borderColor = "#ff0000"; badge.style.background = "rgba(255, 0, 0, 0.3)";
+                } else {
+                    badge.style.animation = ""; badge.style.borderColor = "var(--accent)"; badge.style.background = "rgba(255, 34, 34, 0.15)";
+                }
 
                 if (remaining <= 0) {
                     clearInterval(activeTimerInterval);
@@ -1114,20 +802,14 @@
                 let mins = Math.floor((totalSecs % 3600) / 60);
                 let secs = totalSecs % 60;
 
-                let formattedHrs = String(hrs).padStart(2, '0');
-                let formattedMins = String(mins).padStart(2, '0');
-                let formattedSecs = String(secs).padStart(2, '0');
-
-                badge.innerHTML = `⏳ Scadenza Chiave: ${formattedHrs}:${formattedMins}:${formattedSecs}`;
+                badge.innerHTML = `⏳ Scadenza: ${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             }
 
             updateTimer();
             activeTimerInterval = setInterval(updateTimer, 1000);
         }
 
-        function checkGateKey(event) {
-            if (event.key === 'Enter') verifyPassword();
-        }
+        function checkGateKey(event) { if (event.key === 'Enter') verifyPassword(); }
 
         function verifyPassword() {
             const input = document.getElementById('gatePassword').value.trim();
@@ -1144,10 +826,7 @@
 
             const parts = input.split('-');
             if (parts.length >= 5 && parts[0] === 'ASTRA' && (parts[1] === 'U' || parts[1] === 'S')) {
-                let mode = parts[1];
-                let durationSec = parseInt(parts[2]);
-                let now = Date.now();
-
+                let mode = parts[1]; let durationSec = parseInt(parts[2]); let now = Date.now();
                 let deviceId = localStorage.getItem('dark_gpt_device_id');
                 if (!deviceId) {
                     deviceId = 'dev_' + Math.random().toString(36).substring(2, 9);
@@ -1169,18 +848,13 @@
                         activations[input] = activation;
                         localStorage.setItem('dark_gpt_activations', JSON.stringify(activations));
                     } else if (activation.boundDeviceId !== deviceId) {
-                        playSound('click');
-                        error.textContent = "❌ Chiave già attivata su un altro dispositivo!";
-                        error.style.display = 'block';
-                        return;
+                        playSound('click'); error.textContent = "❌ Chiave già attivata su un altro dispositivo!";
+                        error.style.display = 'block'; return;
                     }
                 }
 
                 if (now > activation.expiresAt) {
-                    playSound('click');
-                    error.textContent = "❌ Questa chiave è scaduta!";
-                    error.style.display = 'block';
-                    return;
+                    playSound('click'); error.textContent = "❌ Questa chiave è scaduta!"; error.style.display = 'block'; return;
                 }
 
                 playSound('success');
@@ -1189,9 +863,7 @@
                 document.getElementById('passwordGate').style.display = 'none';
                 startLiveKeyTimer(activation.expiresAt);
             } else {
-                playSound('click');
-                error.style.display = 'block';
-                error.textContent = "❌ Password o chiave non valida!";
+                playSound('click'); error.style.display = 'block'; error.textContent = "❌ Password o chiave non valida!";
                 document.getElementById('gatePassword').value = '';
             }
         }
@@ -1200,11 +872,9 @@
             if (sessionStorage.getItem('dark_gpt_authenticated') === 'true') {
                 let expiry = sessionStorage.getItem('dark_gpt_active_key_expiry');
                 if (expiry === 'unlimited') {
-                    document.getElementById('passwordGate').style.display = 'none';
-                    startLiveKeyTimer('unlimited');
+                    document.getElementById('passwordGate').style.display = 'none'; startLiveKeyTimer('unlimited');
                 } else if (expiry && parseInt(expiry) > Date.now()) {
-                    document.getElementById('passwordGate').style.display = 'none';
-                    startLiveKeyTimer(parseInt(expiry));
+                    document.getElementById('passwordGate').style.display = 'none'; startLiveKeyTimer(parseInt(expiry));
                 } else {
                     sessionStorage.removeItem('dark_gpt_authenticated');
                     sessionStorage.removeItem('dark_gpt_active_key_expiry');
@@ -1220,16 +890,6 @@
         
         function loadAllHistory() {
             let data = localStorage.getItem('dark_gpt_astra_chats_v1');
-            if (!data) {
-                for (let i = 1; i <= 20; i++) {
-                    let old = localStorage.getItem(`astra1_history_v${i}`);
-                    if (old) {
-                        data = old;
-                        localStorage.setItem('dark_gpt_astra_chats_v1', data);
-                        break;
-                    }
-                }
-            }
             return data ? JSON.parse(data) : [];
         }
 
@@ -1242,7 +902,9 @@
             red: { accent: '#ff2222', bgMain: '#070202', bgSidebar: '#0f0505' },
             green: { accent: '#00ff66', bgMain: '#020704', bgSidebar: '#050f08' },
             blue: { accent: '#00ccff', bgMain: '#020507', bgSidebar: '#050a0f' },
-            purple: { accent: '#cc00ff', bgMain: '#070207', bgSidebar: '#0f050f' }
+            purple: { accent: '#cc00ff', bgMain: '#070207', bgSidebar: '#0f050f' },
+            rgb: { accent: '#00ffcc', bgMain: '#020705', bgSidebar: '#050f0c' },
+            oled: { accent: '#ff2222', bgMain: '#000000', bgSidebar: '#000000' }
         };
 
         function changeTheme(themeName) {
@@ -1257,22 +919,16 @@
         function initTheme() {
             const savedTheme = localStorage.getItem('dark_gpt_theme') || 'red';
             changeTheme(savedTheme);
-            const btn = document.getElementById('soundToggleBtn');
-            btn.textContent = soundEnabled ? "🔊 Audio Cyberpunk: ATTIVO" : "🔇 Audio Cyberpunk: DISATTIVO";
+            document.getElementById('soundToggleBtn').textContent = soundEnabled ? "🔊 Effetti UI: ATTIVO" : "🔇 Effetti UI: DISATTIVO";
         }
 
         function applyLogos() {
-            const headerLogo = document.getElementById('headerLogo');
-            const mainLogo = document.getElementById('mainLogo');
-            const gateLogo = document.getElementById('gateLogo');
-            if (headerLogo) headerLogo.src = PRIMARY_LOGO_URL;
-            if (mainLogo) mainLogo.src = PRIMARY_LOGO_URL;
-            if (gateLogo) gateLogo.src = PRIMARY_LOGO_URL;
+            document.getElementById('headerLogo').src = PRIMARY_LOGO_URL;
+            document.getElementById('mainLogo').src = PRIMARY_LOGO_URL;
+            document.getElementById('gateLogo').src = PRIMARY_LOGO_URL;
         }
 
-        function handleLogoError(imgEl) {
-            imgEl.src = FALLBACK_LOGO_URL;
-        }
+        function handleLogoError(imgEl) { imgEl.src = FALLBACK_LOGO_URL; }
 
         function setMode(mode) {
             if (isCooldown) return;
@@ -1280,27 +936,76 @@
             currentMode = mode;
             document.getElementById('modeImageBtn').className = `mode-btn ${mode === 'image' ? 'active' : ''}`;
             document.getElementById('modeChatBtn').className = `mode-btn ${mode === 'chat' ? 'active' : ''}`;
+            document.getElementById('modeGalleryBtn').className = `mode-btn ${mode === 'gallery' ? 'active' : ''}`;
             
             const headerTitle = document.getElementById('headerTitle');
             const inputField = document.getElementById('userInput');
+            const inputContainer = document.getElementById('inputContainerWrapper');
+            const imgPanel = document.getElementById('imgControlsPanel');
 
             if (mode === 'image') {
                 headerTitle.textContent = "DARK GPT ASTRA 1 - IMAGE GENERATOR";
                 inputField.placeholder = "Descrivi l'immagine da creare...";
                 document.getElementById('exportBtn').style.display = 'none';
-            } else {
+                inputContainer.style.display = 'flex';
+                imgPanel.style.display = 'flex';
+                startNewSession();
+            } else if (mode === 'chat') {
                 headerTitle.textContent = "DARK GPT ASTRA 1 - ULTIMATE WEB MASTER";
                 inputField.placeholder = "Chiedi di creare qualsiasi sito web moderno, app o gioco...";
                 document.getElementById('exportBtn').style.display = 'flex';
+                inputContainer.style.display = 'flex';
+                imgPanel.style.display = 'none';
+                startNewSession();
+            } else if (mode === 'gallery') {
+                headerTitle.textContent = "DARK GPT ASTRA 1 - GALLERIA IMMAGINI";
+                document.getElementById('exportBtn').style.display = 'none';
+                inputContainer.style.display = 'none';
+                imgPanel.style.display = 'none';
+                renderImageGallery();
             }
-            startNewSession();
+        }
+
+        function renderImageGallery() {
+            const area = document.getElementById('contentArea');
+            const images = historyData.filter(item => item.type === 'image');
+
+            if (images.length === 0) {
+                area.innerHTML = `<div class="welcome-screen"><h1>🖼️ GALLERIA VUOTA</h1><p>Non hai ancora generato alcuna immagine. Creane qualcuna nella sezione Immagini!</p></div>`;
+                return;
+            }
+
+            let html = `<div class="gallery-grid">`;
+            images.forEach((imgItem) => {
+                html += `
+                    <div class="gallery-card">
+                        <img src="${imgItem.imageContent}" alt="${escapeHtml(imgItem.title)}">
+                        <div class="gallery-title" title="${escapeHtml(imgItem.title)}">${escapeHtml(imgItem.title)}</div>
+                        <div class="gallery-actions">
+                            <button class="copy-btn" style="flex:1;" onclick="downloadGalleryImage('${imgItem.id}')">📥 Scarica</button>
+                            <button class="copy-btn" style="background:rgba(255,0,0,0.2);" onclick="deleteGalleryImage('${imgItem.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            area.innerHTML = html;
+        }
+
+        function downloadGalleryImage(id) {
+            const item = historyData.find(i => i.id === id);
+            if (!item) return;
+            const a = document.createElement('a'); a.href = item.imageContent; a.download = `DarkGPT_Image_${Date.now()}.jpg`; a.click();
+        }
+
+        function deleteGalleryImage(id) {
+            playSound('click');
+            historyData = historyData.filter(i => i.id !== id);
+            saveHistory(); renderImageGallery();
         }
 
         function init() {
-            initGate();
-            initTheme();
-            applyLogos();
-            renderSidebarHistory();
+            initGate(); initTheme(); applyLogos(); renderSidebarHistory();
             if (currentSessionId && historyData.some(s => s.id === currentSessionId)) {
                 selectSession(currentSessionId);
             } else if (historyData.length > 0) {
@@ -1310,20 +1015,13 @@
 
         function saveHistory() {
             localStorage.setItem('dark_gpt_astra_chats_v1', JSON.stringify(historyData));
-            if (currentSessionId) {
-                localStorage.setItem('dark_gpt_astra_active_id_v1', currentSessionId);
-            } else {
-                localStorage.removeItem('dark_gpt_astra_active_id_v1');
-            }
+            if (currentSessionId) localStorage.setItem('dark_gpt_astra_active_id_v1', currentSessionId);
+            else localStorage.removeItem('dark_gpt_astra_active_id_v1');
         }
 
         function startNewSession() {
             if (isCooldown) return;
-            playSound('click');
-            currentSessionId = null;
-            saveHistory();
-            renderSidebarHistory();
-            document.getElementById('exportBtn').style.display = 'none';
+            playSound('click'); currentSessionId = null; saveHistory(); renderSidebarHistory();
 
             if (currentMode === 'image') {
                 document.getElementById('contentArea').innerHTML = `
@@ -1333,45 +1031,40 @@
                         <p>Generatore di immagini neurale integrato. Scrivi una descrizione per iniziare.</p>
                     </div>
                 `;
-            } else {
+            } else if (currentMode === 'chat') {
                 document.getElementById('contentArea').innerHTML = `
                     <div class="welcome-screen" id="welcomeScreen">
                         <img id="mainLogo" src="${PRIMARY_LOGO_URL}" alt="Dark GPT Logo" class="welcome-logo" onerror="handleLogoError(this)">
                         <h1>DARK GPT ASTRA 1 <span style="font-size:14px; color:var(--accent);">WEB MASTER PRO</span></h1>
-                        <p>Assistente IA generale. Chiedi di creare siti web o app solo quando ne hai bisogno:</p>
+                        <p>Assistente IA generale. Scegli un componente rapido o chiedi di creare qualsiasi sito:</p>
                         <div class="quick-prompts">
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un sito web per una Pizzeria con tema Dark elegante, animazioni CSS, menu interattivo, carrello in JS e layout responsive')">🍕 Sito Pizzeria Pro</button>
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea una Landing Page Cyberpunk tecnologica con gradiente rosso-nero, pulsanti al neon ed effetti hover avanzati')">🚀 Landing Page Cyberpunk</button>
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un Portfolio Personale con Glassmorphism, modalità dark, animazioni fluide e galleria progetti')">💼 Portfolio Glassmorphism</button>
-                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un gioco Arcade 2D in HTML5 Canvas con grafica neon, punteggio, controlli sia da PC che touch per Mobile')">🎮 Gioco Arcade Neon</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un pulsante al neon cyberpunk con animazione hover avanzata e bagliore rosso')">✨ Pulsante Neon</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea una Card Glassmorphism elegante con effetto sfocato e bordi luminosi')">🔮 Card Glass</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea una Navbar Cyberpunk responsive con menu e logo stilizzato')">🧭 Navbar Cyber</button>
+                            <button class="quick-btn" onclick="sendQuickPrompt('Crea un loader circolare futuristico in CSS e JavaScript')">⏳ Loader Futuro</button>
                         </div>
                     </div>
                 `;
             }
         }
 
-        function sendQuickPrompt(text) {
-            document.getElementById('userInput').value = text;
-            handleSend();
-        }
+        function sendQuickPrompt(text) { document.getElementById('userInput').value = text; handleSend(); }
 
         function selectSession(id) {
-            playSound('click');
-            currentSessionId = id;
-            saveHistory();
-            renderSidebarHistory();
+            playSound('click'); currentSessionId = id; saveHistory(); renderSidebarHistory();
             const item = historyData.find(g => g.id === id);
             if (item) {
-                currentMode = item.type;
-                setModeUIState(currentMode);
+                currentMode = item.type; setModeUIState(currentMode);
                 const area = document.getElementById('contentArea');
-                
+                document.getElementById('inputContainerWrapper').style.display = currentMode === 'gallery' ? 'none' : 'flex';
+                document.getElementById('imgControlsPanel').style.display = currentMode === 'image' ? 'flex' : 'none';
+
                 if (item.type === 'image') {
                     document.getElementById('exportBtn').style.display = 'none';
                     area.innerHTML = `
-                        <div class="result-box">
-                            <div class="prompt-title">"${item.title}"</div>
-                            <img src="${item.imageContent}" alt="${item.title}">
+                        <div class="result-box" style="text-align:center;">
+                            <div class="prompt-title" style="margin-bottom:10px;">"${item.title}"</div>
+                            <img src="${item.imageContent}" alt="${item.title}" style="max-width:100%; border-radius:8px; border:1px solid var(--border);">
                         </div>
                     `;
                 } else {
@@ -1383,14 +1076,12 @@
 
         function formatMarkdownAndCode(text) {
             let formatted = marked.parse(text);
-            const div = document.createElement('div');
-            div.innerHTML = formatted;
+            const div = document.createElement('div'); div.innerHTML = formatted;
             
             const codeBlocks = div.querySelectorAll('pre');
             codeBlocks.forEach((pre) => {
                 const codeNode = pre.querySelector('code');
                 const codeText = pre.innerText;
-                
                 let lang = 'CODE';
                 if (codeNode) {
                     const match = codeNode.className.match(/language-(\w+)/);
@@ -1406,9 +1097,9 @@
                     <div class="code-header">
                         <span class="lang-tag">⚡ ${lang}</span>
                         <div class="code-actions">
-                            ${isWebCode ? `<button class="preview-btn" onclick="playSound('click'); previewCode(this)">▶️ Anteprima Live</button>` : ''}
+                            ${isWebCode ? `<button class="preview-btn" onclick="playSound('click'); previewCode(this)">▶️ Anteprima</button>` : ''}
                             ${isWebCode ? `<button class="edit-btn" onclick="playSound('click'); openCodeEditor(this)">✏️ Modifica</button>` : ''}
-                            <button class="download-btn" onclick="playSound('click'); downloadCode(this, '${ext}')">📥 Scarica .${ext}</button>
+                            <button class="download-btn" onclick="playSound('click'); downloadCode(this, '${ext}')">📥 Scarica</button>
                             <button class="copy-btn" onclick="playSound('click'); copyCode(this)">📋 Copia</button>
                         </div>
                     </div>
@@ -1420,7 +1111,6 @@
             return div.innerHTML;
         }
 
-        // Gestione Editor di Codice Live
         let activeEditingBlock = null;
         function openCodeEditor(btn) {
             const wrapper = btn.closest('.code-block-wrapper');
@@ -1429,50 +1119,35 @@
             document.getElementById('codeEditModal').style.display = 'flex';
         }
 
-        function closeCodeEditor() {
-            playSound('click');
-            document.getElementById('codeEditModal').style.display = 'none';
-            activeEditingBlock = null;
-        }
+        function closeCodeEditor() { playSound('click'); document.getElementById('codeEditModal').style.display = 'none'; activeEditingBlock = null; }
 
         function applyEditedCode() {
             if (!activeEditingBlock) return;
             const newText = document.getElementById('codeEditorArea').value;
             activeEditingBlock.innerText = newText;
-            
             const modal = document.getElementById('previewModal');
             const frame = document.getElementById('previewFrame');
             modal.style.display = 'flex';
             const doc = frame.contentDocument || frame.contentWindow.document;
-            doc.open();
-            doc.write(newText);
-            doc.close();
-
-            closeCodeEditor();
-            playSound('success');
+            doc.open(); doc.write(newText); doc.close();
+            closeCodeEditor(); playSound('success');
         }
 
         function getExtensionByLang(lang) {
             switch(lang.toLowerCase()) {
-                case 'html': return 'html';
-                case 'python': case 'py': return 'py';
-                case 'javascript': case 'js': return 'js';
-                case 'css': return 'css';
-                case 'json': return 'json';
-                default: return 'txt';
+                case 'html': return 'html'; case 'python': case 'py': return 'py';
+                case 'javascript': case 'js': return 'js'; case 'css': return 'css';
+                case 'json': return 'json'; default: return 'txt';
             }
         }
 
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        }
+        function escapeHtml(text) { return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
         function copyCode(btn) {
             const wrapper = btn.closest('.code-block-wrapper');
             const codeText = wrapper.querySelector('code').innerText;
             navigator.clipboard.writeText(codeText).then(() => {
-                btn.textContent = "Copiato!";
-                setTimeout(() => btn.textContent = "📋 Copia", 2000);
+                btn.textContent = "Copiato!"; setTimeout(() => btn.textContent = "📋 Copia", 2000);
             });
         }
 
@@ -1481,10 +1156,7 @@
             const codeText = wrapper.querySelector('code').innerText;
             const blob = new Blob([codeText], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `sito_darkgpt_${Date.now()}.${ext}`;
-            a.click();
+            const a = document.createElement('a'); a.href = url; a.download = `sito_darkgpt_${Date.now()}.${ext}`; a.click();
             URL.revokeObjectURL(url);
         }
 
@@ -1493,17 +1165,13 @@
             const codeText = wrapper.querySelector('code').innerText;
             const modal = document.getElementById('previewModal');
             const frame = document.getElementById('previewFrame');
-            
             modal.style.display = 'flex';
             const doc = frame.contentDocument || frame.contentWindow.document;
-            doc.open();
-            doc.write(codeText);
-            doc.close();
+            doc.open(); doc.write(codeText); doc.close();
         }
 
         function closePreview() {
-            playSound('click');
-            document.getElementById('previewModal').style.display = 'none';
+            playSound('click'); document.getElementById('previewModal').style.display = 'none';
             const frame = document.getElementById('previewFrame');
             const doc = frame.contentDocument || frame.contentWindow.document;
             doc.open(); doc.write(''); doc.close();
@@ -1514,17 +1182,12 @@
             const session = historyData.find(s => s.id === currentSessionId);
             if (!session || !session.messages) return;
 
-            let textContent = `=== DARK GPT ASTRA 1 (WEB MASTER PRO) - CHAT EXPORT ===\nSessione: ${session.title}\nData: ${new Date().toLocaleString()}\n\n`;
-            session.messages.forEach(m => {
-                textContent += `[${m.role === 'user' ? 'TU' : 'DARK GPT'}]:\n${m.text}\n\n-----------------------------------\n\n`;
-            });
+            let textContent = `=== DARK GPT ASTRA 1 - CHAT EXPORT ===\nSessione: ${session.title}\nData: ${new Date().toLocaleString()}\n\n`;
+            session.messages.forEach(m => { textContent += `[${m.role === 'user' ? 'TU' : 'DARK GPT'}]:\n${m.text}\n\n-----------------------------------\n\n`; });
 
             const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `DarkGPT_WebChat_${Date.now()}.txt`;
-            a.click();
+            const a = document.createElement('a'); a.href = url; a.download = `DarkGPT_WebChat_${Date.now()}.txt`; a.click();
             URL.revokeObjectURL(url);
         }
 
@@ -1534,29 +1197,31 @@
             messages.forEach(msg => {
                 const isUser = msg.role === 'user';
                 const formattedContent = isUser ? escapeHtml(msg.text) : formatMarkdownAndCode(msg.text);
-                html += `
-                    <div class="chat-message ${isUser ? 'user' : 'bot'}">
-                        <div class="chat-sender">${isUser ? 'TU' : 'DARK GPT MASTER'}</div>
-                        <div>${formattedContent}</div>
-                    </div>
-                `;
+                html += `<div class="chat-message ${isUser ? 'user' : 'bot'}"><div class="chat-sender">${isUser ? 'TU' : 'DARK GPT MASTER'}</div><div>${formattedContent}</div></div>`;
             });
             html += `</div>`;
-            area.innerHTML = html;
-            area.scrollTop = area.scrollHeight;
+            area.innerHTML = html; area.scrollTop = area.scrollHeight;
         }
 
         function setModeUIState(mode) {
             currentMode = mode;
             document.getElementById('modeImageBtn').className = `mode-btn ${mode === 'image' ? 'active' : ''}`;
             document.getElementById('modeChatBtn').className = `mode-btn ${mode === 'chat' ? 'active' : ''}`;
-            document.getElementById('headerTitle').textContent = mode === 'image' ? "DARK GPT ASTRA 1 - IMAGE GENERATOR" : "DARK GPT ASTRA 1 - ULTIMATE WEB MASTER";
-            document.getElementById('userInput').placeholder = mode === 'image' ? "Descrivi l'immagine da creare..." : "Chiedi di creare qualsiasi sito web moderno, app o gioco...";
+            document.getElementById('modeGalleryBtn').className = `mode-btn ${mode === 'gallery' ? 'active' : ''}`;
+            
+            if (mode === 'image') {
+                document.getElementById('headerTitle').textContent = "DARK GPT ASTRA 1 - IMAGE GENERATOR";
+                document.getElementById('userInput').placeholder = "Descrivi l'immagine da creare...";
+            } else if (mode === 'chat') {
+                document.getElementById('headerTitle').textContent = "DARK GPT ASTRA 1 - ULTIMATE WEB MASTER";
+                document.getElementById('userInput').placeholder = "Chiedi di creare qualsiasi sito web moderno, app o gioco...";
+            } else if (mode === 'gallery') {
+                document.getElementById('headerTitle').textContent = "DARK GPT ASTRA 1 - GALLERIA IMMAGINI";
+            }
         }
 
         function renderSidebarHistory() {
-            const listEl = document.getElementById('historyList');
-            listEl.innerHTML = '';
+            const listEl = document.getElementById('historyList'); listEl.innerHTML = '';
             historyData.forEach(item => {
                 const div = document.createElement('div');
                 div.className = `history-item ${item.id === currentSessionId ? 'active' : ''}`;
@@ -1581,8 +1246,7 @@
                     statusBox.textContent = `⏳ Cooldown: ${timeLeft}s`;
                 } else {
                     clearInterval(cooldownTimer);
-                    isCooldown = false;
-                    sendBtn.disabled = false;
+                    isCooldown = false; sendBtn.disabled = false;
                     statusBox.textContent = `⚡ Astra 1 Engine: Pronto`;
                 }
             }, 1000);
@@ -1591,20 +1255,18 @@
         function handleSend() {
             if (isCooldown) return;
             playSound('click');
-            if (currentMode === 'image') {
-                generateImage();
-            } else {
-                generateTextChat();
-            }
+            if (currentMode === 'image') generateImage();
+            else generateTextChat();
         }
 
         function generateImage() {
             const input = document.getElementById('userInput');
-            const promptText = input.value.trim();
+            let promptText = input.value.trim();
             if (!promptText) return;
 
-            input.value = '';
-            input.style.height = 'auto';
+            if (selectedStylePrompt) promptText += `, ${selectedStylePrompt}`;
+
+            input.value = ''; input.style.height = 'auto';
 
             const area = document.getElementById('contentArea');
             area.innerHTML = `
@@ -1615,9 +1277,14 @@
                 </div>
             `;
 
+            const ratio = document.getElementById('imgRatioSelect').value;
+            let imgW = 768, imgH = 768;
+            if (ratio === '9:16') { imgW = 512; imgH = 912; }
+            else if (ratio === '16:9') { imgW = 912; imgH = 512; }
+
             const encodedPrompt = encodeURIComponent(promptText);
             const seed = Math.floor(Math.random() * 1000000);
-            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=768&height=768&seed=${seed}&nologo=true`;
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${imgW}&height=${imgH}&seed=${seed}&nologo=true`;
 
             const img = new Image();
             img.crossOrigin = "Anonymous";
@@ -1626,64 +1293,70 @@
             img.onload = () => {
                 try {
                     const canvas = document.createElement('canvas');
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
+                    canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
                     const ctx = canvas.getContext('2d');
-                    
                     ctx.drawImage(img, 0, 0);
 
-                    const wmWidth = 160;
-                    const wmHeight = 40;
+                    if (uploadedFaceImage) {
+                        const faceW = canvas.width * 0.25;
+                        const faceH = (uploadedFaceImage.naturalHeight / uploadedFaceImage.naturalWidth) * faceW;
+                        const faceX = 15;
+                        const faceY = canvas.height - faceH - 15;
+
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.arc(faceX + faceW/2, faceY + faceH/2, faceW/2, 0, Math.PI * 2);
+                        ctx.closePath();
+                        ctx.clip();
+                        ctx.drawImage(uploadedFaceImage, faceX, faceY, faceW, faceH);
+                        ctx.restore();
+
+                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+                        ctx.beginPath();
+                        ctx.arc(faceX + faceW/2, faceY + faceH/2, faceW/2, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+
+                    // Filigrana fissa in basso a destra con testo personalizzato
+                    const wmText = document.getElementById('wmTextInput').value || "DARK GPT";
+                    const wmWidth = Math.max(140, wmText.length * 12);
+                    const wmHeight = 35;
                     const wmX = canvas.width - wmWidth - 10;
                     const wmY = canvas.height - wmHeight - 10;
 
                     ctx.fillStyle = "#070202";
                     ctx.fillRect(wmX, wmY, wmWidth, wmHeight);
-
-                    ctx.font = "bold 20px sans-serif";
+                    ctx.font = "bold 16px sans-serif";
                     ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-                    ctx.shadowColor = "#000000";
-                    ctx.shadowBlur = 4;
                     ctx.textAlign = "center";
-                    ctx.fillText("DARK GPT", wmX + wmWidth / 2, wmY + wmHeight / 2 + 7);
+                    ctx.fillText(wmText, wmX + wmWidth / 2, wmY + wmHeight / 2 + 5);
 
                     const brandedImageUrl = canvas.toDataURL('image/jpeg');
 
                     const newItem = {
-                        id: Date.now().toString(),
-                        type: 'image',
-                        title: promptText,
-                        imageContent: brandedImageUrl
+                        id: Date.now().toString(), type: 'image',
+                        title: promptText, imageContent: brandedImageUrl
                     };
 
-                    historyData.unshift(newItem);
-                    currentSessionId = newItem.id;
-                    saveHistory();
-                    selectSession(newItem.id);
-                    startCooldown();
-                    playSound('success');
+                    historyData.unshift(newItem); currentSessionId = newItem.id;
+                    saveHistory(); selectSession(newItem.id);
+                    startCooldown(); playSound('success');
 
                 } catch (err) {
-                    console.error("Errore filigrana:", err);
                     const newItem = {
-                        id: Date.now().toString(),
-                        type: 'image',
-                        title: promptText,
-                        imageContent: imageUrl
+                        id: Date.now().toString(), type: 'image',
+                        title: promptText, imageContent: imageUrl
                     };
-                    historyData.unshift(newItem);
-                    currentSessionId = newItem.id;
-                    saveHistory();
-                    selectSession(newItem.id);
-                    startCooldown();
-                    playSound('success');
+                    historyData.unshift(newItem); currentSessionId = newItem.id;
+                    saveHistory(); selectSession(newItem.id);
+                    startCooldown(); playSound('success');
                 }
             };
 
             img.onerror = () => {
                 area.innerHTML = `<div class="welcome-screen"><h1 style="color: #ff4444;">Errore di Connessione</h1><p>Impossibile contattare il server. Riprova.</p></div>`;
-                isCooldown = false;
-                document.getElementById('sendBtn').disabled = false;
+                isCooldown = false; document.getElementById('sendBtn').disabled = false;
             };
         }
 
@@ -1692,35 +1365,25 @@
             const promptText = input.value.trim();
             if (!promptText) return;
 
-            input.value = '';
-            input.style.height = 'auto';
+            input.value = ''; input.style.height = 'auto';
 
             let currentSession = historyData.find(s => s.id === currentSessionId && s.type === 'chat');
 
             if (!currentSession) {
-                currentSession = {
-                    id: Date.now().toString(),
-                    type: 'chat',
-                    title: promptText,
-                    messages: []
-                };
-                historyData.unshift(currentSession);
-                currentSessionId = currentSession.id;
+                currentSession = { id: Date.now().toString(), type: 'chat', title: promptText, messages: [] };
+                historyData.unshift(currentSession); currentSessionId = currentSession.id;
             }
 
             currentSession.messages.push({ role: 'user', text: promptText });
-            renderChatMessages(currentSession.messages);
-            saveHistory();
+            renderChatMessages(currentSession.messages); saveHistory();
             document.getElementById('exportBtn').style.display = 'flex';
 
             const area = document.getElementById('contentArea');
             const streamContainer = area.querySelector('.chat-stream');
             const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading-box';
-            loadingDiv.id = 'tempLoading';
+            loadingDiv.className = 'loading-box'; loadingDiv.id = 'tempLoading';
             loadingDiv.innerHTML = `<div class="loading-spinner"></div><div style="font-size:12px; color:var(--accent);">Dark GPT sta elaborando la risposta...</div>`;
-            streamContainer.appendChild(loadingDiv);
-            area.scrollTop = area.scrollHeight;
+            streamContainer.appendChild(loadingDiv); area.scrollTop = area.scrollHeight;
 
             const recentMessages = currentSession.messages.slice(-4);
             let contextTranscript = recentMessages.map(m => `${m.role === 'user' ? 'User' : 'DarkGPT'}: ${m.text}`).join(' | ');
@@ -1740,35 +1403,21 @@
                 if (tempLoad) tempLoad.remove();
 
                 currentSession.messages.push({ role: 'bot', text: answerText || "Nessuna risposta ricevuta." });
-                saveHistory();
-                renderSidebarHistory();
-                renderChatMessages(currentSession.messages);
-                startCooldown();
-                playSound('success');
+                saveHistory(); renderSidebarHistory(); renderChatMessages(currentSession.messages);
+                startCooldown(); playSound('success');
 
             } catch (err) {
-                console.error("Errore chat:", err);
                 const tempLoad = document.getElementById('tempLoading');
                 if (tempLoad) tempLoad.remove();
                 
                 currentSession.messages.push({ role: 'bot', text: "❌ Errore di connessione o server occupato. Riprova tra poco." });
                 renderChatMessages(currentSession.messages);
-                isCooldown = false;
-                document.getElementById('sendBtn').disabled = false;
+                isCooldown = false; document.getElementById('sendBtn').disabled = false;
             }
         }
 
-        function handleKey(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                handleSend();
-            }
-        }
-
-        function autoResize(textarea) {
-            textarea.style.height = 'auto';
-            textarea.style.height = textarea.scrollHeight + 'px';
-        }
+        function handleKey(event) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleSend(); } }
+        function autoResize(textarea) { textarea.style.height = 'auto'; textarea.style.height = textarea.scrollHeight + 'px'; }
 
         init();
     </script>
