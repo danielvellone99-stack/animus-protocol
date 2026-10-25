@@ -543,7 +543,7 @@
             gap: 6px;
         }
 
-        .copy-btn, .preview-btn, .download-btn {
+        .copy-btn, .preview-btn, .download-btn, .edit-btn {
             background: rgba(255, 34, 34, 0.15);
             border: 1px solid var(--border);
             color: var(--text-main);
@@ -555,7 +555,7 @@
             font-weight: bold;
         }
 
-        .copy-btn:hover, .preview-btn:hover, .download-btn:hover {
+        .copy-btn:hover, .preview-btn:hover, .download-btn:hover, .edit-btn:hover {
             background: var(--accent);
             color: #000;
             border-color: var(--accent);
@@ -616,6 +616,7 @@
             align-items: flex-end;
             padding: 10px 15px;
             border: 1px solid var(--border);
+            gap: 8px;
         }
 
         textarea {
@@ -631,24 +632,31 @@
             line-height: 1.4;
         }
 
-        .send-btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
+        .mic-btn, .send-btn {
+            background-color: rgba(255, 34, 34, 0.15);
+            color: var(--accent);
+            border: 1px solid var(--border);
+            width: 34px;
+            height: 34px;
             border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 10px;
-            transition: opacity 0.2s;
+            transition: all 0.2s;
             flex-shrink: 0;
         }
 
-        .send-btn:hover:not(:disabled) {
+        .send-btn {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+        }
+
+        .mic-btn:hover, .send-btn:hover:not(:disabled) {
             opacity: 0.9;
+            border-color: var(--accent);
+            background-color: rgba(255, 34, 34, 0.3);
         }
 
         .send-btn:disabled {
@@ -656,7 +664,7 @@
             cursor: not-allowed;
         }
 
-        .send-btn svg {
+        .mic-btn svg, .send-btn svg {
             width: 16px;
             height: 16px;
             fill: currentColor;
@@ -761,9 +769,7 @@
 
             <div class="admin-form-group" style="margin-top: 10px;">
                 <label>📋 Chiavi Attive Generate:</label>
-                <div class="keys-list" id="adminKeysList">
-                    <!-- Lista chiavi generate -->
-                </div>
+                <div class="keys-list" id="adminKeysList"></div>
             </div>
         </div>
     </div>
@@ -783,6 +789,9 @@
                 <div class="theme-dot" style="background: #00ccff;" onclick="changeTheme('blue')" title="Blu Elettrico"></div>
                 <div class="theme-dot" style="background: #cc00ff;" onclick="changeTheme('purple')" title="Viola Violento"></div>
             </div>
+            <button class="btn" onclick="toggleSound()" id="soundToggleBtn" style="font-size: 11px;">
+                🔊 Audio Cyberpunk: ATTIVO
+            </button>
             <div class="status-box" id="statusBox">
                 ⚡ Astra 1 Engine: Pronto
             </div>
@@ -818,6 +827,9 @@
 
         <div class="input-container">
             <div class="input-box">
+                <button class="mic-btn" id="micBtn" onclick="toggleSpeechRecognition()" title="Dettatura Vocale">
+                    <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+                </button>
                 <textarea id="userInput" placeholder="Descrivi l'immagine da creare..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
                 <button class="send-btn" id="sendBtn" onclick="handleSend()">
                     <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
@@ -826,6 +838,7 @@
         </div>
     </div>
 
+    <!-- Modale Anteprima Live -->
     <div id="previewModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -836,17 +849,120 @@
         </div>
     </div>
 
+    <!-- Modale Editor Codice In Tempo Reale -->
+    <div id="codeEditModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; height: 90vh;">
+            <div class="modal-header">
+                <span>✏️ Modifica Codice in Tempo Reale</span>
+                <div style="display: flex; gap: 10px;">
+                    <button class="copy-btn" onclick="applyEditedCode()" style="background: var(--accent); color: #000; font-weight: bold;">Salva & Anteprima</button>
+                    <button class="modal-close" onclick="closeCodeEditor()">✖ Chiudi</button>
+                </div>
+            </div>
+            <textarea id="codeEditorArea" style="flex: 1; background: #050505; color: #ffaaaa; font-family: monospace; padding: 15px; border: none; resize: none; outline: none; font-size: 13px; line-height: 1.5;"></textarea>
+        </div>
+    </div>
+
     <script>
-        const SITE_PASSWORD = "ASTRA2026"; // Password Master
-        const ADMIN_PASSWORD = "daniel2014"; // Password Admin
+        const SITE_PASSWORD = "ASTRA2026";
+        const ADMIN_PASSWORD = "daniel2014";
 
         let activeTimerInterval = null;
+        let soundEnabled = localStorage.getItem('dark_gpt_sound') !== 'false';
+
+        // Sintesi Audio Cyberpunk (Web Audio API)
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.05);
+                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.05);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                }
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('dark_gpt_sound', soundEnabled);
+            const btn = document.getElementById('soundToggleBtn');
+            btn.textContent = soundEnabled ? "🔊 Audio Cyberpunk: ATTIVO" : "🔇 Audio Cyberpunk: DISATTIVO";
+            playSound('click');
+        }
+
+        // Dettatura Vocale (Speech-to-Text)
+        let recognition = null;
+        let isRecording = false;
+
+        function toggleSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("La dettatura vocale non è supportata da questo browser.");
+                return;
+            }
+            if (isRecording) {
+                if (recognition) recognition.stop();
+                return;
+            }
+            recognition = new SpeechRecognition();
+            recognition.lang = 'it-IT';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                document.getElementById('micBtn').style.color = 'var(--accent)';
+                document.getElementById('micBtn').style.borderColor = 'var(--accent)';
+                playSound('click');
+            };
+
+            recognition.onresult = (event) => {
+                const speechText = event.results[0][0].transcript;
+                const input = document.getElementById('userInput');
+                input.value += (input.value ? ' ' : '') + speechText;
+                autoResize(input);
+                playSound('success');
+            };
+
+            recognition.onerror = () => { stopMic(); };
+            recognition.onend = () => { stopMic(); };
+
+            recognition.start();
+        }
+
+        function stopMic() {
+            isRecording = false;
+            const micBtn = document.getElementById('micBtn');
+            if (micBtn) {
+                micBtn.style.color = '';
+                micBtn.style.borderColor = '';
+            }
+        }
 
         // Gestione Click Segreti (5 click sul logo)
         let logoClickCount = 0;
         let lastLogoClickTime = 0;
 
         function handleLogoSecretClick() {
+            playSound('click');
             let now = Date.now();
             if (now - lastLogoClickTime > 2000) {
                 logoClickCount = 1;
@@ -860,10 +976,12 @@
                 document.getElementById('adminLoginModal').style.display = 'flex';
                 document.getElementById('adminPasswordInput').value = '';
                 document.getElementById('adminPasswordInput').focus();
+                playSound('success');
             }
         }
 
         function closeAdminLogin() {
+            playSound('click');
             document.getElementById('adminLoginModal').style.display = 'none';
         }
 
@@ -875,10 +993,12 @@
             let pass = document.getElementById('adminPasswordInput').value.trim();
             let err = document.getElementById('adminLoginError');
             if (pass === ADMIN_PASSWORD) {
+                playSound('success');
                 document.getElementById('adminLoginModal').style.display = 'none';
                 err.style.display = 'none';
                 openAdminDashboard();
             } else {
+                playSound('click');
                 err.style.display = 'block';
             }
         }
@@ -889,13 +1009,15 @@
         }
 
         function closeAdminDashboard() {
+            playSound('click');
             document.getElementById('adminDashboardModal').style.display = 'none';
         }
 
-        // Generatore di chiavi con codifica integrata (Funziona su tutti i dispositivi)
+        // Generatore di chiavi
         function generateNewKey() {
+            playSound('success');
             let durationSec = parseInt(document.getElementById('keyDuration').value);
-            let deviceMode = document.getElementById('keyDeviceMode').value; // 'single' o 'unlimited'
+            let deviceMode = document.getElementById('keyDeviceMode').value;
             
             let modeCode = deviceMode === 'single' ? 'S' : 'U';
             let randomCode = `ASTRA-${modeCode}-${durationSec}-` + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
@@ -945,8 +1067,8 @@
                         <span style="font-size:10px; color:var(--text-secondary);">Stato: ${timeStr} | Modo: ${k.deviceMode}</span>
                     </div>
                     <div style="display:flex; gap:5px;">
-                        <button class="copy-btn" onclick="navigator.clipboard.writeText('${k.key}')">Copia</button>
-                        <button class="copy-btn" style="background:rgba(255,0,0,0.2);" onclick="deleteKey(${index})">Elimina</button>
+                        <button class="copy-btn" onclick="playSound('click'); navigator.clipboard.writeText('${k.key}')">Copia</button>
+                        <button class="copy-btn" style="background:rgba(255,0,0,0.2);" onclick="playSound('click'); deleteKey(${index})">Elimina</button>
                     </div>
                 `;
                 listEl.appendChild(div);
@@ -1003,7 +1125,6 @@
             activeTimerInterval = setInterval(updateTimer, 1000);
         }
 
-        // Verifica Password o Chiave d'accesso (Supporta chiavi universali e test 30s)
         function checkGateKey(event) {
             if (event.key === 'Enter') verifyPassword();
         }
@@ -1012,8 +1133,8 @@
             const input = document.getElementById('gatePassword').value.trim();
             const error = document.getElementById('gateError');
             
-            // 1. Controllo Master Password
             if (input === SITE_PASSWORD) {
+                playSound('success');
                 sessionStorage.setItem('dark_gpt_authenticated', 'true');
                 sessionStorage.setItem('dark_gpt_active_key_expiry', 'unlimited');
                 document.getElementById('passwordGate').style.display = 'none';
@@ -1021,10 +1142,9 @@
                 return;
             }
 
-            // 2. Controllo formato chiave generata (es. ASTRA-U-30-XXXX-XXXX oppure ASTRA-S-3600-XXXX-XXXX)
             const parts = input.split('-');
             if (parts.length >= 5 && parts[0] === 'ASTRA' && (parts[1] === 'U' || parts[1] === 'S')) {
-                let mode = parts[1]; // 'U' = Illimitati, 'S' = Single Device
+                let mode = parts[1];
                 let durationSec = parseInt(parts[2]);
                 let now = Date.now();
 
@@ -1038,25 +1158,18 @@
                 let activation = activations[input];
 
                 if (mode === 'U') {
-                    // Modalità Illimitata: Funziona su tutti i dispositivi, il timer parte alla prima attivazione
                     if (!activation) {
-                        activation = {
-                            expiresAt: now + (durationSec * 1000),
-                            boundDeviceId: null
-                        };
+                        activation = { expiresAt: now + (durationSec * 1000), boundDeviceId: null };
                         activations[input] = activation;
                         localStorage.setItem('dark_gpt_activations', JSON.stringify(activations));
                     }
                 } else if (mode === 'S') {
-                    // Modalità Dispositivo Singolo
                     if (!activation) {
-                        activation = {
-                            expiresAt: now + (durationSec * 1000),
-                            boundDeviceId: deviceId
-                        };
+                        activation = { expiresAt: now + (durationSec * 1000), boundDeviceId: deviceId };
                         activations[input] = activation;
                         localStorage.setItem('dark_gpt_activations', JSON.stringify(activations));
                     } else if (activation.boundDeviceId !== deviceId) {
+                        playSound('click');
                         error.textContent = "❌ Chiave già attivata su un altro dispositivo!";
                         error.style.display = 'block';
                         return;
@@ -1064,17 +1177,19 @@
                 }
 
                 if (now > activation.expiresAt) {
+                    playSound('click');
                     error.textContent = "❌ Questa chiave è scaduta!";
                     error.style.display = 'block';
                     return;
                 }
 
+                playSound('success');
                 sessionStorage.setItem('dark_gpt_authenticated', 'true');
                 sessionStorage.setItem('dark_gpt_active_key_expiry', activation.expiresAt.toString());
                 document.getElementById('passwordGate').style.display = 'none';
                 startLiveKeyTimer(activation.expiresAt);
-                return;
             } else {
+                playSound('click');
                 error.style.display = 'block';
                 error.textContent = "❌ Password o chiave non valida!";
                 document.getElementById('gatePassword').value = '';
@@ -1131,6 +1246,7 @@
         };
 
         function changeTheme(themeName) {
+            playSound('click');
             const t = themes[themeName] || themes.red;
             document.documentElement.style.setProperty('--accent', t.accent);
             document.documentElement.style.setProperty('--bg-main', t.bgMain);
@@ -1141,6 +1257,8 @@
         function initTheme() {
             const savedTheme = localStorage.getItem('dark_gpt_theme') || 'red';
             changeTheme(savedTheme);
+            const btn = document.getElementById('soundToggleBtn');
+            btn.textContent = soundEnabled ? "🔊 Audio Cyberpunk: ATTIVO" : "🔇 Audio Cyberpunk: DISATTIVO";
         }
 
         function applyLogos() {
@@ -1158,6 +1276,7 @@
 
         function setMode(mode) {
             if (isCooldown) return;
+            playSound('click');
             currentMode = mode;
             document.getElementById('modeImageBtn').className = `mode-btn ${mode === 'image' ? 'active' : ''}`;
             document.getElementById('modeChatBtn').className = `mode-btn ${mode === 'chat' ? 'active' : ''}`;
@@ -1200,6 +1319,7 @@
 
         function startNewSession() {
             if (isCooldown) return;
+            playSound('click');
             currentSessionId = null;
             saveHistory();
             renderSidebarHistory();
@@ -1236,6 +1356,7 @@
         }
 
         function selectSession(id) {
+            playSound('click');
             currentSessionId = id;
             saveHistory();
             renderSidebarHistory();
@@ -1285,9 +1406,10 @@
                     <div class="code-header">
                         <span class="lang-tag">⚡ ${lang}</span>
                         <div class="code-actions">
-                            ${isWebCode ? `<button class="preview-btn" onclick="previewCode(this)">▶️ Anteprima Live</button>` : ''}
-                            <button class="download-btn" onclick="downloadCode(this, '${ext}')">📥 Scarica .${ext}</button>
-                            <button class="copy-btn" onclick="copyCode(this)">📋 Copia Codice</button>
+                            ${isWebCode ? `<button class="preview-btn" onclick="playSound('click'); previewCode(this)">▶️ Anteprima Live</button>` : ''}
+                            ${isWebCode ? `<button class="edit-btn" onclick="playSound('click'); openCodeEditor(this)">✏️ Modifica</button>` : ''}
+                            <button class="download-btn" onclick="playSound('click'); downloadCode(this, '${ext}')">📥 Scarica .${ext}</button>
+                            <button class="copy-btn" onclick="playSound('click'); copyCode(this)">📋 Copia</button>
                         </div>
                     </div>
                     <pre><code>${escapeHtml(codeText)}</code></pre>
@@ -1296,6 +1418,38 @@
             });
 
             return div.innerHTML;
+        }
+
+        // Gestione Editor di Codice Live
+        let activeEditingBlock = null;
+        function openCodeEditor(btn) {
+            const wrapper = btn.closest('.code-block-wrapper');
+            activeEditingBlock = wrapper.querySelector('code');
+            document.getElementById('codeEditorArea').value = activeEditingBlock.innerText;
+            document.getElementById('codeEditModal').style.display = 'flex';
+        }
+
+        function closeCodeEditor() {
+            playSound('click');
+            document.getElementById('codeEditModal').style.display = 'none';
+            activeEditingBlock = null;
+        }
+
+        function applyEditedCode() {
+            if (!activeEditingBlock) return;
+            const newText = document.getElementById('codeEditorArea').value;
+            activeEditingBlock.innerText = newText;
+            
+            const modal = document.getElementById('previewModal');
+            const frame = document.getElementById('previewFrame');
+            modal.style.display = 'flex';
+            const doc = frame.contentDocument || frame.contentWindow.document;
+            doc.open();
+            doc.write(newText);
+            doc.close();
+
+            closeCodeEditor();
+            playSound('success');
         }
 
         function getExtensionByLang(lang) {
@@ -1318,7 +1472,7 @@
             const codeText = wrapper.querySelector('code').innerText;
             navigator.clipboard.writeText(codeText).then(() => {
                 btn.textContent = "Copiato!";
-                setTimeout(() => btn.textContent = "📋 Copia Codice", 2000);
+                setTimeout(() => btn.textContent = "📋 Copia", 2000);
             });
         }
 
@@ -1348,6 +1502,7 @@
         }
 
         function closePreview() {
+            playSound('click');
             document.getElementById('previewModal').style.display = 'none';
             const frame = document.getElementById('previewFrame');
             const doc = frame.contentDocument || frame.contentWindow.document;
@@ -1355,6 +1510,7 @@
         }
 
         function exportCurrentChat() {
+            playSound('click');
             const session = historyData.find(s => s.id === currentSessionId);
             if (!session || !session.messages) return;
 
@@ -1434,6 +1590,7 @@
 
         function handleSend() {
             if (isCooldown) return;
+            playSound('click');
             if (currentMode === 'image') {
                 generateImage();
             } else {
@@ -1453,7 +1610,7 @@
             area.innerHTML = `
                 <div class="loading-box">
                     <div class="loading-spinner"></div>
-                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizando l'immagine...</div>
+                    <div class="prompt-title" style="color: var(--accent);">Astra 1 sta sintetizzando l'immagine...</div>
                     <div style="font-size: 12px; color: var(--text-secondary);">Elaborazione in corso, attendi...</div>
                 </div>
             `;
@@ -1504,6 +1661,7 @@
                     saveHistory();
                     selectSession(newItem.id);
                     startCooldown();
+                    playSound('success');
 
                 } catch (err) {
                     console.error("Errore filigrana:", err);
@@ -1518,6 +1676,7 @@
                     saveHistory();
                     selectSession(newItem.id);
                     startCooldown();
+                    playSound('success');
                 }
             };
 
@@ -1585,6 +1744,7 @@
                 renderSidebarHistory();
                 renderChatMessages(currentSession.messages);
                 startCooldown();
+                playSound('success');
 
             } catch (err) {
                 console.error("Errore chat:", err);
